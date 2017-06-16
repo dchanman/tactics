@@ -4,6 +4,7 @@ package game
 type unit struct {
 	name   string
 	class  string
+	team   string
 	hp     int8
 	atk    int8
 	def    int8

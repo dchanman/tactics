@@ -78,5 +78,170 @@ func TestGetSetOutOfBounds(t *testing.T) {
 	if tu.exists {
 		t.Error("Unexpected unit")
 	}
+}
 
+func TestGetValidMovesNil(t *testing.T) {
+	b := newBoard(5, 5)
+	moves := b.getValidMoves(2, 2)
+	if len(moves) != 0 {
+		t.Error("Unexpected valid moves ", moves)
+	}
+}
+func TestGetValidMoves0(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 0}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	if len(moves) != 0 {
+		t.Error("Unexpected valid moves ", moves)
+	}
+}
+func TestGetValidMoves1(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 1}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	verify := make(map[square]bool, len(moves))
+	for i := range moves {
+		verify[moves[i]] = true
+	}
+	if len(moves) != 4 ||
+		!verify[square{3, 2}] ||
+		!verify[square{1, 2}] ||
+		!verify[square{2, 1}] ||
+		!verify[square{2, 3}] {
+		t.Error("Unexpected valid moves ", moves, verify)
+	}
+}
+func TestGetValidMoves2(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 2}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	verify := make(map[square]bool, len(moves))
+	for i := range moves {
+		verify[moves[i]] = true
+	}
+	if len(moves) != 12 ||
+		!verify[square{4, 2}] ||
+		!verify[square{3, 1}] ||
+		!verify[square{3, 2}] ||
+		!verify[square{3, 3}] ||
+		!verify[square{2, 0}] ||
+		!verify[square{2, 1}] ||
+		!verify[square{2, 3}] ||
+		!verify[square{2, 4}] ||
+		!verify[square{1, 1}] ||
+		!verify[square{1, 2}] ||
+		!verify[square{1, 3}] ||
+		!verify[square{0, 2}] {
+		t.Error("Unexpected valid moves ", moves, verify)
+	}
+}
+func TestGetValidMoves3(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 3}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	verify := make(map[square]bool, len(moves))
+	for i := range moves {
+		verify[moves[i]] = true
+	}
+	if len(moves) != 20 ||
+		!verify[square{4, 1}] ||
+		!verify[square{4, 2}] ||
+		!verify[square{4, 3}] ||
+		!verify[square{3, 0}] ||
+		!verify[square{3, 1}] ||
+		!verify[square{3, 2}] ||
+		!verify[square{3, 3}] ||
+		!verify[square{3, 4}] ||
+		!verify[square{2, 0}] ||
+		!verify[square{2, 1}] ||
+		!verify[square{2, 3}] ||
+		!verify[square{2, 4}] ||
+		!verify[square{1, 0}] ||
+		!verify[square{1, 1}] ||
+		!verify[square{1, 2}] ||
+		!verify[square{1, 3}] ||
+		!verify[square{1, 4}] ||
+		!verify[square{0, 1}] ||
+		!verify[square{0, 2}] ||
+		!verify[square{0, 3}] {
+		t.Error("Unexpected valid moves ", moves, verify)
+	}
+}
+func TestGetValidMoves4(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 4}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	verify := make(map[square]bool, len(moves))
+	for i := range moves {
+		verify[moves[i]] = true
+	}
+	if len(moves) != 24 ||
+		!verify[square{4, 0}] ||
+		!verify[square{4, 1}] ||
+		!verify[square{4, 2}] ||
+		!verify[square{4, 3}] ||
+		!verify[square{4, 4}] ||
+		!verify[square{3, 0}] ||
+		!verify[square{3, 1}] ||
+		!verify[square{3, 2}] ||
+		!verify[square{3, 3}] ||
+		!verify[square{3, 4}] ||
+		!verify[square{2, 0}] ||
+		!verify[square{2, 1}] ||
+		!verify[square{2, 3}] ||
+		!verify[square{2, 4}] ||
+		!verify[square{1, 0}] ||
+		!verify[square{1, 1}] ||
+		!verify[square{1, 2}] ||
+		!verify[square{1, 3}] ||
+		!verify[square{1, 4}] ||
+		!verify[square{0, 0}] ||
+		!verify[square{0, 1}] ||
+		!verify[square{0, 2}] ||
+		!verify[square{0, 3}] ||
+		!verify[square{0, 4}] {
+		t.Error("Unexpected valid moves ", moves, verify)
+	}
+}
+func TestGetValidMoves127(t *testing.T) {
+	b := newBoard(5, 5)
+	u := unit{mov: 127}
+	b.set(2, 2, u)
+	moves := b.getValidMoves(2, 2)
+	verify := make(map[square]bool, len(moves))
+	for i := range moves {
+		verify[moves[i]] = true
+	}
+	if len(moves) != 24 ||
+		!verify[square{4, 0}] ||
+		!verify[square{4, 1}] ||
+		!verify[square{4, 2}] ||
+		!verify[square{4, 3}] ||
+		!verify[square{4, 4}] ||
+		!verify[square{3, 0}] ||
+		!verify[square{3, 1}] ||
+		!verify[square{3, 2}] ||
+		!verify[square{3, 3}] ||
+		!verify[square{3, 4}] ||
+		!verify[square{2, 0}] ||
+		!verify[square{2, 1}] ||
+		!verify[square{2, 3}] ||
+		!verify[square{2, 4}] ||
+		!verify[square{1, 0}] ||
+		!verify[square{1, 1}] ||
+		!verify[square{1, 2}] ||
+		!verify[square{1, 3}] ||
+		!verify[square{1, 4}] ||
+		!verify[square{0, 0}] ||
+		!verify[square{0, 1}] ||
+		!verify[square{0, 2}] ||
+		!verify[square{0, 3}] ||
+		!verify[square{0, 4}] {
+		t.Error("Unexpected valid moves ", moves, verify)
+	}
 }
