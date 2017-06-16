@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	log = logrus.WithField("app", "tactics")
+	log = logrus.WithField("pkg", "tactics")
 )
 
 func main() {
