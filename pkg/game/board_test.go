@@ -168,7 +168,7 @@ func TestGetValidMoves3(t *testing.T) {
 		!verify[square{0, 1}] ||
 		!verify[square{0, 2}] ||
 		!verify[square{0, 3}] {
-		t.Error("Unexpected valid moves ", moves, verify)
+		t.Error("Unexpected valid moves ", len(moves), moves)
 	}
 }
 func TestGetValidMoves4(t *testing.T) {

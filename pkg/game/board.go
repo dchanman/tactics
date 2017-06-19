@@ -18,6 +18,19 @@ type moveSearch struct {
 	movRemainder int8
 }
 
+func (s *square) up() square {
+	return square{s.x, s.y - 1}
+}
+func (s *square) down() square {
+	return square{s.x, s.y + 1}
+}
+func (s *square) left() square {
+	return square{s.x - 1, s.y}
+}
+func (s *square) right() square {
+	return square{s.x + 1, s.y}
+}
+
 func newBoard(cols int, rows int) board {
 	b := board{
 		board: make([]unit, cols*rows),
@@ -55,30 +68,40 @@ func (b *board) set(x int, y int, u unit) {
 }
 
 func (b *board) getValidMoves(x int, y int) []square {
-	moves := make([]square, 0)
-	visited := make(map[square]bool)
-	tovisit := make([]moveSearch, 0)
-	i := 0
 	u := b.get(x, y)
-	tovisit = append(tovisit, moveSearch{square{x, y}, u.mov})
-
-	for i < len(tovisit) {
-		sq := tovisit[i].square
-		if !visited[sq] && b.isValid(sq.x, sq.y) && tovisit[i].movRemainder >= 0 {
-			visited[tovisit[i].square] = true
-			rem := tovisit[i].movRemainder - 1
-			moves = append(moves, tovisit[i].square)
-			// Add right move
-			tovisit = append(tovisit, moveSearch{square{sq.x + 1, sq.y}, rem})
-			// Add left move
-			tovisit = append(tovisit, moveSearch{square{sq.x - 1, sq.y}, rem})
-			// Add up move
-			tovisit = append(tovisit, moveSearch{square{sq.x, sq.y - 1}, rem})
-			// Add down move
-			tovisit = append(tovisit, moveSearch{square{sq.x, sq.y + 1}, rem})
-		}
-		i++
+	if u.mov == 0 {
+		return make([]square, 0)
 	}
-
+	queue := make([][]square, 0)
+	for i := 0; i <= int(u.mov); i++ {
+		queue = append(queue, make([]square, 0))
+	}
+	queue[0] = append(queue[0], square{x, y})
+	visited := make(map[square]bool)
+	moves := make([]square, 0)
+	for i := 0; i < len(queue); i++ {
+		for j := 0; j < len(queue[i]); j++ {
+			curr := queue[i][j]
+			if visited[curr] || !b.isValid(curr.x, curr.y) {
+				continue
+			}
+			visited[curr] = true
+			moves = append(moves, curr)
+			if i+1 < len(queue) {
+				if !visited[curr.left()] {
+					queue[i+1] = append(queue[i+1], curr.left())
+				}
+				if !visited[curr.right()] {
+					queue[i+1] = append(queue[i+1], curr.right())
+				}
+				if !visited[curr.up()] {
+					queue[i+1] = append(queue[i+1], curr.up())
+				}
+				if !visited[curr.down()] {
+					queue[i+1] = append(queue[i+1], curr.down())
+				}
+			}
+		}
+	}
 	return moves[1:]
 }
