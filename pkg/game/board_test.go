@@ -3,7 +3,7 @@ package game
 import "testing"
 
 func TestGetSet(t *testing.T) {
-	b := newBoard(3, 4)
+	b := NewBoard(3, 4)
 	u := unit{Name: "test", Exists: true}
 	tu := b.get(0, 0)
 	if tu.Exists {
@@ -27,7 +27,7 @@ func TestGetSet(t *testing.T) {
 }
 
 func TestGetSetOutOfBounds(t *testing.T) {
-	b := newBoard(3, 4)
+	b := NewBoard(3, 4)
 	u := unit{Name: "test", Exists: true}
 	tu := b.get(3, 4)
 	if tu.Exists {
@@ -81,14 +81,14 @@ func TestGetSetOutOfBounds(t *testing.T) {
 }
 
 func TestGetValidMovesNil(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	moves := b.getValidMoves(2, 2)
 	if len(moves) != 0 {
 		t.Error("Unexpected valid moves ", moves)
 	}
 }
 func TestGetValidMoves0(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 0}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -97,7 +97,7 @@ func TestGetValidMoves0(t *testing.T) {
 	}
 }
 func TestGetValidMoves1(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 1}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -114,7 +114,7 @@ func TestGetValidMoves1(t *testing.T) {
 	}
 }
 func TestGetValidMoves2(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 2}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -139,7 +139,7 @@ func TestGetValidMoves2(t *testing.T) {
 	}
 }
 func TestGetValidMoves3(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 3}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -172,7 +172,7 @@ func TestGetValidMoves3(t *testing.T) {
 	}
 }
 func TestGetValidMoves4(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 4}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -209,7 +209,7 @@ func TestGetValidMoves4(t *testing.T) {
 	}
 }
 func TestGetValidMoves127(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u := unit{Exists: true, Mov: 127}
 	b.set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
@@ -246,7 +246,7 @@ func TestGetValidMoves127(t *testing.T) {
 	}
 }
 func TestGetValidMovesEnemyPieces(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u1 := unit{Exists: true, Team: "a", Mov: 2}
 	u2 := unit{Exists: true, Team: "b"}
 	u3 := unit{Exists: true, Team: "a"}
@@ -272,7 +272,7 @@ func TestGetValidMovesEnemyPieces(t *testing.T) {
 	}
 }
 func TestToJSON(t *testing.T) {
-	b := newBoard(5, 5)
+	b := NewBoard(5, 5)
 	u1 := unit{Exists: true, Team: "a", Mov: 2}
 	u2 := unit{Exists: true, Team: "b"}
 	u3 := unit{Exists: true, Team: "a"}

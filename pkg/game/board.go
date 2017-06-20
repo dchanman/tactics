@@ -35,7 +35,7 @@ func (s *square) right() square {
 	return square{s.x + 1, s.y}
 }
 
-func newBoard(cols int, rows int) board {
+func NewBoard(cols int, rows int) board {
 	b := board{
 		Board: make([]unit, cols*rows),
 		Cols:  cols,
