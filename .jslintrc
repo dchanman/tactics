@@ -1,0 +1,6 @@
+{
+    "predef": [
+        "module", "console", "document", "window",
+        "Board"
+    ]
+}
