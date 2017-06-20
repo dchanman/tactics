@@ -86,7 +86,13 @@ func (b *board) getValidMoves(x int, y int) []square {
 				continue
 			}
 			visited[curr] = true
-			moves = append(moves, curr)
+			o := b.get(curr.x, curr.y)
+			if !o.exists {
+				moves = append(moves, curr)
+			} else if o.team != u.team {
+				// Enemy pieces "block" movement
+				continue
+			}
 			if i+1 < len(queue) {
 				if !visited[curr.left()] {
 					queue[i+1] = append(queue[i+1], curr.left())
@@ -103,5 +109,5 @@ func (b *board) getValidMoves(x int, y int) []square {
 			}
 		}
 	}
-	return moves[1:]
+	return moves
 }
