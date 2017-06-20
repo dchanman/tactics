@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"tactics/pkg/game"
+
+	"github.com/dchanman/tactics/pkg/game"
 
 	"github.com/sirupsen/logrus"
 )
