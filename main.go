@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dchanman/tactics/pkg/game"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,7 +21,7 @@ func main() {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
 
-	g := game.NewGame()
+	g := NewGame()
 
 	log.Println("Hello World")
 	http.Handle("/", http.FileServer(http.Dir("./public")))
@@ -31,7 +29,7 @@ func main() {
 	log.Info(http.ListenAndServe(":"+port, nil))
 }
 
-func handlerWrapper(g game.Game) http.Handler {
+func handlerWrapper(g Game) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, g.GetStateJSON())
 	})

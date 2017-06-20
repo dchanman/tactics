@@ -1,4 +1,4 @@
-package game
+package main
 
 // unit is a basic unit in the game
 type unit struct {

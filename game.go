@@ -1,10 +1,4 @@
-package game
-
-import "github.com/sirupsen/logrus"
-
-var (
-	log = logrus.WithField("pkg", "game")
-)
+package main
 
 // Game is the main game engine
 type Game struct {
