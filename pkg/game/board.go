@@ -1,6 +1,10 @@
 package game
 
-import "github.com/sirupsen/logrus"
+import (
+	"encoding/json"
+
+	"github.com/sirupsen/logrus"
+)
 
 type square struct {
 	x int
@@ -8,9 +12,9 @@ type square struct {
 }
 
 type board struct {
-	board []unit
-	cols  int
-	rows  int
+	Board []unit
+	Cols  int
+	Rows  int
 }
 
 type moveSearch struct {
@@ -33,14 +37,14 @@ func (s *square) right() square {
 
 func newBoard(cols int, rows int) board {
 	b := board{
-		board: make([]unit, cols*rows),
-		cols:  cols,
-		rows:  rows}
+		Board: make([]unit, cols*rows),
+		Cols:  cols,
+		Rows:  rows}
 	return b
 }
 
 func (b *board) isValid(x int, y int) bool {
-	return (x >= 0 && y >= 0 && x < b.cols && y < b.rows)
+	return (x >= 0 && y >= 0 && x < b.Cols && y < b.Rows)
 }
 
 func (b *board) get(x int, y int) unit {
@@ -48,11 +52,11 @@ func (b *board) get(x int, y int) unit {
 		log.WithFields(logrus.Fields{
 			"x":    x,
 			"y":    y,
-			"cols": b.cols,
-			"rows": b.rows}).Error("Index out of bounds")
-		return unit{exists: false}
+			"Cols": b.Cols,
+			"Rows": b.Rows}).Error("Index out of bounds")
+		return unit{Exists: false}
 	}
-	return b.board[x*b.cols+y]
+	return b.Board[x*b.Cols+y]
 }
 
 func (b *board) set(x int, y int, u unit) {
@@ -60,20 +64,20 @@ func (b *board) set(x int, y int, u unit) {
 		log.WithFields(logrus.Fields{
 			"x":    x,
 			"y":    y,
-			"cols": b.cols,
-			"rows": b.rows}).Error("Index out of bounds")
+			"Cols": b.Cols,
+			"Rows": b.Rows}).Error("Index out of bounds")
 		return
 	}
-	b.board[x*b.cols+y] = u
+	b.Board[x*b.Cols+y] = u
 }
 
 func (b *board) getValidMoves(x int, y int) []square {
 	u := b.get(x, y)
-	if u.mov == 0 {
+	if u.Mov == 0 {
 		return make([]square, 0)
 	}
 	queue := make([][]square, 0)
-	for i := 0; i <= int(u.mov); i++ {
+	for i := 0; i <= int(u.Mov); i++ {
 		queue = append(queue, make([]square, 0))
 	}
 	queue[0] = append(queue[0], square{x, y})
@@ -87,9 +91,9 @@ func (b *board) getValidMoves(x int, y int) []square {
 			}
 			visited[curr] = true
 			o := b.get(curr.x, curr.y)
-			if !o.exists {
+			if !o.Exists {
 				moves = append(moves, curr)
-			} else if o.team != u.team {
+			} else if o.Team != u.Team {
 				// Enemy pieces "block" movement
 				continue
 			}
@@ -110,4 +114,10 @@ func (b *board) getValidMoves(x int, y int) []square {
 		}
 	}
 	return moves
+}
+
+func (b *board) ToJSON() string {
+	marshalled, _ := json.Marshal(b)
+	log.Info(string(marshalled))
+	return string(marshalled)
 }
