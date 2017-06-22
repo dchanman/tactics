@@ -1,0 +1,10 @@
+.grid {
+    background-color: black;
+}
+.grid-square {
+    height: 50px;
+    width: 50px;
+    margin: 2px;
+    padding: 2px;
+    background-color: grey;
+}
