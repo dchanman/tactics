@@ -1,6 +1,6 @@
 {
     "predef": [
-        "module", "console", "document", "window",
-        "Board"
+        "module", "console", "document", "window", "XMLHttpRequest",
+        "Board", "Main"
     ]
 }
