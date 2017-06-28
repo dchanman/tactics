@@ -2,7 +2,12 @@ window.Main = (function () {
     "use strict";
     console.log("Hello World!");
     var Main = function () {
+        var uri = (window.location.protocol === "https:") ? "wss://" : "ws://";
         this.board = new Board(document.getElementById("game"));
+        this.ws = new WebSocket(uri + window.location.host + "/ws");
+        this.ws.onopen = function () {
+            this.send("Hello");
+        };
     };
     Main.prototype.refresh = function () {
         var xmlHttp = new XMLHttpRequest(),
