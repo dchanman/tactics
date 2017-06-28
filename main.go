@@ -22,6 +22,7 @@ func main() {
 	}
 
 	g := NewGame()
+	g.b.set(3, 4, unit{Name: "hi", Exists: true})
 
 	log.Println("Hello World")
 	http.Handle("/", http.FileServer(http.Dir("./public")))

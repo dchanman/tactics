@@ -6,5 +6,11 @@
     width: 50px;
     margin: 2px;
     padding: 2px;
-    background-color: grey;
+    background-color: lightgrey;
+}
+.grid-square:hover {
+    background-color: darkgrey;
+}
+.grid-square-container {
+    text-align: center;
 }
