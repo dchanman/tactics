@@ -71,6 +71,9 @@ func websocketWrapper(g Game) http.Handler {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Error(err)
+			w.WriteHeader(http.StatusUpgradeRequired)
+			w.Write([]byte("Websocket handshake expected."))
+			return
 		}
 		client := Client{conn: conn}
 		go client.readPump()
