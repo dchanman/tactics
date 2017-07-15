@@ -6,7 +6,17 @@ window.Main = (function () {
         this.board = new Board(document.getElementById("game"));
         this.ws = new WebSocket(uri + window.location.host + "/ws");
         this.ws.onopen = function () {
-            this.send("Hello");
+            this.send('{"id": 1, "method": "TacticsApi.Hello", "params": []}');
+        };
+        this.ws.onmessage = function (event) {
+            console.log("\nReceived new message!!!");
+            console.log(event);
+        };
+        this.ws.onclose = function () {
+            console.log("Websocket closed");
+        };
+        this.ws.onerror = function (err) {
+            console.log("Error: " + err);
         };
     };
     Main.prototype.refresh = function () {
