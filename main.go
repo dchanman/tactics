@@ -45,6 +45,6 @@ func websocketWrapper() http.Handler {
 			w.Write([]byte("Websocket handshake expected."))
 			return
 		}
-		mainserver.registerNewClient(conn)
+		mainserver.RegisterNewClient(conn)
 	})
 }
