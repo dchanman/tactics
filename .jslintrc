@@ -1,6 +1,7 @@
 {
     "predef": [
-        "module", "console", "document", "window", "XMLHttpRequest", "$", "WebSocket",
-        "Board", "Main"
-    ]
+        "module", "console", "document", "window", "XMLHttpRequest", "$", "WebSocket", "Promise",
+        "Board", "Main", "Api"
+    ],
+    "es5": true
 }
