@@ -34,7 +34,7 @@ func (s *Server) nextID() uint64 {
 // RegisterNewClient registers a new websocket connection with the server
 func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 	c := Client{conn: conn}
-	api := TacticsApi{id: s.nextID(), game: s.Game}
+	api := TacticsApi{id: s.nextID(), game: &s.Game}
 	rpcserver := rpc.NewServer()
 	rpcserver.Register(&api)
 	go func() {

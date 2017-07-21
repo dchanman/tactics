@@ -20,9 +20,7 @@ window.Board = (function () {
         this.htmlTable = htmlTable;
         this.grid = [];
     }
-    Board.prototype.render = function (json) {
-        var board = JSON.parse(json);
-        console.log(board);
+    Board.prototype.render = function (board) {
         if (board.Board.length !== (board.Cols * board.Rows)) {
             throw ("Invalid board data");
         }
