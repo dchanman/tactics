@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"encoding/json"
@@ -11,8 +11,8 @@ type square struct {
 	y int
 }
 
-type board struct {
-	Board []unit
+type Board struct {
+	Board []Unit
 	Cols  int
 	Rows  int
 }
@@ -35,31 +35,31 @@ func (s *square) right() square {
 	return square{s.x + 1, s.y}
 }
 
-func NewBoard(cols int, rows int) board {
-	b := board{
-		Board: make([]unit, cols*rows),
+func NewBoard(cols int, rows int) Board {
+	b := Board{
+		Board: make([]Unit, cols*rows),
 		Cols:  cols,
 		Rows:  rows}
 	return b
 }
 
-func (b *board) isValid(x int, y int) bool {
+func (b *Board) isValid(x int, y int) bool {
 	return (x >= 0 && y >= 0 && x < b.Cols && y < b.Rows)
 }
 
-func (b *board) get(x int, y int) unit {
+func (b *Board) Get(x int, y int) Unit {
 	if !b.isValid(x, y) {
 		log.WithFields(logrus.Fields{
 			"x":    x,
 			"y":    y,
 			"Cols": b.Cols,
 			"Rows": b.Rows}).Error("Index out of bounds")
-		return unit{Exists: false}
+		return Unit{Exists: false}
 	}
 	return b.Board[x*b.Cols+y]
 }
 
-func (b *board) set(x int, y int, u unit) {
+func (b *Board) Set(x int, y int, u Unit) {
 	if !b.isValid(x, y) {
 		log.WithFields(logrus.Fields{
 			"x":    x,
@@ -71,8 +71,8 @@ func (b *board) set(x int, y int, u unit) {
 	b.Board[x*b.Cols+y] = u
 }
 
-func (b *board) getValidMoves(x int, y int) []square {
-	u := b.get(x, y)
+func (b *Board) getValidMoves(x int, y int) []square {
+	u := b.Get(x, y)
 	if u.Mov == 0 {
 		return make([]square, 0)
 	}
@@ -90,7 +90,7 @@ func (b *board) getValidMoves(x int, y int) []square {
 				continue
 			}
 			visited[curr] = true
-			o := b.get(curr.x, curr.y)
+			o := b.Get(curr.x, curr.y)
 			if !o.Exists {
 				moves = append(moves, curr)
 			} else if o.Team != u.Team {
@@ -116,7 +116,7 @@ func (b *board) getValidMoves(x int, y int) []square {
 	return moves
 }
 
-func (b *board) ToJSON() string {
+func (b *Board) ToJSON() string {
 	marshalled, _ := json.Marshal(b)
 	log.Info(string(marshalled))
 	return string(marshalled)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/dchanman/tactics/src/server"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -11,7 +12,7 @@ import (
 var (
 	log        = logrus.WithField("pkg", "tactics")
 	upgrader   = websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
-	mainserver = NewServer()
+	mainserver = server.NewServer()
 )
 
 func main() {

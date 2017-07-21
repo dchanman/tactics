@@ -1,23 +1,23 @@
-package main
+package game
 
 import "testing"
 
 func TestUnitIsDead(t *testing.T) {
-	u1 := unit{Hp: 1}
+	u1 := Unit{Hp: 1}
 	if u1.IsDead() {
 		t.Error("Expected u1 to be alive!")
 	}
-	u2 := unit{Hp: 0}
+	u2 := Unit{Hp: 0}
 	if !u2.IsDead() {
 		t.Error("Expected u2 to be dead!")
 	}
 }
 
 func TestUnitAttack(t *testing.T) {
-	u1 := unit{
+	u1 := Unit{
 		Atk: 4,
 	}
-	u2 := unit{
+	u2 := Unit{
 		Hp:  5,
 		Def: 2,
 	}
@@ -33,10 +33,10 @@ func TestUnitAttack(t *testing.T) {
 }
 
 func TestUnitAttackNoDamage(t *testing.T) {
-	u1 := unit{
+	u1 := Unit{
 		Atk: 4,
 	}
-	u2 := unit{
+	u2 := Unit{
 		Hp:  5,
 		Def: 4,
 	}

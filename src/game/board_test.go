@@ -1,82 +1,82 @@
-package main
+package game
 
 import "testing"
 
 func TestGetSet(t *testing.T) {
 	b := NewBoard(3, 4)
-	u := unit{Name: "test", Exists: true}
-	tu := b.get(0, 0)
+	u := Unit{Name: "test", Exists: true}
+	tu := b.Get(0, 0)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
-	b.set(0, 0, u)
-	tu = b.get(0, 0)
+	b.Set(0, 0, u)
+	tu = b.Get(0, 0)
 	if !tu.Exists || tu.Name != "test" {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
 
-	tu = b.get(2, 3)
+	tu = b.Get(2, 3)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
-	b.set(2, 3, u)
-	tu = b.get(2, 3)
+	b.Set(2, 3, u)
+	tu = b.Get(2, 3)
 	if !tu.Exists || tu.Name != "test" {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
 }
 
 func TestGetSetOutOfBounds(t *testing.T) {
 	b := NewBoard(3, 4)
-	u := unit{Name: "test", Exists: true}
-	tu := b.get(3, 4)
+	u := Unit{Name: "test", Exists: true}
+	tu := b.Get(3, 4)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
-	b.set(3, 4, u)
-	tu = b.get(3, 4)
+	b.Set(3, 4, u)
+	tu = b.Get(3, 4)
 	if tu.Exists {
-		t.Error("Unexpected unit")
-	}
-
-	tu = b.get(4, 3)
-	if tu.Exists {
-		t.Error("Unexpected unit")
-	}
-	b.set(4, 3, u)
-	tu = b.get(4, 3)
-	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
 
-	tu = b.get(0, 4)
+	tu = b.Get(4, 3)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
-	b.set(0, 4, u)
-	tu = b.get(0, 4)
+	b.Set(4, 3, u)
+	tu = b.Get(4, 3)
 	if tu.Exists {
-		t.Error("Unexpected unit")
-	}
-
-	tu = b.get(3, 0)
-	if tu.Exists {
-		t.Error("Unexpected unit")
-	}
-	b.set(3, 0, u)
-	tu = b.get(3, 0)
-	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
 
-	tu = b.get(-1, -1)
+	tu = b.Get(0, 4)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
 	}
-	b.set(-1, -1, u)
-	tu = b.get(-1, -1)
+	b.Set(0, 4, u)
+	tu = b.Get(0, 4)
 	if tu.Exists {
-		t.Error("Unexpected unit")
+		t.Error("Unexpected Unit")
+	}
+
+	tu = b.Get(3, 0)
+	if tu.Exists {
+		t.Error("Unexpected Unit")
+	}
+	b.Set(3, 0, u)
+	tu = b.Get(3, 0)
+	if tu.Exists {
+		t.Error("Unexpected Unit")
+	}
+
+	tu = b.Get(-1, -1)
+	if tu.Exists {
+		t.Error("Unexpected Unit")
+	}
+	b.Set(-1, -1, u)
+	tu = b.Get(-1, -1)
+	if tu.Exists {
+		t.Error("Unexpected Unit")
 	}
 }
 
@@ -89,8 +89,8 @@ func TestGetValidMovesNil(t *testing.T) {
 }
 func TestGetValidMoves0(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 0}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 0}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	if len(moves) != 0 {
 		t.Error("Unexpected valid moves ", moves)
@@ -98,8 +98,8 @@ func TestGetValidMoves0(t *testing.T) {
 }
 func TestGetValidMoves1(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 1}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 1}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -115,8 +115,8 @@ func TestGetValidMoves1(t *testing.T) {
 }
 func TestGetValidMoves2(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 2}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 2}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -140,8 +140,8 @@ func TestGetValidMoves2(t *testing.T) {
 }
 func TestGetValidMoves3(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 3}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 3}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -173,8 +173,8 @@ func TestGetValidMoves3(t *testing.T) {
 }
 func TestGetValidMoves4(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 4}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 4}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -210,8 +210,8 @@ func TestGetValidMoves4(t *testing.T) {
 }
 func TestGetValidMoves127(t *testing.T) {
 	b := NewBoard(5, 5)
-	u := unit{Exists: true, Mov: 127}
-	b.set(2, 2, u)
+	u := Unit{Exists: true, Mov: 127}
+	b.Set(2, 2, u)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -247,12 +247,12 @@ func TestGetValidMoves127(t *testing.T) {
 }
 func TestGetValidMovesEnemyPieces(t *testing.T) {
 	b := NewBoard(5, 5)
-	u1 := unit{Exists: true, Team: "a", Mov: 2}
-	u2 := unit{Exists: true, Team: "b"}
-	u3 := unit{Exists: true, Team: "a"}
-	b.set(2, 2, u1)
-	b.set(2, 1, u2)
-	b.set(2, 3, u3)
+	u1 := Unit{Exists: true, Team: "a", Mov: 2}
+	u2 := Unit{Exists: true, Team: "b"}
+	u3 := Unit{Exists: true, Team: "a"}
+	b.Set(2, 2, u1)
+	b.Set(2, 1, u2)
+	b.Set(2, 3, u3)
 	moves := b.getValidMoves(2, 2)
 	verify := make(map[square]bool, len(moves))
 	for i := range moves {
@@ -273,11 +273,11 @@ func TestGetValidMovesEnemyPieces(t *testing.T) {
 }
 func TestToJSON(t *testing.T) {
 	b := NewBoard(5, 5)
-	u1 := unit{Exists: true, Team: "a", Mov: 2}
-	u2 := unit{Exists: true, Team: "b"}
-	u3 := unit{Exists: true, Team: "a"}
-	b.set(2, 2, u1)
-	b.set(2, 1, u2)
-	b.set(2, 3, u3)
+	u1 := Unit{Exists: true, Team: "a", Mov: 2}
+	u2 := Unit{Exists: true, Team: "b"}
+	u3 := Unit{Exists: true, Team: "a"}
+	b.Set(2, 2, u1)
+	b.Set(2, 1, u2)
+	b.Set(2, 3, u3)
 	b.ToJSON()
 }

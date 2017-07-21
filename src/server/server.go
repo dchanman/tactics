@@ -1,9 +1,10 @@
-package main
+package server
 
 import (
 	"net/rpc"
 	"net/rpc/jsonrpc"
 
+	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -14,14 +15,14 @@ const (
 
 // Server manages the communications with clients in order to manage games
 type Server struct {
-	Game  Game
+	Game  game.Game
 	maxid uint64
 }
 
 // NewServer instantiates a new server
 func NewServer() *Server {
-	g := NewGame()
-	g.b.set(3, 4, unit{Name: "hi", Exists: true})
+	g := game.NewGame()
+	g.B.Set(3, 4, game.Unit{Name: "hi", Exists: true})
 	return &Server{Game: g}
 }
 

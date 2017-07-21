@@ -1,7 +1,7 @@
-package main
+package game
 
 // unit is a basic unit in the game
-type unit struct {
+type Unit struct {
 	Name   string
 	Class  string
 	Team   string
@@ -12,11 +12,11 @@ type unit struct {
 	Exists bool
 }
 
-func (u *unit) IsDead() bool {
+func (u *Unit) IsDead() bool {
 	return (u.Hp == 0)
 }
 
-func (u *unit) Attack(other *unit) {
+func (u *Unit) Attack(other *Unit) {
 	dmg := u.Atk - other.Def
 	if dmg < 0 {
 		dmg = 0
