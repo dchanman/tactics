@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 
@@ -25,15 +24,8 @@ func main() {
 	}
 
 	http.Handle("/", http.FileServer(http.Dir("./public")))
-	http.Handle("/game", handlerWrapper(mainserver.Game))
 	http.Handle("/ws", websocketWrapper())
 	log.Info(http.ListenAndServe(":"+port, nil))
-}
-
-func handlerWrapper(g Game) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, g.GetStateJSON())
-	})
 }
 
 func websocketWrapper() http.Handler {
