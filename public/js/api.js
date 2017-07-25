@@ -9,11 +9,17 @@ window.Api = (function () {
         ws.onmessage = function (event) {
             var data = JSON.parse(event.data),
                 callback;
-            if (data && data.id !== null) {
-                callback = api.sentmsgs[data.id];
-                api.sentmsgs[data.id] = null;
-                if (callback) {
-                    callback(data.result, data.error);
+            if (data !== null) {
+                if (data.id !== undefined) {
+                    // Handle RPC response
+                    callback = api.sentmsgs[data.id];
+                    api.sentmsgs[data.id] = null;
+                    if (callback) {
+                        callback(data.result, data.error);
+                    }
+                } else {
+                    // Handle notification
+                    api.onupdate(data.method, data.params);
                 }
             }
         };
@@ -33,6 +39,7 @@ window.Api = (function () {
         this.onready = function () { return; };
         this.onerror = function () { return; };
         this.onclose = function () { return; };
+        this.onupdate = function () { return; };
     }
     function sendmsg(api, method, params, callback) {
         var call = {

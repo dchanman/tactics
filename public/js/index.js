@@ -13,6 +13,12 @@ window.Main = (function () {
         this.api.onclose = function () {
             console.log("API closed");
         };
+        this.api.onupdate = function (method, params) {
+            console.log("Received push update!");
+            console.log(method);
+            console.log(params);
+            main.board.render(params.game.board);
+        };
     }
     Main.prototype.refresh = function () {
         var main = this;

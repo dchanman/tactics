@@ -37,6 +37,7 @@ func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *TacticsApiResult) e
 func (api *TacticsApi) AddUnit(args *TacticsApiArgs, result *TacticsApiResult) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Adding unit")
 	api.game.B.Set(args.X, args.Y, *args.Unit)
+	go api.game.PublishUpdate()
 	*result = TacticsApiResult{}
 	return nil
 }

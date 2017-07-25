@@ -18,7 +18,6 @@ window.Board = (function () {
             self.board.main.api.addUnit(self.x, self.y, u)
                 .then(function () {
                     console.log("Added unit successfully!");
-                    self.board.main.refresh();
                 })
                 .catch(function (err) {
                     console.log(err);

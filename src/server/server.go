@@ -19,6 +19,11 @@ type Server struct {
 	maxid uint64
 }
 
+type PushMsg struct {
+	Method string           `json:"method"`
+	Params TacticsApiResult `json:"params"`
+}
+
 // NewServer instantiates a new server
 func NewServer() *Server {
 	g := game.NewGame()
@@ -39,6 +44,14 @@ func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 	api := TacticsApi{id: s.nextID(), game: &s.Game}
 	rpcserver := rpc.NewServer()
 	rpcserver.Register(&api)
+	// TODO: Shutdown this pump upon rpc exit
+	go func() {
+		ch := s.Game.Subscribe(api.id)
+		for range ch {
+			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
+			conn.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: &s.Game}})
+		}
+	}()
 	go func() {
 		defer func() {
 			log.Info("Done Serving")
