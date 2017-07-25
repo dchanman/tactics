@@ -49,7 +49,7 @@ func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 		ch := s.Game.Subscribe(api.id)
 		for range ch {
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
-			conn.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: &s.Game}})
+			c.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: &s.Game}})
 		}
 	}()
 	go func() {
