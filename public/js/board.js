@@ -1,6 +1,7 @@
 window.Board = (function () {
     "use strict";
-    function Square(x, y) {
+    function Square(board, x, y) {
+        this.board = board;
         this.x = x;
         this.y = y;
         this.unit = null;
@@ -12,13 +13,24 @@ window.Board = (function () {
         $(td).click(function () {
             console.log("Clicked " + self.x + "," + self.y);
             console.log(self.unit);
+            var u = new Unit();
+            u.name = "sup";
+            self.board.main.api.addUnit(self.x, self.y, u)
+                .then(function () {
+                    console.log("Added unit successfully!");
+                    self.board.main.refresh();
+                })
+                .catch(function (err) {
+                    console.log(err);
+                });
         });
     };
-    function Board(htmlTable) {
+    function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
         this.htmlTable = htmlTable;
         this.grid = [];
+        this.main = main;
     }
     Board.prototype.render = function (board) {
         if (board.board.length !== (board.cols * board.rows)) {
@@ -38,7 +50,7 @@ window.Board = (function () {
         for (x = 0; x < cols; x += 1) {
             this.grid.push([]);
             for (y = 0; y < rows; y += 1) {
-                this.grid[x].push(new Square(x, y));
+                this.grid[x].push(new Square(this, x, y));
             }
         }
         // Clean up existing DOM

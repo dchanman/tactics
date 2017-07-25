@@ -1,8 +1,8 @@
 window.Main = (function () {
     "use strict";
     function Main() {
-        this.board = new Board(document.getElementById("game"));
         this.api = new Api();
+        this.board = new Board(document.getElementById("game"), this);
         var main = this;
         this.api.onready = function () {
             main.start();
