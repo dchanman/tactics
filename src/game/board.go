@@ -12,9 +12,9 @@ type square struct {
 }
 
 type Board struct {
-	Board []Unit
-	Cols  int
-	Rows  int
+	Board []Unit `json:"board"`
+	Cols  int    `json:"cols"`
+	Rows  int    `json:"rows"`
 }
 
 type moveSearch struct {

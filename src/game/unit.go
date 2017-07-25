@@ -2,14 +2,14 @@ package game
 
 // unit is a basic unit in the game
 type Unit struct {
-	Name   string
-	Class  string
-	Team   string
-	Hp     int8
-	Atk    int8
-	Def    int8
-	Mov    int8
-	Exists bool
+	Name   string `json:"name,omitempty"`
+	Class  string `json:"class,omitempty"`
+	Team   string `json:"team,omitempty"`
+	Hp     int8   `json:"hp,omitempty"`
+	Atk    int8   `json:"atk,omitempty"`
+	Def    int8   `json:"def,omitempty"`
+	Mov    int8   `json:"mov,omitempty"`
+	Exists bool   `json:"exists"`
 }
 
 func (u *Unit) IsDead() bool {

@@ -18,7 +18,7 @@ window.Main = (function () {
         var main = this;
         this.api.getGame()
             .then(function (result) {
-                main.board.render(result.game);
+                main.board.render(result.game.board);
             });
     };
     Main.prototype.start = function () {

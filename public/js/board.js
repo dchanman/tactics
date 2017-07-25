@@ -21,13 +21,13 @@ window.Board = (function () {
         this.grid = [];
     }
     Board.prototype.render = function (board) {
-        if (board.Board.length !== (board.Cols * board.Rows)) {
+        if (board.board.length !== (board.cols * board.rows)) {
             throw ("Invalid board data");
         }
-        if (this.cols !== board.Cols || this.rows !== board.Rows) {
-            this.createGrid(board.Cols, board.Rows);
+        if (this.cols !== board.cols || this.rows !== board.rows) {
+            this.createGrid(board.cols, board.rows);
         }
-        this.renderPieces(board.Board);
+        this.renderPieces(board.board);
     };
     Board.prototype.createGrid = function (cols, rows) {
         var x, y, tr, td, div;
@@ -67,8 +67,11 @@ window.Board = (function () {
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.cols);
             y = i % this.cols;
-            this.grid[x][y].unit = pieces[i];
-            $(this.grid[x][y].dom).html(pieces[i].Name);
+            this.grid[x][y].unit = null;
+            if (pieces[i].exists) {
+                this.grid[x][y].unit = pieces[i];
+                $(this.grid[x][y].dom).html(pieces[i].name);
+            }
         }
     };
     return Board;

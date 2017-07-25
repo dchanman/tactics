@@ -10,7 +10,7 @@ type TacticsApiArgs struct {
 }
 
 type TacticsApiResult struct {
-	Game *game.Board `json:"game,omitempty"`
+	Game *game.Game `json:"game,omitempty"`
 }
 
 // TacticsApi exposes game APIs to the client
@@ -28,6 +28,6 @@ func (api *TacticsApi) Hello(args *TacticsApiArgs, result *TacticsApiResult) err
 func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *TacticsApiResult) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting Game")
 	log.WithFields(logrus.Fields{"game": api.game}).Printf("Game")
-	*result = TacticsApiResult{Game: &api.game.B}
+	*result = TacticsApiResult{Game: api.game}
 	return nil
 }
