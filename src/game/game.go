@@ -21,6 +21,14 @@ func (g *Game) Subscribe(id uint64) chan string {
 	return g.subscribers[id]
 }
 
+func (g *Game) Unsubscribe(id uint64) {
+	if _, exists := g.subscribers[id]; !exists {
+		log.WithFields(logrus.Fields{"id": id}).Error("Unsubscribing invalid ID")
+		return
+	}
+	delete(g.subscribers, id)
+}
+
 func (g *Game) PublishUpdate() {
 	for _, ch := range g.subscribers {
 		ch <- "update"

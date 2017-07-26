@@ -44,12 +44,20 @@ func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 	api := TacticsApi{id: s.nextID(), game: &s.Game}
 	rpcserver := rpc.NewServer()
 	rpcserver.Register(&api)
-	// TODO: Shutdown this pump upon rpc exit
+	// TODO: Refactor
+	fin := make(chan bool)
 	go func() {
 		ch := s.Game.Subscribe(api.id)
-		for range ch {
-			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
-			c.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: &s.Game}})
+		for {
+			select {
+			case <-ch:
+				log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
+				c.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: &s.Game}})
+			case <-fin:
+				log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
+				s.Game.Unsubscribe(api.id)
+				return
+			}
 		}
 	}()
 	go func() {
@@ -62,6 +70,7 @@ func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 			if err != nil {
 				log.Error("Close: ", err)
 			}
+			fin <- true
 		}()
 		rpcserver.ServeCodec(jsonrpc.NewServerCodec(&c))
 	}()
