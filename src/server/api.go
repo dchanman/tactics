@@ -1,7 +1,11 @@
 package server
 
 import (
+	"net/rpc"
+	"net/rpc/jsonrpc"
+
 	"github.com/dchanman/tactics/src/game"
+	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,8 +21,49 @@ type TacticsApiResult struct {
 
 // TacticsApi exposes game APIs to the client
 type TacticsApi struct {
-	id   uint64
-	game *game.Game
+	id      uint64
+	game    *game.Game
+	gameFin chan bool
+	client  *Client
+}
+
+func NewTacticsApi(id uint64, conn *websocket.Conn) *TacticsApi {
+	client := Client{conn: conn}
+	api := TacticsApi{id: id, gameFin: make(chan bool), client: &client}
+	return &api
+}
+
+func (api *TacticsApi) SubscribeToGame(game *game.Game) {
+	api.game = game
+	ch := game.Subscribe(api.id)
+	defer game.Unsubscribe(api.id)
+	for {
+		select {
+		case <-ch:
+			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
+			api.client.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: game}})
+		case <-api.gameFin:
+			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
+			return
+		}
+	}
+}
+
+func (api *TacticsApi) ServeRPC() {
+	defer func() {
+		log.Info("Done Serving")
+		if r := recover(); r != nil {
+			log.WithFields(logrus.Fields{"r": r}).Info("Recovered")
+		}
+		err := api.client.conn.Close()
+		if err != nil {
+			log.Error("Close: ", err)
+		}
+		api.gameFin <- true
+	}()
+	rpcserver := rpc.NewServer()
+	rpcserver.Register(api)
+	rpcserver.ServeCodec(jsonrpc.NewServerCodec(api.client))
 }
 
 func (api *TacticsApi) Hello(args *TacticsApiArgs, result *TacticsApiResult) error {
