@@ -11,13 +11,8 @@ const (
 
 // Server manages the communications with clients in order to manage games
 type Server struct {
-	Game  game.Game
+	Game  *game.Game
 	maxid uint64
-}
-
-type PushMsg struct {
-	Method string           `json:"method"`
-	Params TacticsApiResult `json:"params"`
 }
 
 // NewServer instantiates a new server
@@ -37,6 +32,6 @@ func (s *Server) nextID() uint64 {
 // RegisterNewClient registers a new websocket connection with the server
 func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 	api := NewTacticsApi(s.nextID(), conn)
-	go api.SubscribeToGame(&s.Game)
+	go api.SubscribeToGame(s.Game)
 	go api.ServeRPC()
 }

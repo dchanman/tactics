@@ -19,6 +19,11 @@ type TacticsApiResult struct {
 	Game *game.Game `json:"game,omitempty"`
 }
 
+type TacticsApiUpdate struct {
+	Method string      `json:"method"`
+	Params interface{} `json:"params"`
+}
+
 // TacticsApi exposes game APIs to the client
 type TacticsApi struct {
 	id      uint64
@@ -39,9 +44,9 @@ func (api *TacticsApi) SubscribeToGame(game *game.Game) {
 	defer game.Unsubscribe(api.id)
 	for {
 		select {
-		case <-ch:
+		case update := <-ch:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
-			api.client.WriteJSON(PushMsg{Method: "TacticsApi.Update", Params: TacticsApiResult{Game: game}})
+			api.client.WriteJSON(update)
 		case <-api.gameFin:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
 			return
