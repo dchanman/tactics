@@ -92,5 +92,20 @@ window.Api = (function () {
             });
         });
     };
+    Api.prototype.sendChat = function (msg) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "message": msg
+            };
+            sendmsg(api, "TacticsApi.SendChat", [params], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
     return Api;
 }());

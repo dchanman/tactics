@@ -10,9 +10,10 @@ import (
 )
 
 type TacticsApiArgs struct {
-	X    int        `json:"x,omitempty"`
-	Y    int        `json:"y,omitempty"`
-	Unit *game.Unit `json:"unit,omitempty"`
+	X       int        `json:"x,omitempty"`
+	Y       int        `json:"y,omitempty"`
+	Unit    *game.Unit `json:"unit,omitempty"`
+	Message string     `json:"message,omitempty"`
 }
 
 type TacticsApiResult struct {
@@ -89,5 +90,11 @@ func (api *TacticsApi) AddUnit(args *TacticsApiArgs, result *TacticsApiResult) e
 	api.game.B.Set(args.X, args.Y, *args.Unit)
 	go api.game.PublishUpdate()
 	*result = TacticsApiResult{}
+	return nil
+}
+
+func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
+	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Sending Chat")
+	api.game.SendChat(args.Message)
 	return nil
 }

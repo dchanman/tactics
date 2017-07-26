@@ -21,18 +21,25 @@ func NewGame() *Game {
 		B:           NewBoard(10, 10),
 		subscribers: make(map[uint64](chan *GameNotification)),
 		chat:        make(chan string, gameChatBuffer)}
+	go game.chatPump()
 	return &game
 }
 
-func (g *Game) ChatPump() {
+func (g *Game) chatPump() {
 	for msg := range g.chat {
 		notif := GameNotification{
 			Method: "Game.Chat",
-			Params: msg}
+			Params: struct {
+				Message string `json:"message"`
+			}{Message: msg}}
 		for _, ch := range g.subscribers {
 			ch <- &notif
 		}
 	}
+}
+
+func (g *Game) SendChat(msg string) {
+	g.chat <- msg
 }
 
 func (g *Game) Subscribe(id uint64) chan *GameNotification {

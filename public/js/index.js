@@ -14,10 +14,17 @@ window.Main = (function () {
             console.log("API closed");
         };
         this.api.onupdate = function (method, params) {
-            console.log("Received push update!");
-            console.log(method);
-            console.log(params);
-            main.board.render(params.game.board);
+            switch (method) {
+            case "Game.Update":
+                main.board.render(params.game.board);
+                break;
+            case "Game.Chat":
+                console.log("Received: " + params.message);
+                $("#chat").append(document.createTextNode(params.message + "\n"));
+                break;
+            default:
+                console.log("Error: Unknown method: " + method);
+            }
         };
     }
     Main.prototype.refresh = function () {
@@ -37,4 +44,12 @@ window.Main = (function () {
     };
     return Main;
 }());
-var main = new Main();
+
+$(document).ready(function () {
+    "use strict";
+    var main = new Main();
+    $("#chatsend").click(function () {
+        console.log($("#chatmsg").val());
+        main.api.sendChat($("#chatmsg").val());
+    });
+});
