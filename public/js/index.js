@@ -2,6 +2,7 @@ window.Main = (function () {
     "use strict";
     function Main() {
         this.api = new Api();
+        this.chat = new Chat(this);
         this.board = new Board(document.getElementById("game"), this);
         var main = this;
         this.api.onready = function () {
@@ -19,8 +20,7 @@ window.Main = (function () {
                 main.board.render(params.game.board);
                 break;
             case "Game.Chat":
-                console.log("Received: " + params.message);
-                $("#chat").append(document.createTextNode(params.message + "\n"));
+                main.chat.receiveMessage(params);
                 break;
             default:
                 console.log("Error: Unknown method: " + method);
@@ -49,7 +49,11 @@ $(document).ready(function () {
     "use strict";
     var main = new Main();
     $("#chatsend").click(function () {
-        console.log($("#chatmsg").val());
-        main.api.sendChat($("#chatmsg").val());
+        main.chat.sendMessage();
+    });
+    $("#chatmsg").keydown(function (event) {
+        if (event.keyCode === 13) {
+            main.chat.sendMessage();
+        }
     });
 });

@@ -1,19 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="lib/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/tactics.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/font-awesome-4.7.0/css/font-awesome.min.css"/>
 </head>
 
 <body>
     <h2>Tactics</h2>
-    <table id="game"></table>
-    <div id="chat"></div>
-    <input type="text" id="chatmsg" size="40" />
-    <input type="submit" id="chatsend" value="Send" />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-md-6 col-lg-4">
+                <table id="game" class="table-bordered"></table>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div id="chat">
+                    <div class="container">
+                        <div class="border-bottom-0" id="chatlog"></div>
+                        <div class="input-group">
+                            <input class="form-control" type="text" id="chatmsg"></input>
+                            <span class=input-group-btn>
+                                <button class="btn btn-default" type="button" id="chatsend"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
+<script type="text/javascript" src="lib/tether.min.js"></script>
+<script type="text/javascript" src="lib/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/board.js"></script>
+<script type="text/javascript" src="js/chat.js"></script>
 <script type="text/javascript" src="js/unit.js"></script>
 <script type="text/javascript" src="js/api.js"></script>
 <script type="text/javascript" src="js/index.js"></script>

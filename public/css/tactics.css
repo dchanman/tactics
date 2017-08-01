@@ -14,3 +14,21 @@
 .grid-square-container {
     text-align: center;
 }
+.chat-container {
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    background-color: red;
+}
+.chat-message {
+    margin: 0;
+}
+#chatlog {
+    padding: 20px;
+    height: 30vh;
+    overflow: auto;
+}
+#chat {
+    outline: 2px solid;
+    padding: 20px;
+}

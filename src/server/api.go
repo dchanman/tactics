@@ -3,6 +3,7 @@ package server
 import (
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"strconv"
 
 	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
@@ -95,6 +96,6 @@ func (api *TacticsApi) AddUnit(args *TacticsApiArgs, result *TacticsApiResult) e
 
 func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Sending Chat")
-	api.game.SendChat(args.Message)
+	api.game.SendChat(strconv.FormatUint(api.id, 10), args.Message)
 	return nil
 }

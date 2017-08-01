@@ -8,7 +8,12 @@ const ()
 type Game struct {
 	B           Board `json:"board,omitempty"`
 	subscribers map[uint64](chan *GameNotification)
-	chat        chan string
+	chat        chan GameChat
+}
+
+type GameChat struct {
+	Sender  string `json:"sender"`
+	Message string `json:"message"`
 }
 
 type GameNotification struct {
@@ -20,7 +25,7 @@ func NewGame() *Game {
 	game := Game{
 		B:           NewBoard(10, 10),
 		subscribers: make(map[uint64](chan *GameNotification)),
-		chat:        make(chan string, gameChatBuffer)}
+		chat:        make(chan GameChat, gameChatBuffer)}
 	go game.chatPump()
 	return &game
 }
@@ -29,17 +34,17 @@ func (g *Game) chatPump() {
 	for msg := range g.chat {
 		notif := GameNotification{
 			Method: "Game.Chat",
-			Params: struct {
-				Message string `json:"message"`
-			}{Message: msg}}
+			Params: msg}
 		for _, ch := range g.subscribers {
 			ch <- &notif
 		}
 	}
 }
 
-func (g *Game) SendChat(msg string) {
-	g.chat <- msg
+func (g *Game) SendChat(sender string, msg string) {
+	g.chat <- GameChat{
+		Sender:  sender,
+		Message: msg}
 }
 
 func (g *Game) Subscribe(id uint64) chan *GameNotification {
