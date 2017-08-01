@@ -23,6 +23,10 @@
 .chat-message {
     margin: 0;
 }
+.chat-greeting {
+    font-style: italic;
+    font-color: lightgrey;
+}
 #chatlog {
     padding: 20px;
     height: 30vh;
