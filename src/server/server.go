@@ -18,8 +18,6 @@ type Server struct {
 // NewServer instantiates a new server
 func NewServer() *Server {
 	g := game.NewGame()
-	g.B.Set(3, 4, game.Unit{Name: "hi", Exists: true})
-	g.B.Set(5, 4, game.Unit{Name: "hi", Exists: true})
 	return &Server{Game: g}
 }
 

@@ -2,7 +2,10 @@ package game
 
 import "github.com/sirupsen/logrus"
 
-const ()
+const (
+	nRows = 8
+	nCols = 5
+)
 
 // Game is the main game engine
 type Game struct {
@@ -23,11 +26,23 @@ type GameNotification struct {
 
 func NewGame() *Game {
 	game := Game{
-		B:           NewBoard(10, 10),
+		B:           createGameBoard(),
 		subscribers: make(map[uint64](chan *GameNotification)),
 		chat:        make(chan GameChat, gameChatBuffer)}
 	go game.chatPump()
 	return &game
+}
+
+func createGameBoard() Board {
+	b := NewBoard(nCols, nRows)
+	// Add pieces
+	for i := 0; i < nCols; i++ {
+		b.Set(i, 1, Unit{Name: "X", Team: 1, Stack: 1, Exists: true})
+		b.Set(i, 2, Unit{Name: "X", Team: 1, Stack: 1, Exists: true})
+		b.Set(i, nRows-2, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
+		b.Set(i, nRows-3, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
+	}
+	return b
 }
 
 func (g *Game) chatPump() {

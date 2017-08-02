@@ -47,14 +47,14 @@ func (b *Board) Get(x int, y int) Unit {
 	if !b.isValid(x, y) {
 		return Unit{Exists: false}
 	}
-	return b.Board[x*b.Cols+y]
+	return b.Board[x*b.Rows+y]
 }
 
 func (b *Board) Set(x int, y int, u Unit) {
 	if !b.isValid(x, y) {
 		return
 	}
-	b.Board[x*b.Cols+y] = u
+	b.Board[x*b.Rows+y] = u
 }
 
 func (b *Board) getValidMoves(x int, y int) []square {

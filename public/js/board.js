@@ -76,8 +76,8 @@ window.Board = (function () {
     Board.prototype.renderPieces = function (pieces) {
         var i, x, y;
         for (i = 0; i < pieces.length; i += 1) {
-            x = Math.floor(i / this.cols);
-            y = i % this.cols;
+            x = Math.floor(i / this.rows);
+            y = i % this.rows;
             this.grid[x][y].unit = null;
             if (pieces[i].exists) {
                 this.grid[x][y].unit = pieces[i];
