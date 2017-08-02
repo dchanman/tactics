@@ -8,11 +8,26 @@
     padding: 2px;
     background-color: lightgrey;
 }
+.grid-square:hover {
+    background-color: darkgrey;
+}
 .grid-square-selectable {
     background-color: green;
 }
-.grid-square:hover {
-    background-color: darkgrey;
+.grid-square-selectable:hover {
+    background-color: lightgreen !important;
+}
+.grid-square-commit-src {
+    background-color: yellow;
+}
+.grid-square-commit-src:hover {
+    background-color: lightyellow !important;
+}
+.grid-square-commit-dst {
+    background-color: yellow;
+}
+.grid-square-commit-dst:hover {
+    background-color: lightyellow !important;
 }
 .grid-square-container {
     text-align: center;

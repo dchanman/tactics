@@ -9,13 +9,28 @@ window.Board = (function () {
         this.container = null;
     }
     Square.prototype.setDOM = function (td, div) {
-        var self = this;
         this.container = td;
         this.dom = div;
+        var self = this;
         $(td).click(function () {
-            self.board.resetState();
-            console.log("Clicked " + self.x + "," + self.y);
-            self.board.main.api.getValidMoves(self.x, self.y)
+            self.onClick();
+        });
+    };
+    Square.prototype.onClick = function () {
+        if (this === this.board.selectedSquare) {
+            this.board.removeSelectableSquares();
+        } else if ($(this.container).hasClass("grid-square-selectable")) {
+            this.board.removeSelectableSquares();
+            $(this.board.selectedSquare.container).addClass("grid-square-commit-src");
+            $(this.container).addClass("grid-square-commit-dst");
+        } else if ($(this.container).hasClass("grid-square-commit-dst")) {
+            this.board.removeSelectableSquares();
+            console.log("Committing move (" + this.board.selectedSquare.x + "," + this.board.selectedSquare.y + ") to (" + this.x + "," + this.y + ")");
+        } else {
+            this.board.removeSelectableSquares();
+            this.board.selectedSquare = this;
+            var self = this;
+            this.board.main.api.getValidMoves(this.x, this.y)
                 .then(function (result) {
                     var squares = result.validMoves,
                         i;
@@ -29,20 +44,23 @@ window.Board = (function () {
                 .catch(function (err) {
                     console.log(err);
                 });
-        });
+        }
     };
     function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
         this.htmlTable = htmlTable;
         this.grid = [];
+        this.selectedSquare = null;
         this.main = main;
     }
-    Board.prototype.resetState = function () {
+    Board.prototype.removeSelectableSquares = function () {
         var i, j;
         for (i = 0; i < this.grid.length; i += 1) {
             for (j = 0; j < this.grid[i].length; j += 1) {
                 $(this.grid[i][j].container).removeClass("grid-square-selectable");
+                $(this.grid[i][j].container).removeClass("grid-square-commit-src");
+                $(this.grid[i][j].container).removeClass("grid-square-commit-dst");
             }
         }
     };
