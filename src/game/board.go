@@ -1,10 +1,6 @@
 package game
 
-import (
-	"encoding/json"
-
-	"github.com/sirupsen/logrus"
-)
+import "encoding/json"
 
 type square struct {
 	x int
@@ -49,11 +45,6 @@ func (b *Board) isValid(x int, y int) bool {
 
 func (b *Board) Get(x int, y int) Unit {
 	if !b.isValid(x, y) {
-		log.WithFields(logrus.Fields{
-			"x":    x,
-			"y":    y,
-			"Cols": b.Cols,
-			"Rows": b.Rows}).Error("Index out of bounds")
 		return Unit{Exists: false}
 	}
 	return b.Board[x*b.Cols+y]
@@ -61,11 +52,6 @@ func (b *Board) Get(x int, y int) Unit {
 
 func (b *Board) Set(x int, y int, u Unit) {
 	if !b.isValid(x, y) {
-		log.WithFields(logrus.Fields{
-			"x":    x,
-			"y":    y,
-			"Cols": b.Cols,
-			"Rows": b.Rows}).Error("Index out of bounds")
 		return
 	}
 	b.Board[x*b.Cols+y] = u
