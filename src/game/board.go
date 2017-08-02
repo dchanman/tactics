@@ -73,46 +73,21 @@ func (b *Board) Set(x int, y int, u Unit) {
 
 func (b *Board) getValidMoves(x int, y int) []square {
 	u := b.Get(x, y)
-	if u.Mov == 0 {
+	if u.Exists == false {
 		return make([]square, 0)
 	}
-	queue := make([][]square, 0)
-	for i := 0; i <= int(u.Mov); i++ {
-		queue = append(queue, make([]square, 0))
-	}
-	queue[0] = append(queue[0], square{x, y})
-	visited := make(map[square]bool)
 	moves := make([]square, 0)
-	for i := 0; i < len(queue); i++ {
-		for j := 0; j < len(queue[i]); j++ {
-			curr := queue[i][j]
-			if visited[curr] || !b.isValid(curr.x, curr.y) {
-				continue
-			}
-			visited[curr] = true
-			o := b.Get(curr.x, curr.y)
-			if !o.Exists {
-				moves = append(moves, curr)
-			} else if o.Team != u.Team {
-				// Enemy pieces "block" movement
-				continue
-			}
-			if i+1 < len(queue) {
-				if !visited[curr.left()] {
-					queue[i+1] = append(queue[i+1], curr.left())
-				}
-				if !visited[curr.right()] {
-					queue[i+1] = append(queue[i+1], curr.right())
-				}
-				if !visited[curr.up()] {
-					queue[i+1] = append(queue[i+1], curr.up())
-				}
-				if !visited[curr.down()] {
-					queue[i+1] = append(queue[i+1], curr.down())
-				}
-			}
+	searchDirHelper := func(dir func(s *square) square, origin square) []square {
+		ret := make([]square, 0)
+		for next := dir(&origin); b.isValid(next.x, next.y); next = dir(&next) {
+			ret = append(ret, next)
 		}
+		return ret
 	}
+	moves = append(moves, searchDirHelper((*square).up, square{x, y})...)
+	moves = append(moves, searchDirHelper((*square).down, square{x, y})...)
+	moves = append(moves, searchDirHelper((*square).left, square{x, y})...)
+	moves = append(moves, searchDirHelper((*square).right, square{x, y})...)
 	return moves
 }
 
