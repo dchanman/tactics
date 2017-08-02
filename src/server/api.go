@@ -74,9 +74,8 @@ func (api *TacticsApi) ServeRPC() {
 	rpcserver.ServeCodec(jsonrpc.NewServerCodec(api.client))
 }
 
-func (api *TacticsApi) Hello(args *TacticsApiArgs, result *TacticsApiResult) error {
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Hello API called")
-	*result = TacticsApiResult{}
+func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
+	log.WithFields(logrus.Fields{"id": api.id}).Printf("Heartbeat")
 	return nil
 }
 

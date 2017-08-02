@@ -51,10 +51,10 @@ window.Api = (function () {
         api.currid += 1;
         api.ws.send(JSON.stringify(call));
     }
-    Api.prototype.hello = function () {
+    Api.prototype.heartbeat = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.Hello", [], function (result, err) {
+            sendmsg(api, "TacticsApi.Heartbeat", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {

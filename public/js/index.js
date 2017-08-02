@@ -4,6 +4,7 @@ window.Main = (function () {
         this.api = new Api();
         this.chat = new Chat(this);
         this.board = new Board(document.getElementById("game"), this);
+        this.heartbeat = null;
         var main = this;
         this.api.onready = function () {
             main.start();
@@ -36,11 +37,10 @@ window.Main = (function () {
     };
     Main.prototype.start = function () {
         var main = this;
-        this.api.hello()
-            .then(function () {
-                console.log("Connected to server!");
-                main.refresh();
-            });
+        main.refresh();
+        main.heartbeat = setInterval(function () {
+            main.api.heartbeat();
+        }, 10000);
     };
     return Main;
 }());
