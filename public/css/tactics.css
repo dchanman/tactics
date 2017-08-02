@@ -8,6 +8,9 @@
     padding: 2px;
     background-color: lightgrey;
 }
+.grid-square-selectable {
+    background-color: green;
+}
 .grid-square:hover {
     background-color: darkgrey;
 }

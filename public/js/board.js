@@ -6,18 +6,25 @@ window.Board = (function () {
         this.y = y;
         this.unit = null;
         this.dom = null;
+        this.container = null;
     }
     Square.prototype.setDOM = function (td, div) {
         var self = this;
+        this.container = td;
         this.dom = div;
         $(td).click(function () {
+            self.board.resetState();
             console.log("Clicked " + self.x + "," + self.y);
-            console.log(self.unit);
-            var u = new Unit();
-            u.name = "sup";
-            self.board.main.api.addUnit(self.x, self.y, u)
-                .then(function () {
-                    console.log("Added unit successfully!");
+            self.board.main.api.getValidMoves(self.x, self.y)
+                .then(function (result) {
+                    var squares = result.validMoves,
+                        i;
+                    if (!squares) {
+                        return;
+                    }
+                    for (i = 0; i < squares.length; i += 1) {
+                        self.board.setActiveSquare(squares[i].x, squares[i].y);
+                    }
                 })
                 .catch(function (err) {
                     console.log(err);
@@ -31,6 +38,14 @@ window.Board = (function () {
         this.grid = [];
         this.main = main;
     }
+    Board.prototype.resetState = function () {
+        var i, j;
+        for (i = 0; i < this.grid.length; i += 1) {
+            for (j = 0; j < this.grid[i].length; j += 1) {
+                $(this.grid[i][j].container).removeClass("grid-square-selectable");
+            }
+        }
+    };
     Board.prototype.render = function (board) {
         if (board.board.length !== (board.cols * board.rows)) {
             throw ("Invalid board data");
@@ -39,6 +54,12 @@ window.Board = (function () {
             this.createGrid(board.cols, board.rows);
         }
         this.renderPieces(board.board);
+    };
+    Board.prototype.setActiveSquare = function (x, y) {
+        if (x < 0 || y < 0 || x > this.cols || y > this.rows) {
+            throw ("Invalid square: (" + x + "," + y + ")");
+        }
+        $(this.grid[x][y].container).addClass("grid-square-selectable");
     };
     Board.prototype.createGrid = function (cols, rows) {
         var x, y, tr, td, div;

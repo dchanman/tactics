@@ -18,7 +18,8 @@ type TacticsApiArgs struct {
 }
 
 type TacticsApiResult struct {
-	Game *game.Game `json:"game,omitempty"`
+	Game       *game.Game    `json:"game,omitempty"`
+	ValidMoves []game.Square `json:"validMoves,omitempty"`
 }
 
 type TacticsApiUpdate struct {
@@ -97,5 +98,12 @@ func (api *TacticsApi) AddUnit(args *TacticsApiArgs, result *TacticsApiResult) e
 func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Sending Chat")
 	api.game.SendChat(strconv.FormatUint(api.id, 10), args.Message)
+	return nil
+}
+
+func (api *TacticsApi) GetValidMoves(args *TacticsApiArgs, result *TacticsApiResult) error {
+	// TODO: Eventually this will be done clientside
+	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting moves")
+	*result = TacticsApiResult{ValidMoves: api.game.B.GetValidMoves(args.X, args.Y)}
 	return nil
 }

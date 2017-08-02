@@ -2,9 +2,9 @@ package game
 
 import "encoding/json"
 
-type square struct {
-	x int
-	y int
+type Square struct {
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type Board struct {
@@ -14,21 +14,21 @@ type Board struct {
 }
 
 type moveSearch struct {
-	square
+	Square
 	movRemainder int8
 }
 
-func (s *square) up() square {
-	return square{s.x, s.y - 1}
+func (s *Square) up() Square {
+	return Square{s.X, s.Y - 1}
 }
-func (s *square) down() square {
-	return square{s.x, s.y + 1}
+func (s *Square) down() Square {
+	return Square{s.X, s.Y + 1}
 }
-func (s *square) left() square {
-	return square{s.x - 1, s.y}
+func (s *Square) left() Square {
+	return Square{s.X - 1, s.Y}
 }
-func (s *square) right() square {
-	return square{s.x + 1, s.y}
+func (s *Square) right() Square {
+	return Square{s.X + 1, s.Y}
 }
 
 func NewBoard(cols int, rows int) Board {
@@ -57,23 +57,23 @@ func (b *Board) Set(x int, y int, u Unit) {
 	b.Board[x*b.Rows+y] = u
 }
 
-func (b *Board) getValidMoves(x int, y int) []square {
+func (b *Board) GetValidMoves(x int, y int) []Square {
 	u := b.Get(x, y)
 	if u.Exists == false {
-		return make([]square, 0)
+		return make([]Square, 0)
 	}
-	moves := make([]square, 0)
-	searchDirHelper := func(dir func(s *square) square, origin square) []square {
-		ret := make([]square, 0)
-		for next := dir(&origin); b.isValid(next.x, next.y); next = dir(&next) {
+	moves := make([]Square, 0)
+	searchDirHelper := func(dir func(s *Square) Square, origin Square) []Square {
+		ret := make([]Square, 0)
+		for next := dir(&origin); b.isValid(next.X, next.Y); next = dir(&next) {
 			ret = append(ret, next)
 		}
 		return ret
 	}
-	moves = append(moves, searchDirHelper((*square).up, square{x, y})...)
-	moves = append(moves, searchDirHelper((*square).down, square{x, y})...)
-	moves = append(moves, searchDirHelper((*square).left, square{x, y})...)
-	moves = append(moves, searchDirHelper((*square).right, square{x, y})...)
+	moves = append(moves, searchDirHelper((*Square).up, Square{x, y})...)
+	moves = append(moves, searchDirHelper((*Square).down, Square{x, y})...)
+	moves = append(moves, searchDirHelper((*Square).left, Square{x, y})...)
+	moves = append(moves, searchDirHelper((*Square).right, Square{x, y})...)
 	return moves
 }
 

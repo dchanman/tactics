@@ -9,7 +9,7 @@ const (
 
 // Game is the main game engine
 type Game struct {
-	B           Board `json:"board,omitempty"`
+	B           *Board `json:"board,omitempty"`
 	subscribers map[uint64](chan *GameNotification)
 	chat        chan GameChat
 }
@@ -33,7 +33,7 @@ func NewGame() *Game {
 	return &game
 }
 
-func createGameBoard() Board {
+func createGameBoard() *Board {
 	b := NewBoard(nCols, nRows)
 	// Add pieces
 	for i := 0; i < nCols; i++ {
@@ -42,7 +42,7 @@ func createGameBoard() Board {
 		b.Set(i, nRows-2, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
 		b.Set(i, nRows-3, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
 	}
-	return b
+	return &b
 }
 
 func (g *Game) chatPump() {

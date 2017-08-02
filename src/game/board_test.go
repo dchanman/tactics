@@ -82,7 +82,7 @@ func TestGetSetOutOfBounds(t *testing.T) {
 
 func TestGetValidMovesNil(t *testing.T) {
 	b := NewBoard(5, 5)
-	moves := b.getValidMoves(2, 2)
+	moves := b.GetValidMoves(2, 2)
 	if len(moves) != 0 {
 		t.Error("Unexpected valid moves ", moves)
 	}
@@ -91,20 +91,20 @@ func TestGetValidMoves0(t *testing.T) {
 	b := NewBoard(5, 5)
 	u := Unit{Exists: true}
 	b.Set(2, 2, u)
-	moves := b.getValidMoves(2, 2)
-	verify := make(map[square]bool, len(moves))
+	moves := b.GetValidMoves(2, 2)
+	verify := make(map[Square]bool, len(moves))
 	for i := range moves {
 		verify[moves[i]] = true
 	}
 	if len(moves) != 8 ||
-		!verify[square{2, 1}] ||
-		!verify[square{2, 0}] ||
-		!verify[square{2, 3}] ||
-		!verify[square{2, 4}] ||
-		!verify[square{1, 2}] ||
-		!verify[square{0, 2}] ||
-		!verify[square{3, 2}] ||
-		!verify[square{4, 2}] {
+		!verify[Square{2, 1}] ||
+		!verify[Square{2, 0}] ||
+		!verify[Square{2, 3}] ||
+		!verify[Square{2, 4}] ||
+		!verify[Square{1, 2}] ||
+		!verify[Square{0, 2}] ||
+		!verify[Square{3, 2}] ||
+		!verify[Square{4, 2}] {
 		t.Error("Unexpected valid moves ", moves)
 	}
 }
@@ -116,20 +116,20 @@ func TestGetValidMovesEnemyPieces(t *testing.T) {
 	b.Set(2, 2, u1)
 	b.Set(2, 1, u2)
 	b.Set(2, 3, u3)
-	moves := b.getValidMoves(2, 2)
-	verify := make(map[square]bool, len(moves))
+	moves := b.GetValidMoves(2, 2)
+	verify := make(map[Square]bool, len(moves))
 	for i := range moves {
 		verify[moves[i]] = true
 	}
 	if len(moves) != 8 ||
-		!verify[square{2, 1}] ||
-		!verify[square{2, 0}] ||
-		!verify[square{2, 3}] ||
-		!verify[square{2, 4}] ||
-		!verify[square{1, 2}] ||
-		!verify[square{0, 2}] ||
-		!verify[square{3, 2}] ||
-		!verify[square{4, 2}] {
+		!verify[Square{2, 1}] ||
+		!verify[Square{2, 0}] ||
+		!verify[Square{2, 3}] ||
+		!verify[Square{2, 4}] ||
+		!verify[Square{1, 2}] ||
+		!verify[Square{0, 2}] ||
+		!verify[Square{3, 2}] ||
+		!verify[Square{4, 2}] {
 		t.Error("Unexpected valid moves ", moves)
 	}
 }
