@@ -1,7 +1,5 @@
 package game
 
-import "encoding/json"
-
 type Square struct {
 	X int `json:"x"`
 	Y int `json:"y"`
@@ -57,28 +55,23 @@ func (b *Board) Set(x int, y int, u Unit) {
 	b.Board[x*b.Rows+y] = u
 }
 
+func (b *Board) getValidMovesHelper(dir func(s *Square) Square, origin Square) []Square {
+	ret := make([]Square, 0)
+	for next := dir(&origin); b.isValid(next.X, next.Y); next = dir(&next) {
+		ret = append(ret, next)
+	}
+	return ret
+}
+
 func (b *Board) GetValidMoves(x int, y int) []Square {
 	u := b.Get(x, y)
 	if u.Exists == false {
 		return make([]Square, 0)
 	}
 	moves := make([]Square, 0)
-	searchDirHelper := func(dir func(s *Square) Square, origin Square) []Square {
-		ret := make([]Square, 0)
-		for next := dir(&origin); b.isValid(next.X, next.Y); next = dir(&next) {
-			ret = append(ret, next)
-		}
-		return ret
-	}
-	moves = append(moves, searchDirHelper((*Square).up, Square{x, y})...)
-	moves = append(moves, searchDirHelper((*Square).down, Square{x, y})...)
-	moves = append(moves, searchDirHelper((*Square).left, Square{x, y})...)
-	moves = append(moves, searchDirHelper((*Square).right, Square{x, y})...)
+	moves = append(moves, b.getValidMovesHelper((*Square).up, Square{x, y})...)
+	moves = append(moves, b.getValidMovesHelper((*Square).down, Square{x, y})...)
+	moves = append(moves, b.getValidMovesHelper((*Square).left, Square{x, y})...)
+	moves = append(moves, b.getValidMovesHelper((*Square).right, Square{x, y})...)
 	return moves
-}
-
-func (b *Board) ToJSON() string {
-	marshalled, _ := json.Marshal(b)
-	log.Info(string(marshalled))
-	return string(marshalled)
 }

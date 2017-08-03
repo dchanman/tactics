@@ -133,13 +133,3 @@ func TestGetValidMovesEnemyPieces(t *testing.T) {
 		t.Error("Unexpected valid moves ", moves)
 	}
 }
-func TestToJSON(t *testing.T) {
-	b := NewBoard(5, 5)
-	u1 := Unit{Exists: true, Team: 1}
-	u2 := Unit{Exists: true, Team: 2}
-	u3 := Unit{Exists: true, Team: 1}
-	b.Set(2, 2, u1)
-	b.Set(2, 1, u2)
-	b.Set(2, 3, u3)
-	b.ToJSON()
-}
