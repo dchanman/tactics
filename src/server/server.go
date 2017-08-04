@@ -18,7 +18,7 @@ type Server struct {
 // NewServer instantiates a new server
 func NewServer() *Server {
 	g := game.NewGame()
-	return &Server{Game: g}
+	return &Server{Game: g, maxid: 1}
 }
 
 func (s *Server) nextID() uint64 {

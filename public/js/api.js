@@ -7,8 +7,14 @@ window.Api = (function () {
             api.onready();
         };
         ws.onmessage = function (event) {
-            var data = JSON.parse(event.data),
-                callback;
+            var data, callback;
+            try {
+                data = JSON.parse(event.data);
+            } catch (err) {
+                data = null;
+                console.log(err);
+                console.log(event.data);
+            }
             if (data !== null) {
                 if (data.id !== undefined) {
                     // Handle RPC response
@@ -71,6 +77,33 @@ window.Api = (function () {
         var api = this;
         return new Promise(function (resolve, reject) {
             sendmsg(api, "TacticsApi.GetGame", [], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    Api.prototype.getStatus = function () {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            sendmsg(api, "TacticsApi.GetStatus", [], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    Api.prototype.joinGame = function (playerNumber) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "playerNumber": playerNumber
+            };
+            sendmsg(api, "TacticsApi.JoinGame", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {

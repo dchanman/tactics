@@ -4,6 +4,7 @@ window.Main = (function () {
         this.api = new Api();
         this.chat = new Chat(this);
         this.board = new Board(document.getElementById("game"), this);
+        this.status = Status;
         this.heartbeat = null;
         var main = this;
         this.api.onready = function () {
@@ -25,6 +26,9 @@ window.Main = (function () {
             case "Game.Chat":
                 main.chat.receiveMessage(params);
                 break;
+            case "Game.Status":
+                main.status.update(params);
+                break;
             default:
                 console.log("Error: Unknown method: " + method);
             }
@@ -35,6 +39,11 @@ window.Main = (function () {
         this.api.getGame()
             .then(function (result) {
                 main.board.render(result.game.board);
+            });
+        this.api.getStatus()
+            .then(function (result) {
+                console.log(result);
+                main.status.update(result);
             });
     };
     Main.prototype.start = function () {
@@ -60,5 +69,14 @@ $(document).ready(function () {
     });
     $("#ctrlReset").click(function () {
         main.api.resetBoard();
+    });
+    $("#ctrlSitP1").click(function () {
+        main.api.joinGame(1)
+            .catch(function (err) {
+                console.log(err);
+            });
+    });
+    $("#ctrlSitP2").click(function () {
+        main.api.joinGame(2);
     });
 });

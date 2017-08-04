@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"strconv"
@@ -27,6 +28,27 @@ type TacticsApiUpdate struct {
 	Params interface{} `json:"params"`
 }
 
+type TacticsApiRole string
+
+const (
+	TacticsApiRoleObserver = "Spectator"
+	TacticsApiRolePlayer   = "Player"
+)
+
+type TacticsApiPlayerStatus string
+
+const (
+	TacticsApiPlayerStatusUnavailable = "Unavailable"
+	TacticsApiPlayerStatusThinking    = "Thinking of move..."
+	TacticsApiPlayerStatusCommitted   = "Move committed"
+)
+
+type TacticsApiStatus struct {
+	Role     TacticsApiRole         `json:"role"`
+	P1Status TacticsApiPlayerStatus `json:"p1status"`
+	P2Status TacticsApiPlayerStatus `json:"p2status"`
+}
+
 // TacticsApi exposes game APIs to the client
 type TacticsApi struct {
 	id      uint64
@@ -37,24 +59,35 @@ type TacticsApi struct {
 
 func NewTacticsApi(id uint64, conn *websocket.Conn) *TacticsApi {
 	client := Client{conn: conn}
-	api := TacticsApi{id: id, gameFin: make(chan bool), client: &client}
+	api := TacticsApi{
+		id:      id,
+		gameFin: make(chan bool),
+		client:  &client}
 	return &api
 }
 
-func (api *TacticsApi) SubscribeToGame(game *game.Game) {
-	api.game = game
-	ch := game.Subscribe(api.id)
-	defer game.Unsubscribe(api.id)
+func (api *TacticsApi) SubscribeToGame(g *game.Game) {
+	api.game = g
+	ch := g.Subscribe(api.id)
+	defer g.Unsubscribe(api.id)
 	for {
 		select {
 		case update := <-ch:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
 			api.client.WriteJSON(update)
+			api.sendStatusUpdate()
 		case <-api.gameFin:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
 			return
 		}
 	}
+}
+
+func (api *TacticsApi) sendStatusUpdate() {
+	statusNotif := game.GameNotification{
+		Method: "Game.Status",
+		Params: api.getStatusInfo()}
+	api.client.WriteJSON(statusNotif)
 }
 
 func (api *TacticsApi) ServeRPC() {
@@ -68,6 +101,7 @@ func (api *TacticsApi) ServeRPC() {
 			log.Error("Close: ", err)
 		}
 		api.gameFin <- true
+		api.game.QuitGame(api.id)
 	}()
 	rpcserver := rpc.NewServer()
 	rpcserver.Register(api)
@@ -127,5 +161,47 @@ func (api *TacticsApi) CommitMove(args *struct {
 func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {
 	log.WithFields(logrus.Fields{"id": api.id}).Printf("Resetting board")
 	api.game.ResetBoard()
+	return nil
+}
+
+func (api *TacticsApi) JoinGame(args *struct {
+	PlayerNumber int `json:"playerNumber"`
+}, result *struct{}) error {
+	joinedResult := api.game.JoinGame(args.PlayerNumber, api.id)
+	if !joinedResult {
+		return errors.New("Could not join game")
+	}
+	api.sendStatusUpdate()
+	return nil
+}
+
+func (api *TacticsApi) getStatusInfo() TacticsApiStatus {
+	p1id, p2id := api.game.GetPlayerIds()
+	p1ready, p2ready := api.game.GetPlayerReadyStatus()
+
+	statusHelper := func(pid uint64, pready bool) TacticsApiPlayerStatus {
+		if pid == 0 {
+			return TacticsApiPlayerStatusUnavailable
+		}
+		if !pready {
+			return TacticsApiPlayerStatusThinking
+		}
+		return TacticsApiPlayerStatusCommitted
+	}
+
+	var role TacticsApiRole
+	role = TacticsApiRoleObserver
+	if api.id == p1id || api.id == p2id {
+		role = TacticsApiRolePlayer
+	}
+
+	return TacticsApiStatus{
+		Role:     role,
+		P1Status: statusHelper(p1id, p1ready),
+		P2Status: statusHelper(p2id, p2ready)}
+}
+
+func (api *TacticsApi) GetStatus(args *struct{}, result *TacticsApiStatus) error {
+	*result = api.getStatusInfo()
 	return nil
 }

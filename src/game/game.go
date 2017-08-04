@@ -13,6 +13,11 @@ type Game struct {
 	subscribers map[uint64](chan *GameNotification)
 	chat        chan GameChat
 	movesQueue  chan gameMove
+
+	player1id    uint64
+	player2id    uint64
+	player1ready bool
+	player2ready bool
 }
 
 type gameMove struct {
@@ -36,7 +41,9 @@ func NewGame() *Game {
 		B:           createGameBoard(),
 		subscribers: make(map[uint64](chan *GameNotification)),
 		chat:        make(chan GameChat, gameChatBuffer),
-		movesQueue:  make(chan gameMove, gameMoveBuffer)}
+		movesQueue:  make(chan gameMove, gameMoveBuffer),
+		player1id:   0,
+		player2id:   0}
 	go game.chatPump()
 	go game.waitForMoves()
 	return &game
@@ -68,24 +75,24 @@ func (g *Game) chatPump() {
 func (g *Game) waitForMoves() {
 	var move1 Move
 	var move2 Move
-	ready1 := false
-	ready2 := false
+	g.player1ready = false
+	g.player2ready = false
 	for m := range g.movesQueue {
 		if m.reset {
-			ready1 = false
-			ready2 = false
+			g.player1ready = false
+			g.player2ready = false
 		} else if m.team == 1 {
 			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 1 ready")
-			ready1 = true
+			g.player1ready = true
 			move1 = m.move
 		} else if m.team == 2 {
 			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 2 ready")
-			ready2 = true
+			g.player2ready = true
 			move2 = m.move
 		}
-		if ready1 && ready2 {
-			ready1 = false
-			ready2 = false
+		if g.player1ready && g.player2ready {
+			g.player1ready = false
+			g.player2ready = false
 			g.B.ResolveMove(move1, move2)
 			g.PublishUpdate()
 		}
@@ -133,5 +140,48 @@ func (g *Game) PublishUpdate() {
 		}{Game: g}}
 	for _, ch := range g.subscribers {
 		ch <- &notif
+	}
+}
+
+func (g *Game) GetPlayerReadyStatus() (bool, bool) {
+	return g.player1ready, g.player2ready
+}
+
+func (g *Game) GetPlayerIds() (uint64, uint64) {
+	return g.player1id, g.player2id
+}
+
+func (g *Game) JoinGame(playerNumber int, id uint64) bool {
+	if playerNumber == 1 {
+		if g.player1id == 0 {
+			g.player1id = id
+			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
+			return true
+		}
+	} else if playerNumber == 2 {
+		if g.player2id == 0 {
+			g.player2id = id
+			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
+			return true
+		}
+	}
+	log.WithFields(
+		logrus.Fields{
+			"pid":          id,
+			"playerNumber": playerNumber,
+			"p1":           g.player1id,
+			"p2":           g.player2id}).
+		Error("Could not join")
+	return false
+}
+
+func (g *Game) QuitGame(id uint64) {
+	if g.player1id == id {
+		g.player1id = 0
+		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
+	}
+	if g.player2id == id {
+		g.player2id = 0
+		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
 	}
 }
