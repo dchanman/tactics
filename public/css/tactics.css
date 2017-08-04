@@ -7,6 +7,18 @@
     margin: 2px;
     padding: 2px;
     background-color: lightgrey;
+    cursor: pointer;
+
+    /*
+     * Do not allow text to be selectable
+     * https://stackoverflow.com/questions/6900124/how-to-make-certain-text-not-selectable-with-css
+     */
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    /* Rules below not implemented in browsers yet */
+    -o-user-select: none;
+    user-select: none;
 }
 .grid-square:hover {
     background-color: darkgrey;
