@@ -22,14 +22,14 @@ func stack(u1 Unit, u2 Unit) Unit {
 	if u1.Team == u2.Team {
 		u1.Stack += u2.Stack
 		return u1
-	} else {
-		if u1.Stack > u2.Stack {
-			u1.Stack -= u2.Stack
-			return u1
-		} else if u2.Stack > u1.Stack {
-			u2.Stack -= u1.Stack
-			return u2
-		}
+	}
+	if u1.Stack > u2.Stack {
+		u1.Stack -= u2.Stack
+		return u1
+	}
+	if u2.Stack > u1.Stack {
+		u2.Stack -= u1.Stack
+		return u2
 	}
 	return Unit{Exists: false}
 }
