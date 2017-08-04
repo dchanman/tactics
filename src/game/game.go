@@ -136,8 +136,10 @@ func (g *Game) PublishUpdate() {
 	notif := GameNotification{
 		Method: "Game.Update",
 		Params: struct {
-			Game *Game `json:"game"`
-		}{Game: g}}
+			Game    *Game `json:"game"`
+			P1Ready bool  `json:"p1ready"`
+			P2Ready bool  `json:"p2ready"`
+		}{Game: g, P1Ready: g.player1ready, P2Ready: g.player2ready}}
 	for _, ch := range g.subscribers {
 		ch <- &notif
 	}

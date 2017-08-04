@@ -22,6 +22,7 @@ window.Main = (function () {
             case "Game.Update":
                 console.log("Received update!");
                 main.board.render(params.game.board);
+                main.status.updatePlayerReady(params.p1ready, params.p2ready);
                 break;
             case "Game.Chat":
                 main.chat.receiveMessage(params);
