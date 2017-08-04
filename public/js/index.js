@@ -14,6 +14,7 @@ window.Main = (function () {
         };
         this.api.onclose = function () {
             console.log("API closed");
+            clearInterval(main.heartbeat);
         };
         this.api.onupdate = function (method, params) {
             switch (method) {

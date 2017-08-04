@@ -49,7 +49,11 @@ window.Api = (function () {
         };
         api.sentmsgs[api.currid] = callback;
         api.currid += 1;
-        api.ws.send(JSON.stringify(call));
+        try {
+            api.ws.send(JSON.stringify(call));
+        } catch (err) {
+            callback(null, err);
+        }
     }
     Api.prototype.heartbeat = function () {
         var api = this;
