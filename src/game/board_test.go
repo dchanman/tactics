@@ -320,3 +320,124 @@ func TestResolveStep(t *testing.T) {
 		t.Error("Unexpected piece: ", b.Get(1, 1))
 	}
 }
+func TestResolveMoveWinConditions(t *testing.T) {
+	var b Board
+	var m1 Move
+	var m2 Move
+	var winner bool
+	var team int8
+	cols := 3
+	rows := 5
+
+	// Test race victory: team 1 arrives first
+	b = NewBoard(cols, rows)
+	b.Set(1, 2, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 2}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 1 {
+		t.Error("Moves resolved incorrectly")
+	}
+
+	// Test race victory: draw
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 0 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test one side victory, other side move short
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 2}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 1}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test one side victory, other side friendly collision
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 2, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 2, Unit{Stack: 2, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 2, Team: 1, Exists: true})
+	b.Set(1, 2, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test one side victory, other side enemy collision
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 2, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test one side collision, which removes a blockade allowing other side win
+	b = NewBoard(cols, rows)
+	b.Set(1, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(1, 3, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(1, 4, Unit{Stack: 1, Team: 1, Exists: true})
+	m1 = Move{Src: Square{1, 4}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{1, 1}, Dst: Square{1, 4}}
+	winner, team = b.ResolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test both sides collision, nobody wins
+	b = NewBoard(cols, rows)
+	b.Set(1, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(0, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
+	winner, _ = b.ResolveMove(m1, m2)
+	if winner {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+}

@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 // unit is a basic unit in the game
 type Unit struct {
 	Name   string `json:"name,omitempty"`
@@ -32,4 +34,11 @@ func stack(u1 Unit, u2 Unit) Unit {
 		return u2
 	}
 	return Unit{Exists: false}
+}
+
+func (u *Unit) String() string {
+	if !u.Exists {
+		return "."
+	}
+	return fmt.Sprintf("T%d:%d", u.Team, u.Stack)
 }

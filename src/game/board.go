@@ -1,5 +1,11 @@
 package game
 
+import (
+	"bytes"
+
+	"github.com/sirupsen/logrus"
+)
+
 type Square struct {
 	X int `json:"x"`
 	Y int `json:"y"`
@@ -16,6 +22,7 @@ type Move struct {
 	Dst Square
 }
 
+// Assumption: A step's Src and Dst are adjacent squares
 type Step Move
 
 type moveSearch struct {
@@ -118,13 +125,13 @@ func (m *Move) decomposeMoveToSteps() []Step {
 	return ret
 }
 
-func (b *Board) resolveStep(step1 Step, step2 Step) bool {
+func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 	u1 := b.pickup(step1.Src.X, step1.Src.Y)
 	u2 := b.pickup(step2.Src.X, step2.Src.Y)
 	// Case 1: Both steps converge onto the same square
 	if step1.Dst == step2.Dst {
 		b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, u2))
-		return true
+		return true, true
 	}
 	// Case 2: Steps are on adjacent squares, moving into one another
 	// In this case, the stacking is applied, but neither piece will move
@@ -135,10 +142,91 @@ func (b *Board) resolveStep(step1 Step, step2 Step) bool {
 		} else if collision.Exists && collision.Team == u2.Team {
 			b.Set(step2.Src.X, step2.Src.Y, collision)
 		}
-		return true
+		return true, true
 	}
 	// Case 3: Two exclusive moves
+	collision1 := b.Get(step1.Dst.X, step1.Dst.Y).Exists
+	collision2 := b.Get(step2.Dst.X, step2.Dst.Y).Exists
 	b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, b.Get(step1.Dst.X, step1.Dst.Y)))
 	b.Set(step2.Dst.X, step2.Dst.Y, stack(u2, b.Get(step2.Dst.X, step2.Dst.Y)))
-	return false
+	return collision1, collision2
+}
+
+func (b *Board) checkWinCondition() (bool, int8) {
+	logrus.WithFields(logrus.Fields{"Board": b}).Info("wincon")
+	team1win := false
+	team2win := false
+	// Let rank 0 be team 1's "endzone"
+	for i := 0; i < b.Cols; i++ {
+		if b.Get(i, 0).Exists && b.Get(i, 0).Team == 1 {
+			team1win = true
+		}
+	}
+	// Let rank nRows be team 2's "endzone"
+	for i := 0; i < b.Cols; i++ {
+		if b.Get(i, b.Rows-1).Exists && b.Get(i, b.Rows-1).Team == 2 {
+			team2win = true
+		}
+	}
+	if team1win && team2win {
+		// TODO: compare stack sizes
+		return true, 0
+	} else if team1win {
+		return true, 1
+	} else if team2win {
+		return true, 2
+	}
+	return false, 0
+}
+
+func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, int8) {
+	// TODO: validate moves
+	logrus.Info("\n\nStarting ResolveMove \n\n\n")
+	logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
+	defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
+	steps1 := move1.decomposeMoveToSteps()
+	steps2 := move2.decomposeMoveToSteps()
+
+	nSteps := len(steps1)
+	if len(steps2) > len(steps1) {
+		nSteps = len(steps2)
+	}
+
+	var s1 Step
+	var s2 Step
+	stopped1 := false
+	stopped2 := false
+	for i := 0; i < nSteps && !(stopped1 && stopped2); i++ {
+		if stopped1 || i >= len(steps1) {
+			s1 = Step{Src: move1.Dst, Dst: move1.Dst}
+		} else {
+			s1 = steps1[i]
+		}
+		if stopped2 || i >= len(steps2) {
+			s2 = Step{Src: move2.Dst, Dst: move2.Dst}
+		} else {
+			s2 = steps2[i]
+		}
+		collision1, collision2 := b.resolveStep(s1, s2)
+		stopped1 = collision1 || stopped1
+		stopped2 = collision2 || stopped2
+		winner, team := b.checkWinCondition()
+		if winner {
+			return true, team
+		}
+	}
+	return false, 0
+}
+
+func (b *Board) String() string {
+	var buf bytes.Buffer
+
+	for i := 0; i < len(b.Board); i++ {
+		if i%b.Rows == 0 {
+			buf.WriteString("\n")
+		}
+		buf.WriteString(b.Board[i].String())
+		buf.WriteString("\t\t| ")
+	}
+	return buf.String()
 }
