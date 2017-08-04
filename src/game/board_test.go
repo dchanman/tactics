@@ -319,6 +319,25 @@ func TestResolveStep(t *testing.T) {
 	if (b.Get(1, 1) != Unit{Stack: 1, Team: 1, Exists: true}) {
 		t.Error("Unexpected piece: ", b.Get(1, 1))
 	}
+	// Subcase: completely independent friendly stacking
+	b = NewBoard(3, 3)
+	b.Set(0, 1, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 1, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 0, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(1, 0, Unit{Stack: 1, Team: 2, Exists: true})
+	s1 = Step{Src: Square{0, 1}, Dst: Square{1, 1}}
+	s2 = Step{Src: Square{0, 0}, Dst: Square{1, 0}}
+	b.resolveStep(s1, s2)
+	if b.Get(0, 1).Exists || b.Get(0, 0).Exists {
+		t.Error("Unexpected pieces: ", b.Get(0, 1), " and ", b.Get(0, 0))
+	}
+	if (b.Get(1, 0) != Unit{Stack: 2, Team: 2, Exists: true}) {
+		t.Error("Unexpected piece: ", b.Get(1, 0))
+	}
+	if (b.Get(1, 1) != Unit{Stack: 2, Team: 1, Exists: true}) {
+		t.Error("Unexpected piece: ", b.Get(1, 1))
+	}
+
 }
 func TestResolveMoveWinConditions(t *testing.T) {
 	var b Board
@@ -440,4 +459,21 @@ func TestResolveMoveWinConditions(t *testing.T) {
 		t.Error("Moves resolved incorrectly. Team: ", team)
 	}
 
+	// Test collision, make sure pieces stop
+	b = NewBoard(cols, rows)
+	b.Set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 2, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	b.Set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 2}}
+	winner, _ = b.ResolveMove(m1, m2)
+	if winner {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+	if b.Get(1, 3).Exists ||
+		!(b.Get(1, 2).Exists && b.Get(1, 2).Stack == 2) ||
+		!(b.Get(1, 1).Exists && b.Get(1, 1).Stack == 1) {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
 }

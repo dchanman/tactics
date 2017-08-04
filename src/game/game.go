@@ -45,10 +45,10 @@ func createGameBoard() *Board {
 	b := NewBoard(nCols, nRows)
 	// Add pieces
 	for i := 0; i < nCols; i++ {
-		b.Set(i, 1, Unit{Name: "X", Team: 1, Stack: 1, Exists: true})
-		b.Set(i, 2, Unit{Name: "X", Team: 1, Stack: 1, Exists: true})
-		b.Set(i, nRows-2, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
-		b.Set(i, nRows-3, Unit{Name: "O", Team: 2, Stack: 1, Exists: true})
+		b.Set(i, 1, Unit{Team: 2, Stack: 1, Exists: true})
+		b.Set(i, 2, Unit{Team: 2, Stack: 1, Exists: true})
+		b.Set(i, nRows-2, Unit{Team: 1, Stack: 1, Exists: true})
+		b.Set(i, nRows-3, Unit{Team: 1, Stack: 1, Exists: true})
 	}
 	return &b
 }

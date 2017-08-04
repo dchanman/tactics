@@ -121,7 +121,7 @@ window.Board = (function () {
         console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {
-        var i, x, y;
+        var i, x, y, name;
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
             y = i % this.rows;
@@ -129,7 +129,8 @@ window.Board = (function () {
             $(this.grid[x][y].dom).html("");
             if (pieces[i].exists) {
                 this.grid[x][y].unit = pieces[i];
-                $(this.grid[x][y].dom).html(pieces[i].name);
+                name = (pieces[i].team === 1 ? "X" : "O") + pieces[i].stack;
+                $(this.grid[x][y].dom).html(name);
             }
         }
     };
