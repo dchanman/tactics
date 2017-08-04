@@ -106,3 +106,20 @@ func (api *TacticsApi) GetValidMoves(args *TacticsApiArgs, result *TacticsApiRes
 	*result = TacticsApiResult{ValidMoves: api.game.B.GetValidMoves(args.X, args.Y)}
 	return nil
 }
+
+func (api *TacticsApi) CommitMove(args *struct {
+	FromX int `json:"fromX"`
+	FromY int `json:"fromY"`
+	ToX   int `json:"toX"`
+	ToY   int `json:"toY"`
+}, result *struct{}) error {
+	// TODO: validate move
+	// TODO: assign teams
+	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Committing move")
+	team := game.Team(api.id%2) + 1
+	move := game.Move{
+		Src: game.Square{X: args.FromX, Y: args.FromY},
+		Dst: game.Square{X: args.ToX, Y: args.ToY}}
+	api.game.CommitMove(team, move)
+	return nil
+}

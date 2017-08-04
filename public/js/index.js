@@ -19,6 +19,7 @@ window.Main = (function () {
         this.api.onupdate = function (method, params) {
             switch (method) {
             case "Game.Update":
+                console.log("Received update!");
                 main.board.render(params.game.board);
                 break;
             case "Game.Chat":

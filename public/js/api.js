@@ -127,5 +127,23 @@ window.Api = (function () {
             });
         });
     };
+    Api.prototype.commitMove = function (fromX, fromY, toX, toY) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "fromX": fromX,
+                "fromY": fromY,
+                "toX": toX,
+                "toY": toY
+            };
+            sendmsg(api, "TacticsApi.CommitMove", [params], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
     return Api;
 }());

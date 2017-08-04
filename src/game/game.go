@@ -12,6 +12,12 @@ type Game struct {
 	B           *Board `json:"board,omitempty"`
 	subscribers map[uint64](chan *GameNotification)
 	chat        chan GameChat
+	movesQueue  chan gameMove
+}
+
+type gameMove struct {
+	move Move
+	team Team
 }
 
 type GameChat struct {
@@ -28,8 +34,10 @@ func NewGame() *Game {
 	game := Game{
 		B:           createGameBoard(),
 		subscribers: make(map[uint64](chan *GameNotification)),
-		chat:        make(chan GameChat, gameChatBuffer)}
+		chat:        make(chan GameChat, gameChatBuffer),
+		movesQueue:  make(chan gameMove, gameMoveBuffer)}
 	go game.chatPump()
+	go game.waitForMoves()
 	return &game
 }
 
@@ -54,6 +62,34 @@ func (g *Game) chatPump() {
 			ch <- &notif
 		}
 	}
+}
+
+func (g *Game) waitForMoves() {
+	var move1 Move
+	var move2 Move
+	ready1 := false
+	ready2 := false
+	for m := range g.movesQueue {
+		if m.team == 1 {
+			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 1 ready")
+			ready1 = true
+			move1 = m.move
+		} else if m.team == 2 {
+			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 2 ready")
+			ready2 = true
+			move2 = m.move
+		}
+		if ready1 && ready2 {
+			ready1 = false
+			ready2 = false
+			g.B.ResolveMove(move1, move2)
+			g.PublishUpdate()
+		}
+	}
+}
+
+func (g *Game) CommitMove(team Team, move Move) {
+	g.movesQueue <- gameMove{team: team, move: move}
 }
 
 func (g *Game) SendChat(sender string, msg string) {

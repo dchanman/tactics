@@ -27,6 +27,12 @@ window.Board = (function () {
         } else if ($(this.container).hasClass("grid-square-commit-dst")) {
             this.board.removeSelectableSquares();
             console.log("Committing move (" + this.board.selectedSquare.x + "," + this.board.selectedSquare.y + ") to (" + this.x + "," + this.y + ")");
+            this.board.main.api.commitMove(
+                this.board.selectedSquare.x,
+                this.board.selectedSquare.y,
+                this.x,
+                this.y
+            );
             this.board.selectedSquare = null;
         } else {
             this.board.removeSelectableSquares();
@@ -120,6 +126,7 @@ window.Board = (function () {
             x = Math.floor(i / this.rows);
             y = i % this.rows;
             this.grid[x][y].unit = null;
+            $(this.grid[x][y].dom).html("");
             if (pieces[i].exists) {
                 this.grid[x][y].unit = pieces[i];
                 $(this.grid[x][y].dom).html(pieces[i].name);
