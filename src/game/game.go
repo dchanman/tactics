@@ -16,8 +16,9 @@ type Game struct {
 }
 
 type gameMove struct {
-	move Move
-	team Team
+	move  Move
+	team  Team
+	reset bool
 }
 
 type GameChat struct {
@@ -70,7 +71,10 @@ func (g *Game) waitForMoves() {
 	ready1 := false
 	ready2 := false
 	for m := range g.movesQueue {
-		if m.team == 1 {
+		if m.reset {
+			ready1 = false
+			ready2 = false
+		} else if m.team == 1 {
 			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 1 ready")
 			ready1 = true
 			move1 = m.move
@@ -90,6 +94,12 @@ func (g *Game) waitForMoves() {
 
 func (g *Game) CommitMove(team Team, move Move) {
 	g.movesQueue <- gameMove{team: team, move: move}
+}
+
+func (g *Game) ResetBoard() {
+	g.B = createGameBoard()
+	g.movesQueue <- gameMove{reset: true}
+	g.PublishUpdate()
 }
 
 func (g *Game) SendChat(sender string, msg string) {

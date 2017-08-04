@@ -123,3 +123,9 @@ func (api *TacticsApi) CommitMove(args *struct {
 	api.game.CommitMove(team, move)
 	return nil
 }
+
+func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {
+	log.WithFields(logrus.Fields{"id": api.id}).Printf("Resetting board")
+	api.game.ResetBoard()
+	return nil
+}

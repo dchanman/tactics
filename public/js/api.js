@@ -145,5 +145,17 @@ window.Api = (function () {
             });
         });
     };
+    Api.prototype.resetBoard = function () {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            sendmsg(api, "TacticsApi.ResetBoard", [], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
     return Api;
 }());

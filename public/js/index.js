@@ -58,4 +58,7 @@ $(document).ready(function () {
             main.chat.sendMessage();
         }
     });
+    $("#ctrlReset").click(function () {
+        main.api.resetBoard();
+    });
 });
