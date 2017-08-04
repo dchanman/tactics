@@ -325,7 +325,7 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	var m1 Move
 	var m2 Move
 	var winner bool
-	var team int8
+	var team Team
 	cols := 3
 	rows := 5
 

@@ -25,11 +25,6 @@ type Move struct {
 // Assumption: A step's Src and Dst are adjacent squares
 type Step Move
 
-type moveSearch struct {
-	Square
-	movRemainder int8
-}
-
 func (s *Square) up() Square {
 	return Square{s.X, s.Y - 1}
 }
@@ -152,7 +147,7 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 	return collision1, collision2
 }
 
-func (b *Board) checkWinCondition() (bool, int8) {
+func (b *Board) checkWinCondition() (bool, Team) {
 	logrus.WithFields(logrus.Fields{"Board": b}).Info("wincon")
 	team1win := false
 	team2win := false
@@ -179,7 +174,7 @@ func (b *Board) checkWinCondition() (bool, int8) {
 	return false, 0
 }
 
-func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, int8) {
+func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, Team) {
 	// TODO: validate moves
 	logrus.Info("\n\nStarting ResolveMove \n\n\n")
 	logrus.WithFields(logrus.Fields{"Board": b}).Info("init")

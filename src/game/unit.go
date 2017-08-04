@@ -2,10 +2,12 @@ package game
 
 import "fmt"
 
+type Team int8
+
 // unit is a basic unit in the game
 type Unit struct {
 	Name   string `json:"name,omitempty"`
-	Team   int8   `json:"team,omitempty"`
+	Team   Team   `json:"team,omitempty"`
 	Stack  int8   `json:"stack,omitempty"`
 	Exists bool   `json:"exists"`
 }
