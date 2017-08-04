@@ -19,6 +19,7 @@ window.Board = (function () {
     Square.prototype.onClick = function () {
         if (this === this.board.selectedSquare) {
             this.board.removeSelectableSquares();
+            this.board.selectedSquare = null;
         } else if ($(this.container).hasClass("grid-square-selectable")) {
             this.board.removeSelectableSquares();
             $(this.board.selectedSquare.container).addClass("grid-square-commit-src");
@@ -26,6 +27,7 @@ window.Board = (function () {
         } else if ($(this.container).hasClass("grid-square-commit-dst")) {
             this.board.removeSelectableSquares();
             console.log("Committing move (" + this.board.selectedSquare.x + "," + this.board.selectedSquare.y + ") to (" + this.x + "," + this.y + ")");
+            this.board.selectedSquare = null;
         } else {
             this.board.removeSelectableSquares();
             this.board.selectedSquare = this;
