@@ -4,7 +4,7 @@ window.Main = (function () {
         this.api = new Api();
         this.chat = new Chat(this);
         this.board = new Board(document.getElementById("game"), this);
-        this.status = Status;
+        this.status = new Status(this);
         this.heartbeat = null;
         var main = this;
         this.api.onready = function () {
@@ -67,17 +67,5 @@ $(document).ready(function () {
         if (event.keyCode === 13) {
             main.chat.sendMessage();
         }
-    });
-    $("#ctrlReset").click(function () {
-        main.api.resetBoard();
-    });
-    $("#ctrlSitP1").click(function () {
-        main.api.joinGame(1)
-            .catch(function (err) {
-                console.log(err);
-            });
-    });
-    $("#ctrlSitP2").click(function () {
-        main.api.joinGame(2);
     });
 });

@@ -168,17 +168,25 @@ func (api *TacticsApi) JoinGame(args *struct {
 
 func (api *TacticsApi) GetRole(args *struct{}, result *struct {
 	Role TacticsApiRole `json:"role"`
+	Team game.Team      `json:"team"`
 }) error {
 	p1id, p2id := api.game.GetPlayerIds()
-	var role TacticsApiRole
-	role = TacticsApiRoleObserver
-	if api.id == p1id || api.id == p2id {
+	role := TacticsApiRoleObserver
+	team := game.Team(0)
+	if api.id == p1id {
 		role = TacticsApiRolePlayer
+		team = 1
+	}
+	if api.id == p2id {
+		role = TacticsApiRolePlayer
+		team = 2
 	}
 
 	*result = struct {
 		Role TacticsApiRole `json:"role"`
+		Team game.Team      `json:"team"`
 	}{
-		Role: role}
+		Role: role,
+		Team: team}
 	return nil
 }
