@@ -85,10 +85,10 @@ window.Api = (function () {
             });
         });
     };
-    Api.prototype.getStatus = function () {
+    Api.prototype.getRole = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.GetStatus", [], function (result, err) {
+            sendmsg(api, "TacticsApi.GetRole", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {

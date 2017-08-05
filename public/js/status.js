@@ -1,7 +1,7 @@
 window.Status = (function () {
     "use strict";
     var Status = {};
-    Status.update = function (update) {
+    Status.updateRole = function (update) {
         var ctrlStatusRole = "Your role: ".bold() + update.role;
         $("#ctrlStatusRole").html(ctrlStatusRole);
     };

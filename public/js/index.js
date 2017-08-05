@@ -25,29 +25,26 @@ window.Main = (function () {
             case "Game.Chat":
                 main.chat.receiveMessage(params);
                 break;
-            case "Game.Status":
-                main.status.update(params);
-                break;
             default:
                 console.log("Error: Unknown method: " + method);
             }
         };
     }
     Main.prototype.handleGameInfo = function (data) {
+        var main = this;
         console.log("Received update!");
         this.board.render(data.game.board);
         this.status.updatePlayerReady(data);
+        this.api.getRole()
+            .then(function (result) {
+                main.status.updateRole(result);
+            });
     };
     Main.prototype.refresh = function () {
         var main = this;
         this.api.getGame()
             .then(function (result) {
                 main.handleGameInfo(result);
-            });
-        this.api.getStatus()
-            .then(function (result) {
-                console.log(result);
-                main.status.update(result);
             });
     };
     Main.prototype.start = function () {

@@ -31,16 +31,16 @@ type TacticsApiUpdate struct {
 type TacticsApiRole string
 
 const (
-	TacticsApiRoleObserver = "Spectator"
-	TacticsApiRolePlayer   = "Player"
+	TacticsApiRoleObserver TacticsApiRole = "Spectator"
+	TacticsApiRolePlayer                  = "Player"
 )
 
 type TacticsApiPlayerStatus string
 
 const (
-	TacticsApiPlayerStatusUnavailable = "Unavailable"
-	TacticsApiPlayerStatusThinking    = "Thinking of move..."
-	TacticsApiPlayerStatusCommitted   = "Move committed"
+	TacticsApiPlayerStatusUnavailable TacticsApiPlayerStatus = "Unavailable"
+	TacticsApiPlayerStatusThinking                           = "Thinking of move..."
+	TacticsApiPlayerStatusCommitted                          = "Move committed"
 )
 
 type TacticsApiStatus struct {
@@ -75,19 +75,11 @@ func (api *TacticsApi) SubscribeToGame(g *game.Game) {
 		case update := <-ch:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
 			api.client.WriteJSON(update)
-			api.sendStatusUpdate()
 		case <-api.gameFin:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
 			return
 		}
 	}
-}
-
-func (api *TacticsApi) sendStatusUpdate() {
-	statusNotif := game.GameNotification{
-		Method: "Game.Status",
-		Params: api.getStatusInfo()}
-	api.client.WriteJSON(statusNotif)
 }
 
 func (api *TacticsApi) ServeRPC() {
@@ -171,37 +163,22 @@ func (api *TacticsApi) JoinGame(args *struct {
 	if !joinedResult {
 		return errors.New("Could not join game")
 	}
-	api.sendStatusUpdate()
 	return nil
 }
 
-func (api *TacticsApi) getStatusInfo() TacticsApiStatus {
+func (api *TacticsApi) GetRole(args *struct{}, result *struct {
+	Role TacticsApiRole `json:"role"`
+}) error {
 	p1id, p2id := api.game.GetPlayerIds()
-	p1ready, p2ready := api.game.GetPlayerReadyStatus()
-
-	statusHelper := func(pid uint64, pready bool) TacticsApiPlayerStatus {
-		if pid == 0 {
-			return TacticsApiPlayerStatusUnavailable
-		}
-		if !pready {
-			return TacticsApiPlayerStatusThinking
-		}
-		return TacticsApiPlayerStatusCommitted
-	}
-
 	var role TacticsApiRole
 	role = TacticsApiRoleObserver
 	if api.id == p1id || api.id == p2id {
 		role = TacticsApiRolePlayer
 	}
 
-	return TacticsApiStatus{
-		Role:     role,
-		P1Status: statusHelper(p1id, p1ready),
-		P2Status: statusHelper(p2id, p2ready)}
-}
-
-func (api *TacticsApi) GetStatus(args *struct{}, result *TacticsApiStatus) error {
-	*result = api.getStatusInfo()
+	*result = struct {
+		Role TacticsApiRole `json:"role"`
+	}{
+		Role: role}
 	return nil
 }
