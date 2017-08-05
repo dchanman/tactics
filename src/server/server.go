@@ -30,6 +30,6 @@ func (s *Server) nextID() uint64 {
 // RegisterNewClient registers a new websocket connection with the server
 func (s *Server) RegisterNewClient(conn *websocket.Conn) {
 	api := NewTacticsApi(s.nextID(), conn)
-	go api.SubscribeToGame(s.Game)
-	go api.ServeRPC()
+	go api.subscribeToGame(s.Game)
+	go api.serveRPC()
 }

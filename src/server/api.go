@@ -66,7 +66,7 @@ func NewTacticsApi(id uint64, conn *websocket.Conn) *TacticsApi {
 	return &api
 }
 
-func (api *TacticsApi) SubscribeToGame(g *game.Game) {
+func (api *TacticsApi) subscribeToGame(g *game.Game) {
 	api.game = g
 	ch := g.Subscribe(api.id)
 	defer g.Unsubscribe(api.id)
@@ -82,7 +82,7 @@ func (api *TacticsApi) SubscribeToGame(g *game.Game) {
 	}
 }
 
-func (api *TacticsApi) ServeRPC() {
+func (api *TacticsApi) serveRPC() {
 	defer func() {
 		log.Info("Done Serving")
 		if r := recover(); r != nil {
