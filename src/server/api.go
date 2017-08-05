@@ -113,10 +113,10 @@ func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
 	return nil
 }
 
-func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *TacticsApiResult) error {
+func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *game.GameInformation) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting Game")
 	log.WithFields(logrus.Fields{"game": api.game}).Printf("Game")
-	*result = TacticsApiResult{Game: api.game}
+	*result = api.game.GetGameInformation()
 	return nil
 }
 

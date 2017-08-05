@@ -36,6 +36,14 @@ type GameNotification struct {
 	Params interface{} `json:"params"`
 }
 
+type GameInformation struct {
+	Game        *Game `json:"game"`
+	P1Available bool  `json:"p1available"`
+	P2Available bool  `json:"p2available"`
+	P1Ready     bool  `json:"p1ready"`
+	P2Ready     bool  `json:"p2ready"`
+}
+
 func NewGame() *Game {
 	game := Game{
 		B:           createGameBoard(),
@@ -94,8 +102,8 @@ func (g *Game) waitForMoves() {
 			g.player1ready = false
 			g.player2ready = false
 			g.B.ResolveMove(move1, move2)
-			g.PublishUpdate()
 		}
+		g.PublishUpdate()
 	}
 }
 
@@ -132,14 +140,19 @@ func (g *Game) Unsubscribe(id uint64) {
 	delete(g.subscribers, id)
 }
 
+func (g *Game) GetGameInformation() GameInformation {
+	return GameInformation{
+		Game:        g,
+		P1Available: !(g.player1id == 0),
+		P2Available: !(g.player2id == 0),
+		P1Ready:     g.player1ready,
+		P2Ready:     g.player2ready}
+}
+
 func (g *Game) PublishUpdate() {
 	notif := GameNotification{
 		Method: "Game.Update",
-		Params: struct {
-			Game    *Game `json:"game"`
-			P1Ready bool  `json:"p1ready"`
-			P2Ready bool  `json:"p2ready"`
-		}{Game: g, P1Ready: g.player1ready, P2Ready: g.player2ready}}
+		Params: g.GetGameInformation()}
 	for _, ch := range g.subscribers {
 		ch <- &notif
 	}
@@ -158,12 +171,14 @@ func (g *Game) JoinGame(playerNumber int, id uint64) bool {
 		if g.player1id == 0 {
 			g.player1id = id
 			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
+			go g.PublishUpdate()
 			return true
 		}
 	} else if playerNumber == 2 {
 		if g.player2id == 0 {
 			g.player2id = id
 			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
+			go g.PublishUpdate()
 			return true
 		}
 	}
@@ -181,9 +196,11 @@ func (g *Game) QuitGame(id uint64) {
 	if g.player1id == id {
 		g.player1id = 0
 		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
+		go g.PublishUpdate()
 	}
 	if g.player2id == id {
 		g.player2id = 0
 		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
+		go g.PublishUpdate()
 	}
 }

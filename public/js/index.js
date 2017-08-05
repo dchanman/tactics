@@ -20,9 +20,7 @@ window.Main = (function () {
         this.api.onupdate = function (method, params) {
             switch (method) {
             case "Game.Update":
-                console.log("Received update!");
-                main.board.render(params.game.board);
-                main.status.updatePlayerReady(params.p1ready, params.p2ready);
+                main.handleGameInfo(params);
                 break;
             case "Game.Chat":
                 main.chat.receiveMessage(params);
@@ -35,11 +33,16 @@ window.Main = (function () {
             }
         };
     }
+    Main.prototype.handleGameInfo = function (data) {
+        console.log("Received update!");
+        this.board.render(data.game.board);
+        this.status.updatePlayerReady(data);
+    };
     Main.prototype.refresh = function () {
         var main = this;
         this.api.getGame()
             .then(function (result) {
-                main.board.render(result.game.board);
+                main.handleGameInfo(result);
             });
         this.api.getStatus()
             .then(function (result) {
