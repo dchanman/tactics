@@ -1,9 +1,19 @@
+.margin-vert {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.table-centered {
+    margin: auto;
+    float: none;
+}
 .grid {
     background-color: black;
 }
 .grid-square {
     height: 75px;
+    min-height: 75px;
     width: 75px;
+    min-width: 75px;
     margin: 5px;
     padding: 5px;
     background-color: lightgrey;
