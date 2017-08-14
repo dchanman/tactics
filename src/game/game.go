@@ -135,6 +135,14 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 	return nil
 }
 
+func (g *Game) GetValidMoves(id uint64, x int, y int) []Square {
+	u := g.B.Get(x, y)
+	if u.Exists && u.Team == g.getTeamForPlayerId(id) {
+		return g.B.GetValidMoves(x, y)
+	}
+	return make([]Square, 0)
+}
+
 func (g *Game) ResetBoard() {
 	g.B = createGameBoard()
 	g.movesQueue <- gameMove{reset: true}

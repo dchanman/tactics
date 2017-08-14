@@ -129,7 +129,7 @@ func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) 
 func (api *TacticsApi) GetValidMoves(args *TacticsApiArgs, result *TacticsApiResult) error {
 	// TODO: Eventually this will be done clientside
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting moves")
-	*result = TacticsApiResult{ValidMoves: api.game.B.GetValidMoves(args.X, args.Y)}
+	*result = TacticsApiResult{ValidMoves: api.game.GetValidMoves(api.id, args.X, args.Y)}
 	return nil
 }
 
