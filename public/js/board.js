@@ -129,7 +129,7 @@ window.Board = (function () {
         console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {
-        var i, x, y, name;
+        var i, x, y, cls, num;
         this.currentBoard = pieces;
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
@@ -140,15 +140,10 @@ window.Board = (function () {
             $(this.grid[x][y].container).removeClass("piece-enemy");
             if (pieces[i].exists) {
                 this.grid[x][y].unit = pieces[i];
-                name = (pieces[i].team === 1 ? "X" : "O") + pieces[i].stack;
-                if (this.playerTeam !== 0) {
-                    if (pieces[i].team === this.playerTeam) {
-                        $(this.grid[x][y].container).addClass("piece-friendly");
-                    } else {
-                        $(this.grid[x][y].container).addClass("piece-enemy");
-                    }
-                }
-                $(this.grid[x][y].dom).html(name);
+                cls = "piece";
+                cls += " " + (pieces[i].team === 1 ? "piece-1" : "piece-2");
+                num = (pieces[i].stack > 1 ? pieces[i].stack : "");
+                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle></circle><text x="50%" y="50%">' + num + '</text></svg>');
             }
         }
     };

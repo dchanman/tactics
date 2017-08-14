@@ -43,9 +43,11 @@ window.Status = (function () {
     };
     Status.prototype.updateRole = function (update) {
         this.team = update.team;
-        var ctrlStatusRole = "Your role: ".bold() + update.role;
+        var color,
+            ctrlStatusRole = "Your role: ".bold() + update.role;
         if (update.team > 0) {
-            ctrlStatusRole += ("(Team " + update.team + ")").italics();
+            color = (update.team === 1 ? " White" : " Black");
+            ctrlStatusRole += color.italics();
         }
         $("#ctrlStatusRole").html(ctrlStatusRole);
         this.renderButtons();
@@ -59,8 +61,8 @@ window.Status = (function () {
         this.p2ready = update.p2ready;
         var p1 = (update.p1available ? (update.p1ready ? "Ready" : "Thinking...") : "Offline"),
             p2 = (update.p2available ? (update.p2ready ? "Ready" : "Thinking...") : "Offline"),
-            ctrlStatusP1 = "Player 1: ".bold() + p1,
-            ctrlStatusP2 = "Player 2: ".bold() + p2;
+            ctrlStatusP1 = "White: ".bold() + p1,
+            ctrlStatusP2 = "Black: ".bold() + p2;
         $("#ctrlStatusP1").html(ctrlStatusP1);
         $("#ctrlStatusP2").html(ctrlStatusP2);
         this.renderButtons();
