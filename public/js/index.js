@@ -33,7 +33,8 @@ window.Main = (function () {
     Main.prototype.handleGameInfo = function (data) {
         var main = this;
         console.log("Received update!");
-        this.board.render(data.game.board);
+        console.log(data.history);
+        this.board.render(data.board);
         this.status.updatePlayerReady(data);
         this.api.getRole()
             .then(function (result) {

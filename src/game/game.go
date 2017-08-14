@@ -16,10 +16,11 @@ const (
 
 // Game is the main game engine
 type Game struct {
-	B           *Board `json:"board,omitempty"`
+	board       *Board
 	subscribers map[uint64](chan *GameNotification)
 	chat        chan GameChat
 	movesQueue  chan gameMove
+	history     []Turn
 
 	teamToPlayerId []uint64
 	player1ready   bool
@@ -30,6 +31,15 @@ type gameMove struct {
 	move  Move
 	team  Team
 	reset bool
+}
+
+type Turn map[Team]Move
+
+func NewTurn(move1 Move, move2 Move) Turn {
+	moves := make(map[Team]Move)
+	moves[1] = move1
+	moves[2] = move2
+	return Turn(moves)
 }
 
 type GameChat struct {
@@ -43,23 +53,35 @@ type GameNotification struct {
 }
 
 type GameInformation struct {
-	Game        *Game `json:"game"`
-	P1Available bool  `json:"p1available"`
-	P2Available bool  `json:"p2available"`
-	P1Ready     bool  `json:"p1ready"`
-	P2Ready     bool  `json:"p2ready"`
+	Board       *Board `json:"board"`
+	History     []Turn `json:"history"`
+	P1Available bool   `json:"p1available"`
+	P2Available bool   `json:"p2available"`
+	P1Ready     bool   `json:"p1ready"`
+	P2Ready     bool   `json:"p2ready"`
 }
 
 func NewGame() *Game {
 	game := Game{
-		B:              createGameBoard(),
 		subscribers:    make(map[uint64](chan *GameNotification)),
 		chat:           make(chan GameChat, gameChatBuffer),
 		movesQueue:     make(chan gameMove, gameMoveBuffer),
 		teamToPlayerId: make([]uint64, nMaxPlayers+1)}
+	game.initGameState()
 	go game.chatPump()
 	go game.waitForMoves()
 	return &game
+}
+
+func (g *Game) initGameState() {
+	g.board = createGameBoard()
+	g.history = make([]Turn, 0)
+}
+
+func (g *Game) ResetBoard() {
+	g.initGameState()
+	g.movesQueue <- gameMove{reset: true}
+	g.PublishUpdate()
 }
 
 func createGameBoard() *Board {
@@ -108,7 +130,8 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			g.B.ResolveMove(move1, move2)
+			g.board.ResolveMove(move1, move2)
+			g.history = append(g.history, NewTurn(move1, move2))
 		}
 		g.PublishUpdate()
 	}
@@ -128,7 +151,7 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 	if team == 0 {
 		return errors.New("Player is not playing")
 	}
-	if !g.B.Get(move.Src.X, move.Src.Y).Exists || g.B.Get(move.Src.X, move.Src.Y).Team != team {
+	if !g.board.Get(move.Src.X, move.Src.Y).Exists || g.board.Get(move.Src.X, move.Src.Y).Team != team {
 		return errors.New("Player is moving the wrong piece")
 	}
 	g.movesQueue <- gameMove{team: team, move: move}
@@ -136,17 +159,11 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 }
 
 func (g *Game) GetValidMoves(id uint64, x int, y int) []Square {
-	u := g.B.Get(x, y)
+	u := g.board.Get(x, y)
 	if u.Exists && u.Team == g.getTeamForPlayerId(id) {
-		return g.B.GetValidMoves(x, y)
+		return g.board.GetValidMoves(x, y)
 	}
 	return make([]Square, 0)
-}
-
-func (g *Game) ResetBoard() {
-	g.B = createGameBoard()
-	g.movesQueue <- gameMove{reset: true}
-	g.PublishUpdate()
 }
 
 func (g *Game) SendChat(sender string, msg string) {
@@ -174,7 +191,8 @@ func (g *Game) Unsubscribe(id uint64) {
 
 func (g *Game) GetGameInformation() GameInformation {
 	return GameInformation{
-		Game:        g,
+		Board:       g.board,
+		History:     g.history,
 		P1Available: g.teamToPlayerId[1] != 0,
 		P2Available: g.teamToPlayerId[2] != 0,
 		P1Ready:     g.player1ready,

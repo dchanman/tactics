@@ -112,14 +112,6 @@ func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *game.GameInformatio
 	return nil
 }
 
-func (api *TacticsApi) AddUnit(args *TacticsApiArgs, result *TacticsApiResult) error {
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Adding unit")
-	api.game.B.Set(args.X, args.Y, *args.Unit)
-	go api.game.PublishUpdate()
-	*result = TacticsApiResult{}
-	return nil
-}
-
 func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Sending Chat")
 	api.game.SendChat(strconv.FormatUint(api.id, 10), args.Message)

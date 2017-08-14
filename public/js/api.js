@@ -112,23 +112,6 @@ window.Api = (function () {
             });
         });
     };
-    Api.prototype.addUnit = function (x, y, unit) {
-        var api = this;
-        return new Promise(function (resolve, reject) {
-            var params = {
-                "x": x,
-                "y": y,
-                "unit": unit
-            };
-            sendmsg(api, "TacticsApi.AddUnit", [params], function (result, err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-    };
     Api.prototype.sendChat = function (msg) {
         var api = this;
         return new Promise(function (resolve, reject) {
