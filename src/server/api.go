@@ -139,15 +139,11 @@ func (api *TacticsApi) CommitMove(args *struct {
 	ToX   int `json:"toX"`
 	ToY   int `json:"toY"`
 }, result *struct{}) error {
-	// TODO: validate move
-	// TODO: assign teams
 	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Committing move")
-	team := game.Team(api.id%2) + 1
 	move := game.Move{
 		Src: game.Square{X: args.FromX, Y: args.FromY},
 		Dst: game.Square{X: args.ToX, Y: args.ToY}}
-	api.game.CommitMove(team, move)
-	return nil
+	return api.game.CommitMove(api.id, move)
 }
 
 func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {

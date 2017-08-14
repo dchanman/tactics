@@ -1,10 +1,15 @@
 package game
 
-import "github.com/sirupsen/logrus"
+import (
+	"errors"
+
+	"github.com/sirupsen/logrus"
+)
 
 const (
-	nRows = 10
-	nCols = 8
+	nMaxPlayers = 2
+	nRows       = 10
+	nCols       = 8
 	// nRows = 8
 	// nCols = 5
 )
@@ -16,10 +21,9 @@ type Game struct {
 	chat        chan GameChat
 	movesQueue  chan gameMove
 
-	player1id    uint64
-	player2id    uint64
-	player1ready bool
-	player2ready bool
+	teamToPlayerId []uint64
+	player1ready   bool
+	player2ready   bool
 }
 
 type gameMove struct {
@@ -48,12 +52,11 @@ type GameInformation struct {
 
 func NewGame() *Game {
 	game := Game{
-		B:           createGameBoard(),
-		subscribers: make(map[uint64](chan *GameNotification)),
-		chat:        make(chan GameChat, gameChatBuffer),
-		movesQueue:  make(chan gameMove, gameMoveBuffer),
-		player1id:   0,
-		player2id:   0}
+		B:              createGameBoard(),
+		subscribers:    make(map[uint64](chan *GameNotification)),
+		chat:           make(chan GameChat, gameChatBuffer),
+		movesQueue:     make(chan gameMove, gameMoveBuffer),
+		teamToPlayerId: make([]uint64, nMaxPlayers+1)}
 	go game.chatPump()
 	go game.waitForMoves()
 	return &game
@@ -111,8 +114,25 @@ func (g *Game) waitForMoves() {
 	}
 }
 
-func (g *Game) CommitMove(team Team, move Move) {
+func (g *Game) getTeamForPlayerId(id uint64) Team {
+	for team, pid := range g.teamToPlayerId {
+		if pid == id {
+			return Team(team)
+		}
+	}
+	return 0
+}
+
+func (g *Game) CommitMove(id uint64, move Move) error {
+	team := g.getTeamForPlayerId(id)
+	if team == 0 {
+		return errors.New("Player is not playing")
+	}
+	if !g.B.Get(move.Src.X, move.Src.Y).Exists || g.B.Get(move.Src.X, move.Src.Y).Team != team {
+		return errors.New("Player is moving the wrong piece")
+	}
 	g.movesQueue <- gameMove{team: team, move: move}
+	return nil
 }
 
 func (g *Game) ResetBoard() {
@@ -147,8 +167,8 @@ func (g *Game) Unsubscribe(id uint64) {
 func (g *Game) GetGameInformation() GameInformation {
 	return GameInformation{
 		Game:        g,
-		P1Available: !(g.player1id == 0),
-		P2Available: !(g.player2id == 0),
+		P1Available: g.teamToPlayerId[1] != 0,
+		P2Available: g.teamToPlayerId[2] != 0,
 		P1Ready:     g.player1ready,
 		P2Ready:     g.player2ready}
 }
@@ -167,43 +187,32 @@ func (g *Game) GetPlayerReadyStatus() (bool, bool) {
 }
 
 func (g *Game) GetPlayerIds() (uint64, uint64) {
-	return g.player1id, g.player2id
+	return g.teamToPlayerId[1], g.teamToPlayerId[2]
 }
 
-func (g *Game) JoinGame(playerNumber int, id uint64) bool {
-	if playerNumber == 1 {
-		if g.player1id == 0 {
-			g.player1id = id
-			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
-			go g.PublishUpdate()
-			return true
-		}
-	} else if playerNumber == 2 {
-		if g.player2id == 0 {
-			g.player2id = id
-			log.WithFields(logrus.Fields{"p1": g.player1id, "p2": g.player2id}).Info("Joined")
+func (g *Game) JoinGame(team int, id uint64) bool {
+	if team > 0 && team <= nMaxPlayers {
+		if g.teamToPlayerId[team] == 0 {
+			g.teamToPlayerId[team] = id
+			log.WithFields(logrus.Fields{"p1": g.teamToPlayerId[1], "p2": g.teamToPlayerId[2]}).Info("Joined")
 			go g.PublishUpdate()
 			return true
 		}
 	}
 	log.WithFields(
 		logrus.Fields{
-			"pid":          id,
-			"playerNumber": playerNumber,
-			"p1":           g.player1id,
-			"p2":           g.player2id}).
+			"pid":  id,
+			"team": team,
+			"p1":   g.teamToPlayerId[1],
+			"p2":   g.teamToPlayerId[2]}).
 		Error("Could not join")
 	return false
 }
 
 func (g *Game) QuitGame(id uint64) {
-	if g.player1id == id {
-		g.player1id = 0
-		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
-		go g.PublishUpdate()
-	}
-	if g.player2id == id {
-		g.player2id = 0
+	team := g.getTeamForPlayerId(id)
+	if team > 0 {
+		g.teamToPlayerId[team] = 0
 		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
 		go g.PublishUpdate()
 	}
