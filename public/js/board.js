@@ -57,11 +57,19 @@ window.Board = (function () {
     function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
+        this.playerTeam = 0;
+        this.currentBoard = [];
         this.htmlTable = htmlTable;
         this.grid = [];
         this.selectedSquare = null;
         this.main = main;
     }
+    Board.prototype.setPlayerTeam = function (team) {
+        if (this.playerTeam !== team) {
+            this.playerTeam = team;
+            this.renderPieces(this.currentBoard);
+        }
+    };
     Board.prototype.removeSelectableSquares = function () {
         var i, j;
         for (i = 0; i < this.grid.length; i += 1) {
@@ -122,14 +130,24 @@ window.Board = (function () {
     };
     Board.prototype.renderPieces = function (pieces) {
         var i, x, y, name;
+        this.currentBoard = pieces;
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
             y = i % this.rows;
             this.grid[x][y].unit = null;
             $(this.grid[x][y].dom).html("");
+            $(this.grid[x][y].container).removeClass("piece-friendly");
+            $(this.grid[x][y].container).removeClass("piece-enemy");
             if (pieces[i].exists) {
                 this.grid[x][y].unit = pieces[i];
                 name = (pieces[i].team === 1 ? "X" : "O") + pieces[i].stack;
+                if (this.playerTeam !== 0) {
+                    if (pieces[i].team === this.playerTeam) {
+                        $(this.grid[x][y].container).addClass("piece-friendly");
+                    } else {
+                        $(this.grid[x][y].container).addClass("piece-enemy");
+                    }
+                }
                 $(this.grid[x][y].dom).html(name);
             }
         }

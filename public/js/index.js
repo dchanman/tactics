@@ -39,6 +39,7 @@ window.Main = (function () {
         this.api.getRole()
             .then(function (result) {
                 main.status.updateRole(result);
+                main.board.setPlayerTeam(result.team);
             });
     };
     Main.prototype.refresh = function () {

@@ -24,10 +24,10 @@
     background-color: darkgrey;
 }
 .grid-square-selectable {
-    background-color: green;
+    background-color: lightblue;
 }
 .grid-square-selectable:hover {
-    background-color: lightgreen !important;
+    background-color: lightcyan !important;
 }
 .grid-square-commit-src {
     background-color: yellow;
@@ -43,6 +43,13 @@
 }
 .grid-square-container {
     text-align: center;
+}
+.piece-friendly {
+    color: green;
+    font-weight: bold;
+}
+.piece-enemy {
+    color: red;
 }
 .chat-container {
     width: 100%;
