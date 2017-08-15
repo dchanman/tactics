@@ -8,10 +8,10 @@ import (
 
 const (
 	nMaxPlayers = 2
-	// nRows       = 10
-	// nCols       = 8
-	nRows = 8
-	nCols = 5
+	nRows       = 10
+	nCols       = 8
+	// nRows = 8
+	// nCols = 5
 )
 
 // Game is the main game engine
@@ -92,10 +92,10 @@ func createGameBoard() *Board {
 	for i := 0; i < nCols; i++ {
 		b.Set(i, 1, Unit{Team: 2, Stack: 1, Exists: true})
 		b.Set(i, 2, Unit{Team: 2, Stack: 1, Exists: true})
-		// b.Set(i, 3, Unit{Team: 2, Stack: 1, Exists: true})
+		b.Set(i, 3, Unit{Team: 2, Stack: 1, Exists: true})
 		b.Set(i, nRows-2, Unit{Team: 1, Stack: 1, Exists: true})
 		b.Set(i, nRows-3, Unit{Team: 1, Stack: 1, Exists: true})
-		// b.Set(i, nRows-4, Unit{Team: 1, Stack: 1, Exists: true})
+		b.Set(i, nRows-4, Unit{Team: 1, Stack: 1, Exists: true})
 	}
 	return &b
 }
