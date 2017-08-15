@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/dchanman/tactics/src/server"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -16,16 +17,19 @@ var (
 )
 
 func main() {
-	log.Println("Initializing")
-
+	log.Info("Initializing")
 	port := os.Getenv("PORT")
-
 	if port == "" {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
 
+	router := mux.NewRouter()
+	router.HandleFunc("/g/", gameHandler)
+	router.HandleFunc("/g/{id:[0-9][0-9][0-9][0-9][0-9][0-9]}", gameHandler)
+
 	http.Handle("/", http.FileServer(http.Dir("./public")))
 	http.Handle("/ws", websocketWrapper())
+	http.Handle("/g/", router)
 	log.Info(http.ListenAndServe(":"+port, nil))
 }
 
@@ -40,4 +44,11 @@ func websocketWrapper() http.Handler {
 		}
 		mainserver.RegisterNewClient(conn)
 	})
+}
+
+func gameHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	w.Write([]byte("Hello: "))
+	w.Write([]byte(string(id)))
 }
