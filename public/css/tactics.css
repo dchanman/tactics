@@ -43,14 +43,20 @@
     -o-user-select: none;
     user-select: none;
 }
+.grid-square-endzone {
+    background-color: lemonchiffon;
+}
+.grid-square-endzone-friendly {
+    background-color: lightgreen;
+}
+.grid-square-endzone-enemy {
+    background-color: lightpink;
+}
 .grid-square:hover {
-    background-color: darkgrey;
+    background-color: lightcyan;
 }
 .grid-square-selectable {
     background-color: lightblue;
-}
-.grid-square-selectable:hover {
-    background-color: lightcyan !important;
 }
 .grid-square-commit-src {
     background-color: yellow;

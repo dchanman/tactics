@@ -103,6 +103,7 @@ window.Board = (function () {
         if (this.playerTeam !== team) {
             this.playerTeam = team;
             this.renderPieces(this.currentBoard);
+            this.renderEndzones();
         }
     };
     Board.prototype.removeSelectableSquares = function () {
@@ -140,6 +141,25 @@ window.Board = (function () {
         }
         $(this.grid[x][y].container).addClass("grid-square-selectable");
     };
+    Board.prototype.renderEndzones = function () {
+        var x;
+        for (x = 0; x < this.cols; x += 1) {
+            $(this.grid[x][0].container).addClass("grid-square-endzone");
+            $(this.grid[x][this.rows - 1].container).addClass("grid-square-endzone");
+        }
+        if (this.playerTeam === 1) {
+            for (x = 0; x < this.cols; x += 1) {
+                $(this.grid[x][0].container).addClass("grid-square-endzone-friendly");
+                $(this.grid[x][this.rows - 1].container).addClass("grid-square-endzone-enemy");
+            }
+        }
+        if (this.playerTeam === 2) {
+            for (x = 0; x < this.cols; x += 1) {
+                $(this.grid[x][0].container).addClass("grid-square-endzone-enemy");
+                $(this.grid[x][this.rows - 1].container).addClass("grid-square-endzone-friendly");
+            }
+        }
+    };
     Board.prototype.createGrid = function (cols, rows) {
         var x, y, tr, td, div;
         this.cols = cols;
@@ -171,6 +191,7 @@ window.Board = (function () {
             }
             this.htmlTable.appendChild(tr);
         }
+        this.renderEndzones();
         // Create overlay
         this.overlay = new Overlay(this.htmlTable, rows, cols);
         console.log("Created grid");
