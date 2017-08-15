@@ -12,18 +12,30 @@
     top: 0;
     pointer-events: none;
 }
+.overlay-container p {
+    color: magenta;
+}
+.overlay-container-win {
+    background-color: lightgreen;
+}
+.overlay-container-lose {
+    background-color: lightpink;
+}
+.overlay-container-draw {
+    background-color: yellow;
+}
 .overlay-arrow {
     stroke-width: 5px;
     position: absolute;
     top: 0;
 }
-.overlay-arrow-1 {
-    stroke: red;
-    fill: red;
-}
-.overlay-arrow-2 {
+.overlay-arrow-friendly {
     stroke: green;
     fill: green;
+}
+.overlay-arrow-enemy {
+    stroke: red;
+    fill: red;
 }
 .grid {
     background-color: black;

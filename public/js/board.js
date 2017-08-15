@@ -67,8 +67,20 @@ window.Board = (function () {
     }
     Overlay.prototype.clear = function () {
         $(this.container).html("");
+        $(this.container).removeClass("overlay-container-win");
+        $(this.container).removeClass("overlay-container-lose");
+        $(this.container).removeClass("overlay-container-draw");
     };
-    Overlay.prototype.renderMove = function (fromX, fromY, toX, toY, team) {
+    Overlay.prototype.displayWinScreen = function () {
+        $(this.container).addClass("overlay-container-win");
+    };
+    Overlay.prototype.displayLoseScreen = function () {
+        $(this.container).addClass("overlay-container-lose");
+    };
+    Overlay.prototype.displayDrawScreen = function () {
+        $(this.container).addClass("overlay-container-draw");
+    };
+    Overlay.prototype.renderMove = function (fromX, fromY, toX, toY, team, playerTeam) {
         var x1, y1, x2, y2, markerid, markerdef, line, cls;
         console.log("Drawing arrow from (" + fromX + "," + fromY + ") to (" + toX + "," + toY + ")");
         // Calculation:
@@ -85,7 +97,11 @@ window.Board = (function () {
     </marker>\
 </defs>';
         line = '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#' + markerid + ')"/>';
-        cls = (team === 1 ? "overlay-arrow-1" : "overlay-arrow-2");
+        if (playerTeam !== 0) {
+            cls = (team === playerTeam ? "overlay-arrow-friendly" : "overlay-arrow-enemy");
+        } else {
+            cls = (team === 1 ? "overlay-arrow-friendly" : "overlay-arrow-enemy");
+        }
         $(this.container).append('<svg class="overlay-arrow ' + cls + '" height="' + this.height + '" width="' + this.width + '">' + markerdef + line + '</svg>');
     };
     function Board(htmlTable, main) {
@@ -131,8 +147,8 @@ window.Board = (function () {
             var lastMove = history[history.length - 1],
                 m1 = lastMove[1],
                 m2 = lastMove[2];
-            this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1);
-            this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2);
+            this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
+            this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
         }
     };
     Board.prototype.setActiveSquare = function (x, y) {
@@ -213,6 +229,15 @@ window.Board = (function () {
                 num = (pieces[i].stack > 1 ? pieces[i].stack : "");
                 $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle></circle><text x="50%" y="50%">' + num + '</text></svg>');
             }
+        }
+    };
+    Board.prototype.handleGameOver = function (team) {
+        if (team === 0) {
+            this.overlay.displayDrawScreen();
+        } else if (this.playerTeam !== 0 && team === this.playerTeam) {
+            this.overlay.displayWinScreen();
+        } else if (this.playerTeam !== 0 && team !== this.playerTeam) {
+            this.overlay.displayLoseScreen();
         }
     };
     return Board;
