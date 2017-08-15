@@ -23,5 +23,14 @@ window.Chat = (function () {
         }
         $("#chatmsg").val("");
     };
+    Chat.prototype.notification = function (msg) {
+        var log, p;
+        log = document.createElement("div");
+        p = document.createElement("p");
+        $(p).html(msg.italics().bold());
+        log.appendChild(p);
+        $("#chatlog").append(log);
+        $("#chatlog").animate({ scrollTop: $('#chatlog').prop("scrollHeight")}, 100);
+    };
     return Chat;
 }());

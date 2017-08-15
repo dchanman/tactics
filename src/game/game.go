@@ -21,6 +21,7 @@ type Game struct {
 	chat        chan GameChat
 	movesQueue  chan gameMove
 	history     []Turn
+	completed   bool
 
 	teamToPlayerId []uint64
 	player1ready   bool
@@ -76,6 +77,7 @@ func NewGame() *Game {
 func (g *Game) initGameState() {
 	g.board = createGameBoard()
 	g.history = make([]Turn, 0)
+	g.completed = false
 }
 
 func (g *Game) ResetBoard() {
@@ -110,11 +112,13 @@ func (g *Game) chatPump() {
 }
 
 func (g *Game) waitForMoves() {
+	var team Team
 	var move1 Move
 	var move2 Move
 	g.player1ready = false
 	g.player2ready = false
 	for m := range g.movesQueue {
+		winner := false
 		if m.reset {
 			g.player1ready = false
 			g.player2ready = false
@@ -130,10 +134,14 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			g.board.ResolveMove(move1, move2)
+			winner, team = g.board.ResolveMove(move1, move2)
 			g.history = append(g.history, NewTurn(move1, move2))
 		}
 		g.PublishUpdate()
+		if winner {
+			g.completed = true
+			g.PublishVictory(team)
+		}
 	}
 }
 
@@ -148,6 +156,9 @@ func (g *Game) getTeamForPlayerId(id uint64) Team {
 
 func (g *Game) CommitMove(id uint64, move Move) error {
 	team := g.getTeamForPlayerId(id)
+	if g.completed {
+		return errors.New("Game is over")
+	}
 	if team == 0 {
 		return errors.New("Player is not playing")
 	}
@@ -160,7 +171,7 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 
 func (g *Game) GetValidMoves(id uint64, x int, y int) []Square {
 	u := g.board.Get(x, y)
-	if u.Exists && u.Team == g.getTeamForPlayerId(id) {
+	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerId(id) {
 		return g.board.GetValidMoves(x, y)
 	}
 	return make([]Square, 0)
@@ -203,6 +214,17 @@ func (g *Game) PublishUpdate() {
 	notif := GameNotification{
 		Method: "Game.Update",
 		Params: g.GetGameInformation()}
+	for _, ch := range g.subscribers {
+		ch <- &notif
+	}
+}
+
+func (g *Game) PublishVictory(team Team) {
+	notif := GameNotification{
+		Method: "Game.Over",
+		Params: struct {
+			Team Team `json:"team"`
+		}{team}}
 	for _, ch := range g.subscribers {
 		ch <- &notif
 	}

@@ -25,6 +25,9 @@ window.Main = (function () {
             case "Game.Chat":
                 main.chat.receiveMessage(params);
                 break;
+            case "Game.Over":
+                main.handleGameOver(params);
+                break;
             default:
                 console.log("Error: Unknown method: " + method);
             }
@@ -42,6 +45,16 @@ window.Main = (function () {
                 main.status.updateRole(result);
                 main.board.setPlayerTeam(result.team);
             });
+    };
+    Main.prototype.handleGameOver = function (data) {
+        console.log("Game over received");
+        console.log(data);
+        if (data.team === 0) {
+            this.chat.notification("Draw game!");
+        } else {
+            var winner = (data.team === 1 ? "White" : "Black") + " is victorious!";
+            this.chat.notification(winner);
+        }
     };
     Main.prototype.refresh = function () {
         var main = this;
