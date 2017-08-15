@@ -6,6 +6,25 @@
     margin: auto;
     float: none;
 }
+.overlay-container {
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    pointer-events: none;
+}
+.overlay-arrow {
+    stroke-width: 5px;
+    position: absolute;
+    top: 0;
+}
+.overlay-arrow-1 {
+    stroke: red;
+    fill: red;
+}
+.overlay-arrow-2 {
+    stroke: green;
+    fill: green;
+}
 .grid {
     background-color: black;
 }

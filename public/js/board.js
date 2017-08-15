@@ -54,6 +54,40 @@ window.Board = (function () {
                 });
         }
     };
+    function Overlay(htmlTable, rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.container = document.createElement("div");
+        $(this.container).addClass("overlay-container");
+        this.width = $(htmlTable).width();
+        this.height = $(htmlTable).height();
+        $(this.container).width(this.width);
+        $(this.container).height(this.height);
+        htmlTable.appendChild(this.container);
+    }
+    Overlay.prototype.clear = function () {
+        $(this.container).html("");
+    };
+    Overlay.prototype.renderMove = function (fromX, fromY, toX, toY, team) {
+        var x1, y1, x2, y2, markerid, markerdef, line, cls;
+        console.log("Drawing arrow from (" + fromX + "," + fromY + ") to (" + toX + "," + toY + ")");
+        // Calculation:
+        // (top left pixel coordinate of the desired square) + (offset to reach the square midpoint)
+        x1 = parseFloat(fromX) / this.cols * this.width + (this.width / 2.0 / this.cols);
+        x2 = parseFloat(toX) / this.cols * this.width + (this.width / 2.0 / this.cols);
+        y1 = parseFloat(fromY) / this.rows * this.height + (this.height / 2.0 / this.rows);
+        y2 = parseFloat(toY) / this.rows * this.height + (this.height / 2.0 / this.rows);
+        markerid = "arrowhead" + team;
+        markerdef = '\
+<defs>\
+    <marker id="' + markerid + '" markerWidth="10" markerHeight="10" refX="3" refY="2" orient="auto">\
+      <path d="M0,0 L0,4 L5,2 z" stroke-width="0" />\
+    </marker>\
+</defs>';
+        line = '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" marker-end="url(#' + markerid + ')"/>';
+        cls = (team === 1 ? "overlay-arrow-1" : "overlay-arrow-2");
+        $(this.container).append('<svg class="overlay-arrow ' + cls + '" height="' + this.height + '" width="' + this.width + '">' + markerdef + line + '</svg>');
+    };
     function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
@@ -61,6 +95,7 @@ window.Board = (function () {
         this.currentBoard = [];
         this.htmlTable = htmlTable;
         this.grid = [];
+        this.overlay = null;
         this.selectedSquare = null;
         this.main = main;
     }
@@ -88,6 +123,16 @@ window.Board = (function () {
             this.createGrid(board.cols, board.rows);
         }
         this.renderPieces(board.board);
+    };
+    Board.prototype.renderHistory = function (history) {
+        this.overlay.clear();
+        if (history.length > 0) {
+            var lastMove = history[history.length - 1],
+                m1 = lastMove[1],
+                m2 = lastMove[2];
+            this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1);
+            this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2);
+        }
     };
     Board.prototype.setActiveSquare = function (x, y) {
         if (x < 0 || y < 0 || x > this.cols || y > this.rows) {
@@ -126,6 +171,8 @@ window.Board = (function () {
             }
             this.htmlTable.appendChild(tr);
         }
+        // Create overlay
+        this.overlay = new Overlay(this.htmlTable, rows, cols);
         console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {

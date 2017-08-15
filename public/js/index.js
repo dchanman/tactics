@@ -35,6 +35,7 @@ window.Main = (function () {
         console.log("Received update!");
         console.log(data.history);
         this.board.render(data.board);
+        this.board.renderHistory(data.history);
         this.status.updatePlayerReady(data);
         this.api.getRole()
             .then(function (result) {
