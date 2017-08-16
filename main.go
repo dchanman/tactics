@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/dchanman/tactics/src/server"
@@ -23,6 +24,11 @@ func main() {
 	if port == "" {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
+
+	// TODO: allow dynamic game creation
+	mainserver.CreateNewGame(32694)
+	mainserver.CreateNewGame(42493)
+	mainserver.CreateNewGame(1)
 
 	router := mux.NewRouter()
 	// Game ID routes
@@ -45,10 +51,14 @@ func blockDirListing(h http.Handler) http.HandlerFunc {
 	})
 }
 
-func websocketHandler(w http.ResponseWriter, r *http.Request) {
+func getMuxGameID(r *http.Request) (uint32, error) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	log.WithFields(logrus.Fields{"id": id}).Info("Websocket request for game")
+	gameid, err := strconv.ParseUint(id, 10, 32)
+	return uint32(gameid), err
+}
+
+func websocketHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Error(err)
@@ -56,13 +66,24 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Websocket handshake expected."))
 		return
 	}
-	mainserver.RegisterNewClient(conn)
+	gameid, err := getMuxGameID(r)
+	if err != nil {
+		w.Write([]byte("Bad game ID"))
+		return
+	}
+	mainserver.RegisterNewClient(uint32(gameid), conn)
 }
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	log.WithFields(logrus.Fields{"id": id}).Info("Request for game")
+	gameid, err := getMuxGameID(r)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	if !mainserver.DoesGameIDExist(gameid) {
+		http.NotFound(w, r)
+		return
+	}
 	http.ServeFile(w, r, "./webapp/private/game.html")
 }
 

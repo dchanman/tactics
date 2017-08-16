@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+
 	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
 )
@@ -11,14 +13,30 @@ const (
 
 // Server manages the communications with clients in order to manage games
 type Server struct {
-	Game  *game.Game
+	games map[uint32]*game.Game
 	maxid uint64
 }
 
 // NewServer instantiates a new server
 func NewServer() *Server {
-	g := game.NewGame()
-	return &Server{Game: g, maxid: 1}
+	games := make(map[uint32]*game.Game)
+	return &Server{games: games, maxid: 1}
+}
+
+// CreateNewGame creates a game with a given ID.
+// Returns error if game already exists
+func (s *Server) CreateNewGame(gameid uint32) error {
+	if s.DoesGameIDExist(gameid) {
+		return errors.New("game already exists")
+	}
+	s.games[gameid] = game.NewGame()
+	return nil
+}
+
+// DoesGameIDExist returns true if a game ID is linked to an actual game
+func (s *Server) DoesGameIDExist(gameid uint32) bool {
+	_, ok := s.games[gameid]
+	return ok
 }
 
 func (s *Server) nextID() uint64 {
@@ -28,8 +46,12 @@ func (s *Server) nextID() uint64 {
 }
 
 // RegisterNewClient registers a new websocket connection with the server
-func (s *Server) RegisterNewClient(conn *websocket.Conn) {
-	api := NewTacticsApi(s.nextID(), conn)
-	go api.subscribeToGame(s.Game)
-	go api.serveRPC()
+func (s *Server) RegisterNewClient(gameid uint32, conn *websocket.Conn) error {
+	if game, ok := s.games[gameid]; ok {
+		api := NewTacticsApi(s.nextID(), conn)
+		go api.subscribeToGame(game)
+		go api.serveRPC()
+		return nil
+	}
+	return errors.New("game ID not found")
 }
