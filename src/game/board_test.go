@@ -229,6 +229,20 @@ func TestResolveStep(t *testing.T) {
 	if (b.Get(0, 0) != Unit{Stack: 2, Team: 1, Exists: true}) {
 		t.Error("Unexpected piece: ", b.Get(0, 0))
 	}
+	// Subcase: Larger stack colliding, while a defensive stack occurs
+	b = NewBoard(3, 3)
+	b.Set(0, 1, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(0, 0, Unit{Stack: 1, Team: 1, Exists: true})
+	b.Set(1, 0, Unit{Stack: 2, Team: 2, Exists: true})
+	s1 = Step{Src: Square{0, 1}, Dst: Square{0, 0}}
+	s2 = Step{Src: Square{1, 0}, Dst: Square{0, 0}}
+	b.resolveStep(s1, s2)
+	if b.Get(0, 1).Exists || b.Get(1, 0).Exists {
+		t.Error("Unexpected pieces: ", b.Get(0, 1), " and ", b.Get(1, 0))
+	}
+	if b.Get(0, 0).Exists {
+		t.Error("Unexpected piece: ", b.Get(0, 0))
+	}
 
 	// Case 2: Adjacent pieces moving into one another
 	// 	Subcase: Two equally stacked pieces converging

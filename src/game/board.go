@@ -125,7 +125,10 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 	u2 := b.pickup(step2.Src.X, step2.Src.Y)
 	// Case 1: Both steps converge onto the same square
 	if step1.Dst == step2.Dst {
-		b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, u2))
+		udst := b.pickup(step1.Dst.X, step1.Dst.Y)
+		b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, udst))
+		udst = b.pickup(step2.Dst.X, step2.Dst.Y)
+		b.Set(step2.Dst.X, step2.Dst.Y, stack(u2, udst))
 		return true, true
 	}
 	// Case 2: Steps are on adjacent squares, moving into one another
