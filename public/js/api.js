@@ -2,8 +2,14 @@ window.Api = (function () {
     "use strict";
     function createNewWebsocket(api) {
         var uri = (window.location.protocol === "https:") ? "wss://" : "ws://",
-            url = uri + window.location.host + "/ws",
-            ws = new WebSocket(url);
+            gameid = /g\/([0-9]{6})/.exec(window.location),
+            url,
+            ws;
+        if (gameid.length < 2) {
+            throw ("Invalid game id");
+        }
+        url = uri + window.location.host + "/ws/" + gameid[1];
+        ws = new WebSocket(url);
         console.log(url);
         ws.onopen = function () {
             api.onready();
