@@ -49,6 +49,6 @@ func websocketWrapper() http.Handler {
 func gameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	w.Write([]byte("Hello: "))
-	w.Write([]byte(string(id)))
+	log.WithFields(logrus.Fields{"id": id}).Info("Request for game")
+	http.ServeFile(w, r, "./public/index.html")
 }

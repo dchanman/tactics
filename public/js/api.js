@@ -2,7 +2,9 @@ window.Api = (function () {
     "use strict";
     function createNewWebsocket(api) {
         var uri = (window.location.protocol === "https:") ? "wss://" : "ws://",
-            ws = new WebSocket(uri + window.location.host + "/ws");
+            url = uri + window.location.host + "/ws",
+            ws = new WebSocket(url);
+        console.log(url);
         ws.onopen = function () {
             api.onready();
         };
