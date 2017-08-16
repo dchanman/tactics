@@ -7,15 +7,18 @@ import (
 )
 
 const (
-	nMaxPlayers = 2
-	// nRows       = 10
-	// nCols       = 8
-	nRows = 8
-	nCols = 5
+	nMaxPlayers        = 2
+	kRowsLarge         = 10
+	kColsLarge         = 8
+	kRowsOfPiecesLarge = 3
+	kRowsSmall         = 8
+	kColsSmall         = 5
+	kRowsOfPiecesSmall = 2
 )
 
 // Game is the main game engine
 type Game struct {
+	gameType    GameType
 	board       *Board
 	subscribers map[uint64](chan *GameNotification)
 	chat        chan GameChat
@@ -23,10 +26,20 @@ type Game struct {
 	history     []Turn
 	completed   bool
 
-	teamToPlayerId []uint64
+	teamToPlayerID []uint64
 	player1ready   bool
 	player2ready   bool
 }
+
+// GameType determines the type of the game (board size, pieces, etc)
+type GameType int
+
+const (
+	// Small 8x5 2 row configuration
+	GameTypeSmall GameType = iota
+	// Large 10x8 3 row configuration
+	GameTypeLarge = iota
+)
 
 type gameMove struct {
 	move  Move
@@ -62,12 +75,13 @@ type GameInformation struct {
 	P2Ready     bool   `json:"p2ready"`
 }
 
-func NewGame() *Game {
+func NewGame(gameType GameType) *Game {
 	game := Game{
+		gameType:       gameType,
 		subscribers:    make(map[uint64](chan *GameNotification)),
 		chat:           make(chan GameChat, gameChatBuffer),
 		movesQueue:     make(chan gameMove, gameMoveBuffer),
-		teamToPlayerId: make([]uint64, nMaxPlayers+1)}
+		teamToPlayerID: make([]uint64, nMaxPlayers+1)}
 	game.initGameState()
 	go game.chatPump()
 	go game.waitForMoves()
@@ -75,7 +89,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) initGameState() {
-	g.board = createGameBoard()
+	g.board = createGameBoard(g.gameType)
 	g.history = make([]Turn, 0)
 	g.completed = false
 }
@@ -86,16 +100,27 @@ func (g *Game) ResetBoard() {
 	g.PublishUpdate()
 }
 
-func createGameBoard() *Board {
+func createGameBoard(gameType GameType) *Board {
+	var nCols int
+	var nRows int
+	var nRowsOfPieces int
+	switch gameType {
+	case GameTypeSmall:
+		nCols = kColsSmall
+		nRows = kRowsSmall
+		nRowsOfPieces = kRowsOfPiecesSmall
+	case GameTypeLarge:
+		nCols = kColsLarge
+		nRows = kRowsLarge
+		nRowsOfPieces = kRowsOfPiecesLarge
+	}
 	b := NewBoard(nCols, nRows)
 	// Add pieces
 	for i := 0; i < nCols; i++ {
-		b.Set(i, 1, Unit{Team: 2, Stack: 1, Exists: true})
-		b.Set(i, 2, Unit{Team: 2, Stack: 1, Exists: true})
-		// b.Set(i, 3, Unit{Team: 2, Stack: 1, Exists: true})
-		b.Set(i, nRows-2, Unit{Team: 1, Stack: 1, Exists: true})
-		b.Set(i, nRows-3, Unit{Team: 1, Stack: 1, Exists: true})
-		// b.Set(i, nRows-4, Unit{Team: 1, Stack: 1, Exists: true})
+		for j := 0; j < nRowsOfPieces; j++ {
+			b.Set(i, 1+j, Unit{Team: 2, Stack: 1, Exists: true})
+			b.Set(i, nRows-2-j, Unit{Team: 1, Stack: 1, Exists: true})
+		}
 	}
 	return &b
 }
@@ -146,7 +171,7 @@ func (g *Game) waitForMoves() {
 }
 
 func (g *Game) getTeamForPlayerId(id uint64) Team {
-	for team, pid := range g.teamToPlayerId {
+	for team, pid := range g.teamToPlayerID {
 		if pid == id {
 			return Team(team)
 		}
@@ -204,8 +229,8 @@ func (g *Game) GetGameInformation() GameInformation {
 	return GameInformation{
 		Board:       g.board,
 		History:     g.history,
-		P1Available: g.teamToPlayerId[1] != 0,
-		P2Available: g.teamToPlayerId[2] != 0,
+		P1Available: g.teamToPlayerID[1] != 0,
+		P2Available: g.teamToPlayerID[2] != 0,
 		P1Ready:     g.player1ready,
 		P2Ready:     g.player2ready}
 }
@@ -235,14 +260,14 @@ func (g *Game) GetPlayerReadyStatus() (bool, bool) {
 }
 
 func (g *Game) GetPlayerIds() (uint64, uint64) {
-	return g.teamToPlayerId[1], g.teamToPlayerId[2]
+	return g.teamToPlayerID[1], g.teamToPlayerID[2]
 }
 
 func (g *Game) JoinGame(team int, id uint64) bool {
 	if team > 0 && team <= nMaxPlayers {
-		if g.teamToPlayerId[team] == 0 {
-			g.teamToPlayerId[team] = id
-			log.WithFields(logrus.Fields{"p1": g.teamToPlayerId[1], "p2": g.teamToPlayerId[2]}).Info("Joined")
+		if g.teamToPlayerID[team] == 0 {
+			g.teamToPlayerID[team] = id
+			log.WithFields(logrus.Fields{"p1": g.teamToPlayerID[1], "p2": g.teamToPlayerID[2]}).Info("Joined")
 			go g.PublishUpdate()
 			return true
 		}
@@ -251,8 +276,8 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 		logrus.Fields{
 			"pid":  id,
 			"team": team,
-			"p1":   g.teamToPlayerId[1],
-			"p2":   g.teamToPlayerId[2]}).
+			"p1":   g.teamToPlayerID[1],
+			"p2":   g.teamToPlayerID[2]}).
 		Error("Could not join")
 	return false
 }
@@ -260,7 +285,7 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 func (g *Game) QuitGame(id uint64) {
 	team := g.getTeamForPlayerId(id)
 	if team > 0 {
-		g.teamToPlayerId[team] = 0
+		g.teamToPlayerID[team] = 0
 		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
 		go g.PublishUpdate()
 	}

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dchanman/tactics/src/game"
 	"github.com/dchanman/tactics/src/server"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -26,9 +27,9 @@ func main() {
 	}
 
 	// TODO: allow dynamic game creation
-	mainserver.CreateNewGame(32694)
-	mainserver.CreateNewGame(42493)
-	mainserver.CreateNewGame(1)
+	mainserver.CreateNewGame(32694, game.GameTypeSmall)
+	mainserver.CreateNewGame(42493, game.GameTypeLarge)
+	mainserver.CreateNewGame(1, game.GameTypeSmall)
 
 	router := mux.NewRouter()
 	// Game ID routes

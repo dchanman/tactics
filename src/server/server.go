@@ -25,11 +25,11 @@ func NewServer() *Server {
 
 // CreateNewGame creates a game with a given ID.
 // Returns error if game already exists
-func (s *Server) CreateNewGame(gameid uint32) error {
+func (s *Server) CreateNewGame(gameid uint32, gameType game.GameType) error {
 	if s.DoesGameIDExist(gameid) {
 		return errors.New("game already exists")
 	}
-	s.games[gameid] = game.NewGame()
+	s.games[gameid] = game.NewGame(gameType)
 	return nil
 }
 
