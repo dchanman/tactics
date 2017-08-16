@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/dchanman/tactics/src/server"
 	"github.com/gorilla/mux"
@@ -24,13 +25,24 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+	// Game ID routes
 	router.HandleFunc("/g/{id:[0-9]{6}}", gameHandler)
 	router.HandleFunc("/ws/{id:[0-9]{6}}", websocketHandler)
-
-	http.Handle("/", http.FileServer(http.Dir("./webapp/public")))
 	http.Handle("/g/", router)
 	http.Handle("/ws/", router)
+	// Static webapp routes
+	http.Handle("/", blockDirListing(http.FileServer(http.Dir("./webapp/public"))))
 	log.Info(http.ListenAndServe(":"+port, nil))
+}
+
+func blockDirListing(h http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if len(r.URL.Path) > 1 && strings.HasSuffix(r.URL.Path, "/") {
+			http.NotFound(w, r)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
 }
 
 func websocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,4 +64,8 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	log.WithFields(logrus.Fields{"id": id}).Info("Request for game")
 	http.ServeFile(w, r, "./webapp/private/game.html")
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./webapp/private/home.html")
 }
