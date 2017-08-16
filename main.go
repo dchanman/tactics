@@ -27,7 +27,7 @@ func main() {
 	router.HandleFunc("/g/{id:[0-9]{6}}", gameHandler)
 	router.HandleFunc("/ws/{id:[0-9]{6}}", websocketHandler)
 
-	http.Handle("/", http.FileServer(http.Dir("./public")))
+	http.Handle("/", http.FileServer(http.Dir("./webapp/public")))
 	http.Handle("/g/", router)
 	http.Handle("/ws/", router)
 	log.Info(http.ListenAndServe(":"+port, nil))
@@ -51,5 +51,5 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	log.WithFields(logrus.Fields{"id": id}).Info("Request for game")
-	http.ServeFile(w, r, "./public/index.html")
+	http.ServeFile(w, r, "./webapp/private/game.html")
 }
