@@ -1,12 +1,13 @@
 package main
 
 import (
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/dchanman/tactics/src/game"
 	"github.com/dchanman/tactics/src/server"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
@@ -23,18 +24,14 @@ var (
 
 func main() {
 	log.Info("Initializing")
+	rand.Seed(time.Now().UTC().UnixNano())
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.WithField("PORT", port).Fatal("$PORT must be set")
 	}
 
-	// TODO: allow dynamic game creation
-	mainserver.CreateNewGame(32694, game.GameTypeSmall)
-	mainserver.CreateNewGame(42493, game.GameTypeLarge)
-	mainserver.CreateNewGame(1, game.GameTypeSmall)
-
-	router := mux.NewRouter()
 	// Game ID routes
+	router := mux.NewRouter()
 	router.HandleFunc("/g/{id:[0-9]{6}}", gameHandler)
 	router.HandleFunc("/ws/{id:[0-9]{6}}", websocketHandler)
 
@@ -45,17 +42,10 @@ func main() {
 
 	http.Handle("/g/", router)
 	http.Handle("/ws/", router)
-	http.Handle("/data/", logwrapper(rpcServer))
-	// Static webapp routes
+	http.Handle("/data/", rpcServer)
 	http.Handle("/", blockDirListing(http.FileServer(http.Dir("./webapp/public"))))
-	log.Info(http.ListenAndServe(":"+port, nil))
-}
 
-func logwrapper(h http.Handler) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.WithFields(logrus.Fields{"r": r}).Printf("Hello")
-		h.ServeHTTP(w, r)
-	})
+	log.Info(http.ListenAndServe(":"+port, nil))
 }
 
 func blockDirListing(h http.Handler) http.HandlerFunc {

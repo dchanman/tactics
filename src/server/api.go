@@ -73,7 +73,6 @@ func (api *TacticsApi) subscribeToGame(g *game.Game) {
 	for {
 		select {
 		case update := <-ch:
-			log.WithFields(logrus.Fields{"id": api.id}).Info("Updated!")
 			api.client.WriteJSON(update)
 		case <-api.gameFin:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
@@ -101,26 +100,21 @@ func (api *TacticsApi) serveRPC() {
 }
 
 func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
-	log.WithFields(logrus.Fields{"id": api.id}).Printf("Heartbeat")
 	return nil
 }
 
 func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *game.GameInformation) error {
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting Game")
-	log.WithFields(logrus.Fields{"game": api.game}).Printf("Game")
 	*result = api.game.GetGameInformation()
 	return nil
 }
 
 func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Sending Chat")
 	api.game.SendChat(strconv.FormatUint(api.id, 10), args.Message)
 	return nil
 }
 
 func (api *TacticsApi) GetValidMoves(args *TacticsApiArgs, result *TacticsApiResult) error {
 	// TODO: Eventually this will be done clientside
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Getting moves")
 	*result = TacticsApiResult{ValidMoves: api.game.GetValidMoves(api.id, args.X, args.Y)}
 	return nil
 }
@@ -131,7 +125,6 @@ func (api *TacticsApi) CommitMove(args *struct {
 	ToX   int `json:"toX"`
 	ToY   int `json:"toY"`
 }, result *struct{}) error {
-	log.WithFields(logrus.Fields{"args": args, "id": api.id}).Printf("Committing move")
 	move := game.Move{
 		Src: game.Square{X: args.FromX, Y: args.FromY},
 		Dst: game.Square{X: args.ToX, Y: args.ToY}}
@@ -139,7 +132,6 @@ func (api *TacticsApi) CommitMove(args *struct {
 }
 
 func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {
-	log.WithFields(logrus.Fields{"id": api.id}).Printf("Resetting board")
 	api.game.ResetBoard()
 	return nil
 }

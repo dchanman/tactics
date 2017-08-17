@@ -7,7 +7,6 @@ import (
 
 	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -26,9 +25,7 @@ func NewServer() *Server {
 	return &Server{games: games, maxid: 1}
 }
 
-// CreateNewGame creates a game with a given ID.
-// Returns error if game already exists
-func (s *Server) CreateNewGame(gameid uint32, gameType game.GameType) error {
+func (s *Server) createNewGame(gameid uint32, gameType game.GameType) error {
 	if s.DoesGameIDExist(gameid) {
 		return errors.New("game already exists")
 	}
@@ -42,7 +39,7 @@ func (s *Server) DoesGameIDExist(gameid uint32) bool {
 	return ok
 }
 
-// GetGameIDs returns a list of all existing game IDs
+// GetGameIds returns a list of all existing game IDs
 func (s *Server) GetGameIds(req *http.Request, args *struct{}, result *struct {
 	GameIDs []uint32 `json:"gameids"`
 }) error {
@@ -62,11 +59,10 @@ func (s *Server) CreateGame(req *http.Request, args *struct {
 }, result *struct {
 	GameID uint32 `json:"gameid"`
 }) error {
-	log.WithFields(logrus.Fields{"gametype": args.GameType}).Info("Creating Game of type")
 	var randID uint32
 	for randID = generateRandomID(); s.DoesGameIDExist(randID); randID = generateRandomID() {
 	}
-	s.CreateNewGame(randID, args.GameType)
+	s.createNewGame(randID, args.GameType)
 	*result = struct {
 		GameID uint32 `json:"gameid"`
 	}{randID}

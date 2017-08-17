@@ -163,11 +163,9 @@ func (g *Game) waitForMoves() {
 			g.player1ready = false
 			g.player2ready = false
 		} else if m.team == 1 {
-			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 1 ready")
 			g.player1ready = true
 			move1 = m.move
 		} else if m.team == 2 {
-			log.WithFields(logrus.Fields{"move": m.move}).Info("Player 2 ready")
 			g.player2ready = true
 			move2 = m.move
 		}
@@ -282,7 +280,6 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 	if team > 0 && team <= nMaxPlayers {
 		if g.teamToPlayerID[team] == 0 {
 			g.teamToPlayerID[team] = id
-			log.WithFields(logrus.Fields{"p1": g.teamToPlayerID[1], "p2": g.teamToPlayerID[2]}).Info("Joined")
 			go g.PublishUpdate()
 			return true
 		}
@@ -301,7 +298,6 @@ func (g *Game) QuitGame(id uint64) {
 	team := g.getTeamForPlayerId(id)
 	if team > 0 {
 		g.teamToPlayerID[team] = 0
-		log.WithFields(logrus.Fields{"id": id}).Info("Quit")
 		go g.PublishUpdate()
 	}
 }

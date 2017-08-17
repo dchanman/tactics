@@ -1,10 +1,6 @@
 package game
 
-import (
-	"bytes"
-
-	"github.com/sirupsen/logrus"
-)
+import "bytes"
 
 type Square struct {
 	X int `json:"x"`
@@ -151,7 +147,6 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 }
 
 func (b *Board) checkWinCondition() (bool, Team) {
-	logrus.WithFields(logrus.Fields{"Board": b}).Info("wincon")
 	team1win := false
 	team2win := false
 	// Let rank 0 be team 1's "endzone"
@@ -179,9 +174,8 @@ func (b *Board) checkWinCondition() (bool, Team) {
 
 func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, Team) {
 	// TODO: validate moves
-	logrus.Info("\n\nStarting ResolveMove \n\n\n")
-	logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
-	defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
+	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
+	// defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
 	steps1 := move1.decomposeMoveToSteps()
 	steps2 := move2.decomposeMoveToSteps()
 
