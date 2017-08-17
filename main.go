@@ -9,6 +9,8 @@ import (
 	"github.com/dchanman/tactics/src/game"
 	"github.com/dchanman/tactics/src/server"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/rpc"
+	"github.com/gorilla/rpc/json"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -35,11 +37,25 @@ func main() {
 	// Game ID routes
 	router.HandleFunc("/g/{id:[0-9]{6}}", gameHandler)
 	router.HandleFunc("/ws/{id:[0-9]{6}}", websocketHandler)
+
+	// JSON-RPC hooks
+	rpcServer := rpc.NewServer()
+	rpcServer.RegisterCodec(json.NewCodec(), "application/json")
+	rpcServer.RegisterService(mainserver, "")
+
 	http.Handle("/g/", router)
 	http.Handle("/ws/", router)
+	http.Handle("/data/", logwrapper(rpcServer))
 	// Static webapp routes
 	http.Handle("/", blockDirListing(http.FileServer(http.Dir("./webapp/public"))))
 	log.Info(http.ListenAndServe(":"+port, nil))
+}
+
+func logwrapper(h http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.WithFields(logrus.Fields{"r": r}).Printf("Hello")
+		h.ServeHTTP(w, r)
+	})
 }
 
 func blockDirListing(h http.Handler) http.HandlerFunc {

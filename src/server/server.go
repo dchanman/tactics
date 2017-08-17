@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
@@ -37,6 +38,24 @@ func (s *Server) CreateNewGame(gameid uint32, gameType game.GameType) error {
 func (s *Server) DoesGameIDExist(gameid uint32) bool {
 	_, ok := s.games[gameid]
 	return ok
+}
+
+func (s *Server) GetGameIds(args *struct{}, result *struct {
+	GameIds []uint32 `json:"gameids"`
+}) error {
+	ids := make([]uint32, 0)
+	for id := range s.games {
+		ids = append(ids, id)
+	}
+	*result = struct {
+		GameIds []uint32 `json:"gameids"`
+	}{ids}
+	return nil
+}
+
+func (s *Server) Hello(req *http.Request, args *struct{}, result *struct{}) error {
+	log.Info("Hello says Hello!!")
+	return nil
 }
 
 func (s *Server) nextID() uint64 {
