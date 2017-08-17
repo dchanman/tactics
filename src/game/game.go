@@ -1,6 +1,7 @@
 package game
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/sirupsen/logrus"
@@ -32,14 +33,30 @@ type Game struct {
 }
 
 // GameType determines the type of the game (board size, pieces, etc)
-type GameType int
+type GameType string
 
 const (
 	// Small 8x5 2 row configuration
-	GameTypeSmall GameType = iota
+	GameTypeSmall GameType = "small"
 	// Large 10x8 3 row configuration
-	GameTypeLarge = iota
+	GameTypeLarge = "large"
 )
+
+func (gt *GameType) UnmarshalJSON(b []byte) error {
+	log.Info("Custom unmarshaller called!")
+	var s string
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return err
+	}
+	ret := GameType(s)
+	if ret == GameTypeSmall || ret == GameTypeLarge {
+		*gt = ret
+		return nil
+	}
+	log.WithFields(logrus.Fields{"gt": ret}).Info("Invalid")
+	return errors.New("invalid game type")
+}
 
 type gameMove struct {
 	move  Move
