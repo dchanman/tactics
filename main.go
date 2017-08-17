@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"math/rand"
 	"net/http"
 	"os"
@@ -20,10 +21,16 @@ var (
 	log        = logrus.WithField("pkg", "tactics")
 	upgrader   = websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 	mainserver = server.NewServer()
+
+	templates = template.Must(template.ParseFiles(
+		"./webapp/private/lobby.tmpl",
+		"./webapp/private/game.tmpl",
+		"./webapp/private/partials/header.tmpl"))
 )
 
 func main() {
 	log.Info("Initializing")
+
 	rand.Seed(time.Now().UTC().UnixNano())
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -50,7 +57,12 @@ func main() {
 
 func blockDirListing(h http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if len(r.URL.Path) > 1 && strings.HasSuffix(r.URL.Path, "/") {
+		if r.URL.Path == "/" {
+			log.Info("Executing lobby...")
+			templates.ExecuteTemplate(w, "lobby", nil)
+			return
+		}
+		if strings.HasSuffix(r.URL.Path, "/") {
 			http.NotFound(w, r)
 			return
 		}
@@ -91,7 +103,7 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	http.ServeFile(w, r, "./webapp/private/game.html")
+	templates.ExecuteTemplate(w, "game", nil)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
