@@ -2,10 +2,12 @@ package server
 
 import (
 	"errors"
+	"math/rand"
 	"net/http"
 
 	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -40,22 +42,39 @@ func (s *Server) DoesGameIDExist(gameid uint32) bool {
 	return ok
 }
 
-func (s *Server) GetGameIds(args *struct{}, result *struct {
-	GameIds []uint32 `json:"gameids"`
+// GetGameIDs returns a list of all existing game IDs
+func (s *Server) GetGameIds(req *http.Request, args *struct{}, result *struct {
+	GameIDs []uint32 `json:"gameids"`
 }) error {
 	ids := make([]uint32, 0)
 	for id := range s.games {
 		ids = append(ids, id)
 	}
 	*result = struct {
-		GameIds []uint32 `json:"gameids"`
+		GameIDs []uint32 `json:"gameids"`
 	}{ids}
 	return nil
 }
 
-func (s *Server) Hello(req *http.Request, args *struct{}, result *struct{}) error {
-	log.Info("Hello says Hello!!")
+// CreateGame creates a new game and returns the game's ID
+func (s *Server) CreateGame(req *http.Request, args *struct {
+	GameType game.GameType `json:"gameType"`
+}, result *struct {
+	GameID uint32 `json:"gameid"`
+}) error {
+	log.WithFields(logrus.Fields{"gametype": args.GameType}).Info("Creating Game of type")
+	var randID uint32
+	for randID = generateRandomID(); s.DoesGameIDExist(randID); randID = generateRandomID() {
+	}
+	s.CreateNewGame(randID, args.GameType)
+	*result = struct {
+		GameID uint32 `json:"gameid"`
+	}{randID}
 	return nil
+}
+
+func generateRandomID() uint32 {
+	return uint32(rand.Intn(999998) + 1)
 }
 
 func (s *Server) nextID() uint64 {
