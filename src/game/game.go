@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	nMaxPlayers        = 2
-	kRowsLarge         = 10
-	kColsLarge         = 8
-	kRowsOfPiecesLarge = 3
-	kRowsSmall         = 8
-	kColsSmall         = 5
-	kRowsOfPiecesSmall = 2
+	nMaxPlayers       = 2
+	rowsLarge         = 10
+	colsLarge         = 8
+	rowsOfPiecesLarge = 3
+	rowsSmall         = 8
+	colsSmall         = 5
+	rowsOfPiecesSmall = 2
 )
 
 // Game is the main game engine
@@ -43,7 +43,6 @@ const (
 )
 
 func (gt *GameType) UnmarshalJSON(b []byte) error {
-	log.Info("Custom unmarshaller called!")
 	var s string
 	err := json.Unmarshal(b, &s)
 	if err != nil {
@@ -54,7 +53,6 @@ func (gt *GameType) UnmarshalJSON(b []byte) error {
 		*gt = ret
 		return nil
 	}
-	log.WithFields(logrus.Fields{"gt": ret}).Info("Invalid")
 	return errors.New("invalid game type")
 }
 
@@ -123,13 +121,13 @@ func createGameBoard(gameType GameType) *Board {
 	var nRowsOfPieces int
 	switch gameType {
 	case GameTypeSmall:
-		nCols = kColsSmall
-		nRows = kRowsSmall
-		nRowsOfPieces = kRowsOfPiecesSmall
+		nCols = colsSmall
+		nRows = rowsSmall
+		nRowsOfPieces = rowsOfPiecesSmall
 	case GameTypeLarge:
-		nCols = kColsLarge
-		nRows = kRowsLarge
-		nRowsOfPieces = kRowsOfPiecesLarge
+		nCols = colsLarge
+		nRows = rowsLarge
+		nRowsOfPieces = rowsOfPiecesLarge
 	}
 	b := NewBoard(nCols, nRows)
 	// Add pieces
