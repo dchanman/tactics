@@ -227,7 +227,7 @@ window.Board = (function () {
                 cls = "piece";
                 cls += " " + (pieces[i].team === 1 ? "piece-1" : "piece-2");
                 num = (pieces[i].stack > 1 ? pieces[i].stack : "");
-                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle></circle><text x="50%" y="50%">' + num + '</text></svg>');
+                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle cx="50%" cy="50%" r="30"></circle><text x="50%" y="50%">' + num + '</text></svg>');
             }
         }
     };
