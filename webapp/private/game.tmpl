@@ -23,17 +23,7 @@
                     <button class="btn btn-success" type="button" id="ctrlSitP2">Sit as Black</button>
                 </div>
                 <hr>
-                <div id="chat" class="container">
-                    <div class="border-bottom-0" id="chatlog">
-                        <p class="chat-message chat-greeting"><i>Welcome to the chat! Please be nice!</i><p>
-                    </div>
-                    <div class="input-group">
-                        <input class="form-control" type="text" id="chatmsg"></input>
-                        <span class=input-group-btn>
-                            <button class="btn btn-default" type="button" id="chatsend"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-                        </span>
-                    </div>
-                </div>
+                {{template "chat" .}}
             </div>
             <div class="col-md-12 col-lg-8 pull-lg-4 col-xl-6 pull-xl-6">
                 <div class="container margin-vert">

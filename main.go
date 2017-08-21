@@ -25,6 +25,7 @@ var (
 	templates = template.Must(template.ParseFiles(
 		"./webapp/private/lobby.tmpl",
 		"./webapp/private/game.tmpl",
+		"./webapp/private/partials/chat.tmpl",
 		"./webapp/private/partials/commonjs.tmpl",
 		"./webapp/private/partials/head.tmpl",
 		"./webapp/private/partials/nav.tmpl"))
