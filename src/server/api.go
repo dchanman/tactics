@@ -53,7 +53,9 @@ type TacticsApiStatus struct {
 type TacticsApi struct {
 	id      uint64
 	game    *game.Game
-	gameFin chan bool
+	chat    *game.Chat
+	gameFin [](chan bool)
+	done    bool
 	client  *Client
 }
 
@@ -61,20 +63,21 @@ func NewTacticsApi(id uint64, conn *websocket.Conn) *TacticsApi {
 	client := Client{conn: conn}
 	api := TacticsApi{
 		id:      id,
-		gameFin: make(chan bool),
+		gameFin: make([]chan bool, 0),
 		client:  &client}
 	return &api
 }
 
-func (api *TacticsApi) subscribeToGame(g *game.Game) {
-	api.game = g
-	ch := g.Subscribe(api.id)
-	defer g.Unsubscribe(api.id)
+func (api *TacticsApi) subscribeAndServe(s game.Subscribable) {
+	ch := s.Subscribe(api.id)
+	defer s.Unsubscribe(api.id)
+	fin := make(chan bool)
+	api.gameFin = append(api.gameFin, fin)
 	for {
 		select {
 		case update := <-ch:
 			api.client.WriteJSON(update)
-		case <-api.gameFin:
+		case <-fin:
 			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
 			return
 		}
@@ -91,7 +94,9 @@ func (api *TacticsApi) serveRPC() {
 		if err != nil {
 			log.Error("Close: ", err)
 		}
-		api.gameFin <- true
+		for _, fin := range api.gameFin {
+			fin <- true
+		}
 		api.game.QuitGame(api.id)
 	}()
 	rpcserver := rpc.NewServer()
@@ -109,7 +114,7 @@ func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *game.GameInformatio
 }
 
 func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
-	api.game.SendChat(strconv.FormatUint(api.id, 10), args.Message)
+	api.chat.Send(strconv.FormatUint(api.id, 10), args.Message)
 	return nil
 }
 

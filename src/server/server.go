@@ -16,13 +16,15 @@ const (
 // Server manages the communications with clients in order to manage games
 type Server struct {
 	games map[uint32]*game.Game
+	chats map[uint32]*game.Chat
 	maxid uint64
 }
 
 // NewServer instantiates a new server
 func NewServer() *Server {
 	games := make(map[uint32]*game.Game)
-	return &Server{games: games, maxid: 1}
+	chats := make(map[uint32]*game.Chat)
+	return &Server{games: games, chats: chats, maxid: 1}
 }
 
 func (s *Server) createNewGame(gameid uint32, gameType game.GameType) error {
@@ -30,6 +32,7 @@ func (s *Server) createNewGame(gameid uint32, gameType game.GameType) error {
 		return errors.New("game already exists")
 	}
 	s.games[gameid] = game.NewGame(gameType)
+	s.chats[gameid] = game.NewChat()
 	return nil
 }
 
@@ -81,9 +84,14 @@ func (s *Server) nextID() uint64 {
 
 // RegisterNewClient registers a new websocket connection with the server
 func (s *Server) RegisterNewClient(gameid uint32, conn *websocket.Conn) error {
-	if game, ok := s.games[gameid]; ok {
+	game, gok := s.games[gameid]
+	chat, cok := s.chats[gameid]
+	if gok && cok {
 		api := NewTacticsApi(s.nextID(), conn)
-		go api.subscribeToGame(game)
+		api.game = game
+		api.chat = chat
+		go api.subscribeAndServe(game)
+		go api.subscribeAndServe(chat)
 		go api.serveRPC()
 		return nil
 	}

@@ -21,8 +21,7 @@ const (
 type Game struct {
 	gameType    GameType
 	board       *Board
-	subscribers map[uint64](chan *GameNotification)
-	chat        chan GameChat
+	subscribers map[uint64](chan Notification)
 	movesQueue  chan gameMove
 	history     []Turn
 	completed   bool
@@ -71,16 +70,6 @@ func NewTurn(move1 Move, move2 Move) Turn {
 	return Turn(moves)
 }
 
-type GameChat struct {
-	Sender  string `json:"sender"`
-	Message string `json:"message"`
-}
-
-type GameNotification struct {
-	Method string      `json:"method"`
-	Params interface{} `json:"params"`
-}
-
 type GameInformation struct {
 	Board       *Board `json:"board"`
 	History     []Turn `json:"history"`
@@ -93,12 +82,10 @@ type GameInformation struct {
 func NewGame(gameType GameType) *Game {
 	game := Game{
 		gameType:       gameType,
-		subscribers:    make(map[uint64](chan *GameNotification)),
-		chat:           make(chan GameChat, gameChatBuffer),
+		subscribers:    make(map[uint64](chan Notification)),
 		movesQueue:     make(chan gameMove, gameMoveBuffer),
 		teamToPlayerID: make([]uint64, nMaxPlayers+1)}
 	game.initGameState()
-	go game.chatPump()
 	go game.waitForMoves()
 	return &game
 }
@@ -138,17 +125,6 @@ func createGameBoard(gameType GameType) *Board {
 		}
 	}
 	return &b
-}
-
-func (g *Game) chatPump() {
-	for msg := range g.chat {
-		notif := GameNotification{
-			Method: "Game.Chat",
-			Params: msg}
-		for _, ch := range g.subscribers {
-			ch <- &notif
-		}
-	}
 }
 
 func (g *Game) waitForMoves() {
@@ -215,18 +191,12 @@ func (g *Game) getValidMoves(id uint64, x int, y int) []Square {
 	return make([]Square, 0)
 }
 
-func (g *Game) SendChat(sender string, msg string) {
-	g.chat <- GameChat{
-		Sender:  sender,
-		Message: msg}
-}
-
-func (g *Game) Subscribe(id uint64) chan *GameNotification {
+func (g *Game) Subscribe(id uint64) chan Notification {
 	if _, exists := g.subscribers[id]; exists {
 		log.WithFields(logrus.Fields{"id": id}).Error("Duplicate ID")
 		return nil
 	}
-	g.subscribers[id] = make(chan *GameNotification, gameSubscriberBuffer)
+	g.subscribers[id] = make(chan Notification, gameSubscriberBuffer)
 	return g.subscribers[id]
 }
 
@@ -249,22 +219,22 @@ func (g *Game) GetGameInformation() GameInformation {
 }
 
 func (g *Game) PublishUpdate() {
-	notif := GameNotification{
+	notif := Notification{
 		Method: "Game.Update",
 		Params: g.GetGameInformation()}
 	for _, ch := range g.subscribers {
-		ch <- &notif
+		ch <- notif
 	}
 }
 
 func (g *Game) PublishVictory(team Team) {
-	notif := GameNotification{
+	notif := Notification{
 		Method: "Game.Over",
 		Params: struct {
 			Team Team `json:"team"`
 		}{team}}
 	for _, ch := range g.subscribers {
-		ch <- &notif
+		ch <- notif
 	}
 }
 
