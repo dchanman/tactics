@@ -1,0 +1,24 @@
+{{define "nav"}}
+
+<nav class="navbar navbar-toggleable-md bg-faded">
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navContent" aria-controls="navContent" aria-expanded="false">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="/">Breakout</a>
+  
+    <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navCreateGameDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Create Game
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navCreateGameDropdown">
+                    <a class="dropdown-item" id="navCreateGameSmall">Small Board</a>
+                    <a class="dropdown-item" id="navCreateGameLarge">Large Board</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+{{end}}

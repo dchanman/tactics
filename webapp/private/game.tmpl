@@ -1,15 +1,11 @@
 {{define "game"}}
 <!DOCTYPE html>
 <html>
-<head>
-    <script type="text/javascript" src="/lib/jquery-3.2.1.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/lib/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/css/tactics.css"/>
-    <link rel="stylesheet" type="text/css" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css"/>
-</head>
+
+{{template "head" .}}
 
 <body>
-    {{template "header" .}}
+    {{template "nav" .}}
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 col-lg-4 push-lg-8 col-xl-6 push-xl-6">
@@ -48,8 +44,7 @@
     </div>
 </body>
 
-<script type="text/javascript" src="/lib/tether.min.js"></script>
-<script type="text/javascript" src="/lib/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.min.js"></script>
+{{template "commonjs" .}}
 <script type="text/javascript" src="/js/game/board.js"></script>
 <script type="text/javascript" src="/js/game/chat.js"></script>
 <script type="text/javascript" src="/js/game/unit.js"></script>

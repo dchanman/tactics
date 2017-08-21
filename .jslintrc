@@ -2,7 +2,7 @@
     "predef": [
         "module", "console", "document", "window", "XMLHttpRequest", "$", "WebSocket", "Promise",
         "setInterval", "clearInterval",
-        "Board", "Main", "Api", "Unit", "Chat", "Status"
+        "Board", "Main", "Api", "Unit", "Chat", "Status", "Util", "Jsonrpc"
     ],
     "es5": true
 }

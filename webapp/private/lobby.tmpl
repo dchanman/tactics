@@ -1,17 +1,13 @@
 {{define "lobby"}}
 <!DOCTYPE html>
 <html>
-<head>
-    <script type="text/javascript" src="/lib/jquery-3.2.1.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/lib/bootstrap-4.0.0-alpha.6-dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/lib/font-awesome-4.7.0/css/font-awesome.min.css"/>
-</head>
+{{template "head" .}}
 
 <body>
-    {{template "header" .}}
+    
+    {{template "nav" .}}
+    
     <div class="container-fluid">
-        <h1>Tactics Go</h1>
-        <hr>
         <h5>Create a game</h5>
         <button id="gameCreateSmall" class="btn btn-info">Small</button>
         <button id="gameCreateLarge" class="btn btn-info">Large</button>
@@ -21,8 +17,7 @@
     </div>
 </body>
 
-<script type="text/javascript" src="/lib/tether.min.js"></script>
-<script type="text/javascript" src="/lib/bootstrap-4.0.0-alpha.6-dist/js/bootstrap.min.js"></script>
+{{template "commonjs" .}}
 <script type="text/javascript" src="/js/lobby/main.js"></script>
 
 </html>
