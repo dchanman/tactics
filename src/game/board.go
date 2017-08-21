@@ -74,7 +74,7 @@ func (b *Board) getValidMovesHelper(dir func(s *Square) Square, origin Square) [
 	return ret
 }
 
-func (b *Board) GetValidMoves(x int, y int) []Square {
+func (b *Board) getValidMoves(x int, y int) []Square {
 	u := b.Get(x, y)
 	if u.Exists == false {
 		return make([]Square, 0)

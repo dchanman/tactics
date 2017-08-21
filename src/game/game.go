@@ -207,10 +207,10 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 	return nil
 }
 
-func (g *Game) GetValidMoves(id uint64, x int, y int) []Square {
+func (g *Game) getValidMoves(id uint64, x int, y int) []Square {
 	u := g.board.Get(x, y)
 	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerId(id) {
-		return g.board.GetValidMoves(x, y)
+		return g.board.getValidMoves(x, y)
 	}
 	return make([]Square, 0)
 }

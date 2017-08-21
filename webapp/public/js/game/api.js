@@ -135,22 +135,6 @@ window.Api = (function () {
             });
         });
     };
-    Api.prototype.getValidMoves = function (x, y) {
-        var api = this;
-        return new Promise(function (resolve, reject) {
-            var params = {
-                "x": x,
-                "y": y
-            };
-            sendmsg(api, "TacticsApi.GetValidMoves", [params], function (result, err) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            });
-        });
-    };
     Api.prototype.commitMove = function (fromX, fromY, toX, toY) {
         var api = this;
         return new Promise(function (resolve, reject) {

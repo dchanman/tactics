@@ -82,7 +82,7 @@ func TestGetSetOutOfBounds(t *testing.T) {
 
 func TestGetValidMovesNil(t *testing.T) {
 	b := NewBoard(5, 5)
-	moves := b.GetValidMoves(2, 2)
+	moves := b.getValidMoves(2, 2)
 	if len(moves) != 0 {
 		t.Error("Unexpected valid moves ", moves)
 	}
@@ -91,7 +91,7 @@ func TestGetValidMoves0(t *testing.T) {
 	b := NewBoard(5, 5)
 	u := Unit{Exists: true}
 	b.Set(2, 2, u)
-	moves := b.GetValidMoves(2, 2)
+	moves := b.getValidMoves(2, 2)
 	verify := make(map[Square]bool, len(moves))
 	for i := range moves {
 		verify[moves[i]] = true
@@ -116,7 +116,7 @@ func TestGetValidMovesEnemyPieces(t *testing.T) {
 	b.Set(2, 2, u1)
 	b.Set(2, 1, u2)
 	b.Set(2, 3, u3)
-	moves := b.GetValidMoves(2, 2)
+	moves := b.getValidMoves(2, 2)
 	verify := make(map[Square]bool, len(moves))
 	for i := range moves {
 		verify[moves[i]] = true

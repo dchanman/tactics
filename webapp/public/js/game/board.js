@@ -37,21 +37,22 @@ window.Board = (function () {
         } else {
             this.board.removeSelectableSquares();
             this.board.selectedSquare = this;
-            var self = this;
-            this.board.main.api.getValidMoves(this.x, this.y)
-                .then(function (result) {
-                    var squares = result.validMoves,
-                        i;
-                    if (!squares) {
-                        return;
+            var self = this,
+                x,
+                y;
+            // Set valid moves
+            if (this.unit && this.board.playerTeam === this.unit.team) {
+                for (x = 0; x < this.board.cols; x += 1) {
+                    if (x !== this.x) {
+                        self.board.setActiveSquare(x, this.y);
                     }
-                    for (i = 0; i < squares.length; i += 1) {
-                        self.board.setActiveSquare(squares[i].x, squares[i].y);
+                }
+                for (y = 0; y < this.board.rows; y += 1) {
+                    if (y !== this.y) {
+                        self.board.setActiveSquare(this.x, y);
                     }
-                })
-                .catch(function (err) {
-                    console.log(err);
-                });
+                }
+            }
         }
     };
     function Overlay(htmlTable, rows, cols) {

@@ -113,12 +113,6 @@ func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) 
 	return nil
 }
 
-func (api *TacticsApi) GetValidMoves(args *TacticsApiArgs, result *TacticsApiResult) error {
-	// TODO: Eventually this will be done clientside
-	*result = TacticsApiResult{ValidMoves: api.game.GetValidMoves(api.id, args.X, args.Y)}
-	return nil
-}
-
 func (api *TacticsApi) CommitMove(args *struct {
 	FromX int `json:"fromX"`
 	FromY int `json:"fromY"`
