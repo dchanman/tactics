@@ -11,23 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type TacticsApiArgs struct {
-	X       int        `json:"x,omitempty"`
-	Y       int        `json:"y,omitempty"`
-	Unit    *game.Unit `json:"unit,omitempty"`
-	Message string     `json:"message,omitempty"`
-}
-
-type TacticsApiResult struct {
-	Game       *game.Game    `json:"game,omitempty"`
-	ValidMoves []game.Square `json:"validMoves,omitempty"`
-}
-
-type TacticsApiUpdate struct {
-	Method string      `json:"method"`
-	Params interface{} `json:"params"`
-}
-
 type TacticsApiRole string
 
 const (
@@ -108,12 +91,14 @@ func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
 	return nil
 }
 
-func (api *TacticsApi) GetGame(args *TacticsApiArgs, result *game.GameInformation) error {
+func (api *TacticsApi) GetGame(args *struct{}, result *game.GameInformation) error {
 	*result = api.game.GetGameInformation()
 	return nil
 }
 
-func (api *TacticsApi) SendChat(args *TacticsApiArgs, result *TacticsApiResult) error {
+func (api *TacticsApi) SendChat(args *struct {
+	Message string `json:"message"`
+}, result *struct{}) error {
 	api.chat.Send(strconv.FormatUint(api.id, 10), args.Message)
 	return nil
 }
