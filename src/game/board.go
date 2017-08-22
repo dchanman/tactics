@@ -34,7 +34,7 @@ func (s *Square) right() Square {
 	return Square{s.X + 1, s.Y}
 }
 
-func NewBoard(cols int, rows int) Board {
+func newBoard(cols int, rows int) Board {
 	b := Board{
 		Board: make([]Unit, cols*rows),
 		Cols:  cols,
@@ -46,14 +46,14 @@ func (b *Board) isValid(x int, y int) bool {
 	return (x >= 0 && y >= 0 && x < b.Cols && y < b.Rows)
 }
 
-func (b *Board) Get(x int, y int) Unit {
+func (b *Board) get(x int, y int) Unit {
 	if !b.isValid(x, y) {
 		return Unit{Exists: false}
 	}
 	return b.Board[x*b.Rows+y]
 }
 
-func (b *Board) Set(x int, y int, u Unit) {
+func (b *Board) set(x int, y int, u Unit) {
 	if !b.isValid(x, y) {
 		return
 	}
@@ -61,8 +61,8 @@ func (b *Board) Set(x int, y int, u Unit) {
 }
 
 func (b *Board) pickup(x int, y int) Unit {
-	ret := b.Get(x, y)
-	b.Set(x, y, Unit{Exists: false})
+	ret := b.get(x, y)
+	b.set(x, y, Unit{Exists: false})
 	return ret
 }
 
@@ -75,7 +75,7 @@ func (b *Board) getValidMovesHelper(dir func(s *Square) Square, origin Square) [
 }
 
 func (b *Board) getValidMoves(x int, y int) []Square {
-	u := b.Get(x, y)
+	u := b.get(x, y)
 	if u.Exists == false {
 		return make([]Square, 0)
 	}
@@ -94,7 +94,7 @@ func computeIncrement(src int, dst int) int {
 	return 1
 }
 
-func (m *Move) decomposeMoveToSteps() []Step {
+func decomposeMoveToSteps(m Move) []Step {
 	ret := make([]Step, 0)
 	if m.Src.X == m.Dst.X {
 		inc := computeIncrement(m.Src.Y, m.Dst.Y)
@@ -122,9 +122,9 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 	// Case 1: Both steps converge onto the same square
 	if step1.Dst == step2.Dst {
 		udst := b.pickup(step1.Dst.X, step1.Dst.Y)
-		b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, udst))
+		b.set(step1.Dst.X, step1.Dst.Y, stack(u1, udst))
 		udst = b.pickup(step2.Dst.X, step2.Dst.Y)
-		b.Set(step2.Dst.X, step2.Dst.Y, stack(u2, udst))
+		b.set(step2.Dst.X, step2.Dst.Y, stack(u2, udst))
 		return true, true
 	}
 	// Case 2: Steps are on adjacent squares, moving into one another
@@ -132,32 +132,32 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 	if step1.Dst == step2.Src && step1.Src == step2.Dst {
 		collision := stack(u1, u2)
 		if collision.Exists && collision.Team == u1.Team {
-			b.Set(step1.Src.X, step1.Src.Y, collision)
+			b.set(step1.Src.X, step1.Src.Y, collision)
 		} else if collision.Exists && collision.Team == u2.Team {
-			b.Set(step2.Src.X, step2.Src.Y, collision)
+			b.set(step2.Src.X, step2.Src.Y, collision)
 		}
 		return true, true
 	}
 	// Case 3: Two exclusive moves
-	collision1 := b.Get(step1.Dst.X, step1.Dst.Y).Exists
-	collision2 := b.Get(step2.Dst.X, step2.Dst.Y).Exists
-	b.Set(step1.Dst.X, step1.Dst.Y, stack(u1, b.Get(step1.Dst.X, step1.Dst.Y)))
-	b.Set(step2.Dst.X, step2.Dst.Y, stack(u2, b.Get(step2.Dst.X, step2.Dst.Y)))
+	collision1 := b.get(step1.Dst.X, step1.Dst.Y).Exists
+	collision2 := b.get(step2.Dst.X, step2.Dst.Y).Exists
+	b.set(step1.Dst.X, step1.Dst.Y, stack(u1, b.get(step1.Dst.X, step1.Dst.Y)))
+	b.set(step2.Dst.X, step2.Dst.Y, stack(u2, b.get(step2.Dst.X, step2.Dst.Y)))
 	return collision1, collision2
 }
 
-func (b *Board) checkWinCondition() (bool, Team) {
+func checkWinCondition(b *Board) (bool, Team) {
 	team1win := false
 	team2win := false
 	// Let rank 0 be team 1's "endzone"
 	for i := 0; i < b.Cols; i++ {
-		if b.Get(i, 0).Exists && b.Get(i, 0).Team == 1 {
+		if b.get(i, 0).Exists && b.get(i, 0).Team == 1 {
 			team1win = true
 		}
 	}
 	// Let rank nRows be team 2's "endzone"
 	for i := 0; i < b.Cols; i++ {
-		if b.Get(i, b.Rows-1).Exists && b.Get(i, b.Rows-1).Team == 2 {
+		if b.get(i, b.Rows-1).Exists && b.get(i, b.Rows-1).Team == 2 {
 			team2win = true
 		}
 	}
@@ -176,8 +176,8 @@ func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, Team) {
 	// TODO: validate moves
 	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
 	// defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
-	steps1 := move1.decomposeMoveToSteps()
-	steps2 := move2.decomposeMoveToSteps()
+	steps1 := decomposeMoveToSteps(move1)
+	steps2 := decomposeMoveToSteps(move2)
 
 	nSteps := len(steps1)
 	if len(steps2) > len(steps1) {
@@ -202,7 +202,7 @@ func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, Team) {
 		collision1, collision2 := b.resolveStep(s1, s2)
 		stopped1 = collision1 || stopped1
 		stopped2 = collision2 || stopped2
-		winner, team := b.checkWinCondition()
+		winner, team := checkWinCondition(b)
 		if winner {
 			return true, team
 		}

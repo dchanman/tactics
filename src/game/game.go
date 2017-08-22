@@ -99,7 +99,7 @@ func (g *Game) initGameState() {
 func (g *Game) ResetBoard() {
 	g.initGameState()
 	g.movesQueue <- gameMove{reset: true}
-	g.PublishUpdate()
+	g.publishUpdate()
 }
 
 func createGameBoard(gameType GameType) *Board {
@@ -116,12 +116,12 @@ func createGameBoard(gameType GameType) *Board {
 		nRows = rowsLarge
 		nRowsOfPieces = rowsOfPiecesLarge
 	}
-	b := NewBoard(nCols, nRows)
+	b := newBoard(nCols, nRows)
 	// Add pieces
 	for i := 0; i < nCols; i++ {
 		for j := 0; j < nRowsOfPieces; j++ {
-			b.Set(i, 1+j, Unit{Team: 2, Stack: 1, Exists: true})
-			b.Set(i, nRows-2-j, Unit{Team: 1, Stack: 1, Exists: true})
+			b.set(i, 1+j, Unit{Team: 2, Stack: 1, Exists: true})
+			b.set(i, nRows-2-j, Unit{Team: 1, Stack: 1, Exists: true})
 		}
 	}
 	return &b
@@ -151,10 +151,10 @@ func (g *Game) waitForMoves() {
 			winner, team = g.board.ResolveMove(move1, move2)
 			g.history = append(g.history, NewTurn(move1, move2))
 		}
-		g.PublishUpdate()
+		g.publishUpdate()
 		if winner {
 			g.completed = true
-			g.PublishVictory(team)
+			g.publishVictory(team)
 		}
 	}
 }
@@ -176,7 +176,7 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 	if team == 0 {
 		return errors.New("Player is not playing")
 	}
-	if !g.board.Get(move.Src.X, move.Src.Y).Exists || g.board.Get(move.Src.X, move.Src.Y).Team != team {
+	if !g.board.get(move.Src.X, move.Src.Y).Exists || g.board.get(move.Src.X, move.Src.Y).Team != team {
 		return errors.New("Player is moving the wrong piece")
 	}
 	g.movesQueue <- gameMove{team: team, move: move}
@@ -184,7 +184,7 @@ func (g *Game) CommitMove(id uint64, move Move) error {
 }
 
 func (g *Game) getValidMoves(id uint64, x int, y int) []Square {
-	u := g.board.Get(x, y)
+	u := g.board.get(x, y)
 	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerId(id) {
 		return g.board.getValidMoves(x, y)
 	}
@@ -218,7 +218,7 @@ func (g *Game) GetGameInformation() GameInformation {
 		P2Ready:     g.player2ready}
 }
 
-func (g *Game) PublishUpdate() {
+func (g *Game) publishUpdate() {
 	notif := Notification{
 		Method: "Game.Update",
 		Params: g.GetGameInformation()}
@@ -227,7 +227,7 @@ func (g *Game) PublishUpdate() {
 	}
 }
 
-func (g *Game) PublishVictory(team Team) {
+func (g *Game) publishVictory(team Team) {
 	notif := Notification{
 		Method: "Game.Over",
 		Params: struct {
@@ -238,7 +238,7 @@ func (g *Game) PublishVictory(team Team) {
 	}
 }
 
-func (g *Game) GetPlayerReadyStatus() (bool, bool) {
+func (g *Game) getPlayerReadyStatus() (bool, bool) {
 	return g.player1ready, g.player2ready
 }
 
@@ -250,7 +250,7 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 	if team > 0 && team <= nMaxPlayers {
 		if g.teamToPlayerID[team] == 0 {
 			g.teamToPlayerID[team] = id
-			go g.PublishUpdate()
+			go g.publishUpdate()
 			return true
 		}
 	}
@@ -268,6 +268,6 @@ func (g *Game) QuitGame(id uint64) {
 	team := g.getTeamForPlayerId(id)
 	if team > 0 {
 		g.teamToPlayerID[team] = 0
-		go g.PublishUpdate()
+		go g.publishUpdate()
 	}
 }
