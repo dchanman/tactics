@@ -2,17 +2,30 @@ window.Api = (function () {
     "use strict";
     function createNewWebsocket(api) {
         var uri = (window.location.protocol === "https:") ? "wss://" : "ws://",
-            gameid = /g\/([0-9]{6})/.exec(window.location),
             url,
             ws;
-        if (gameid.length < 2) {
-            throw ("Invalid game id");
-        }
-        url = uri + window.location.host + "/ws/" + gameid[1];
+        url = uri + window.location.host + "/ws";
         ws = new WebSocket(url);
         console.log(url);
         ws.onopen = function () {
-            api.onready();
+            var gameid = /g\/([0-9]{6})/.exec(window.location),
+                gameidint;
+            if (gameid.length < 2) {
+                throw "invalid URL: gameid is bad";
+            }
+            gameidint = parseInt(gameid[1], 10);
+            console.log(gameidint);
+            api.subscribeGame(gameidint)
+                .then(function () {
+                    api.onready();
+                })
+                .catch(function (err) {
+                    throw err;
+                });
+            api.subscribeChat(gameidint)
+                .catch(function (err) {
+                    throw err;
+                });
         };
         ws.onmessage = function (event) {
             var data, callback;
@@ -157,6 +170,36 @@ window.Api = (function () {
         var api = this;
         return new Promise(function (resolve, reject) {
             sendmsg(api, "TacticsApi.ResetBoard", [], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    Api.prototype.subscribeGame = function (id) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "id": id
+            };
+            sendmsg(api, "TacticsApi.SubscribeGame", [params], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    Api.prototype.subscribeChat = function (id) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "id": id
+            };
+            sendmsg(api, "TacticsApi.SubscribeChat", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {

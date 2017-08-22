@@ -43,7 +43,6 @@ func main() {
 	// Game ID routes
 	router := mux.NewRouter()
 	router.HandleFunc("/g/{id:[0-9]{6}}", gameHandler)
-	router.HandleFunc("/ws/{id:[0-9]{6}}", websocketHandler)
 
 	// JSON-RPC hooks
 	rpcServer := rpc.NewServer()
@@ -51,7 +50,7 @@ func main() {
 	rpcServer.RegisterService(mainserver, "")
 
 	http.Handle("/g/", router)
-	http.Handle("/ws/", router)
+	http.HandleFunc("/ws", websocketHandler)
 	http.Handle("/data/", rpcServer)
 	http.Handle("/", blockDirListing(http.FileServer(http.Dir("./webapp/public"))))
 
@@ -88,12 +87,7 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Websocket handshake expected."))
 		return
 	}
-	gameid, err := getMuxGameID(r)
-	if err != nil {
-		w.Write([]byte("Bad game ID"))
-		return
-	}
-	mainserver.RegisterNewClient(uint32(gameid), conn)
+	mainserver.RegisterNewClient(conn)
 }
 
 func gameHandler(w http.ResponseWriter, r *http.Request) {

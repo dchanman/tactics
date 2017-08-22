@@ -83,17 +83,8 @@ func (s *Server) nextID() uint64 {
 }
 
 // RegisterNewClient registers a new websocket connection with the server
-func (s *Server) RegisterNewClient(gameid uint32, conn *websocket.Conn) error {
-	game, gok := s.games[gameid]
-	chat, cok := s.chats[gameid]
-	if gok && cok {
-		api := NewTacticsApi(s.nextID(), conn)
-		api.game = game
-		api.chat = chat
-		go api.subscribeAndServe(game)
-		go api.subscribeAndServe(chat)
-		go api.serveRPC()
-		return nil
-	}
-	return errors.New("game ID not found")
+func (s *Server) RegisterNewClient(conn *websocket.Conn) error {
+	api := NewTacticsApi(s.nextID(), conn, s)
+	go api.serveRPC()
+	return nil
 }
