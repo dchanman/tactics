@@ -10,7 +10,7 @@ import (
 const (
 	nMaxPlayers       = 2
 	rowsLarge         = 10
-	colsLarge         = 8
+	colsLarge         = 7
 	rowsOfPiecesLarge = 3
 	rowsSmall         = 8
 	colsSmall         = 5

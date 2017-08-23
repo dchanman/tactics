@@ -87,14 +87,14 @@
         text-align: center;
         height: 100%;
         width: 100%;
-        min-height: 40px;
-        max-height: 40px;
-        min-width: 40px;
-        max-width: 40px;
+        min-height: 35px;
+        max-height: 35px;
+        min-width: 35px;
+        max-width: 35px;
     }
     .piece{
-        height: 40px;
-        width: 40px;
+        height: 35px;
+        width: 35px;
         stroke-width: 2;
         font-size: 12px;
     }
