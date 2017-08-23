@@ -8,20 +8,17 @@
     {{template "nav" .}}
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12 col-lg-4 push-lg-8 col-xl-6 push-xl-6">
-                <div class="row justify-content-center margin-vert">
-                    <div class="col-md-6 col-lg-12">
-                        {{template "status" .}}
-                    </div>
-                    <br>
-                    <div class="col-md-6 col-lg-12">
-                        {{template "chat" .}}
+            <div class="col-md-12 col-lg-8">
+                <div class="container margin-vert">
+                    {{template "status" .}}
+                    <div class="container">
+                        <table id="game" class="table-bordered table-centered"></table>
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 col-lg-8 pull-lg-4 col-xl-6 pull-xl-6">
-                <div class="container margin-vert">
-                    <table id="game" class="table-bordered table-centered"></table>
+            <div class="col-md-12 col-lg-4">
+                <div class="margin-vert">
+                    {{template "chat" .}}
                 </div>
             </div>
         </div>

@@ -16,7 +16,7 @@
 .status-score-black {
     background-color: black;
     color: white;
-    box-shadow: 0 0 0 2pt white;
+    box-shadow: 0 0 0 2pt black;
 }
 .status-score-white {
     background-color: white;
@@ -24,5 +24,33 @@
     box-shadow: 0 0 0 2pt black;
 }
 .status-score-current-player {
-    box-shadow: 0 0 8pt 8pt #5cb85c; 
+    box-shadow: 0 0 8pt 8pt #5cb85c;
+}
+.btn-status {
+    font-size: 10px;
+    padding: 5px;
+}
+.btn-sit {
+    min-width: 50px;
+    max-width: 50px;
+    -webkit-animation: pulse 2s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    0% {box-shadow: 0 0 0pt 0pt #f0ad4e;}
+}
+@-webkit-keyframes pulse {
+    0% {box-shadow: 0 0 0pt 0pt #5cb85c;}
+    25% {box-shadow: 0 0 2pt 2pt #5cb85c;}
+    50% {box-shadow: 0 0 4pt 4pt #5cb85c;}
+    75% {box-shadow: 0 0 2pt 2pt #5cb85c;}
+    100% {box-shadow: 0 0 0pt 0pt #5cb85c;}
+}
+.btn-white {
+    color: black;
+    background-color: white;
+    border-color: black;
+}
+.btn-black {
+    color: white;
+    background-color: black;
+    border-color: white;
 }
