@@ -152,8 +152,8 @@ window.Board = (function () {
         this.overlay.clear();
         if (history.length > 0) {
             var lastMove = history[history.length - 1],
-                m1 = lastMove[1],
-                m2 = lastMove[2];
+                m1 = lastMove.moves[1],
+                m2 = lastMove.moves[2];
             this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
             this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
         }

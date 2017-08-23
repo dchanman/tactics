@@ -73,14 +73,16 @@ type gameMove struct {
 }
 
 // Turn is a set of moves made by all players
-type Turn map[Team]Move
+type Turn struct {
+	Moves map[Team]Move `json:"moves"`
+}
 
 // NewTurn constructs a new Turn
 func NewTurn(move1 Move, move2 Move) Turn {
 	moves := make(map[Team]Move)
 	moves[1] = move1
 	moves[2] = move2
-	return Turn(moves)
+	return Turn{Moves: moves}
 }
 
 // Information contains player information
