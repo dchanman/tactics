@@ -22,12 +22,6 @@ window.Status = (function () {
         $("#ctrlSitP1").hide();
         $("#ctrlSitP2").hide();
     }
-    function clearStatusIconColor(statusIconId) {
-        $(statusIconId).removeClass("status-icon-current-player");
-        $(statusIconId).removeClass("status-icon-thinking");
-        $(statusIconId).removeClass("status-icon-ready");
-        $(statusIconId).removeClass("status-icon-offline");
-    }
     Status.prototype.renderButtons = function () {
         if (this.team === 0) {
             $("ctrlReset").hide();
@@ -57,12 +51,12 @@ window.Status = (function () {
         }
         $("#ctrlStatusRole").html(ctrlStatusRole);
         this.renderButtons();
-        clearStatusIconColor("#status-icon-role-p1");
-        clearStatusIconColor("#status-icon-role-p2");
+        $("#status-score-p1").removeClass("status-score-current-player");
+        $("#status-score-p2").removeClass("status-score-current-enemy");
         if (update.team === 1) {
-            $("#status-icon-role-p1").addClass("status-icon-current-player");
+            $("#status-score-p1").addClass("status-score-current-player");
         } else if (update.team === 2) {
-            $("#status-icon-role-p2").addClass("status-icon-current-player");
+            $("#status-score-p2").addClass("status-score-current-player");
         }
     };
     Status.prototype.updatePlayerReady = function (update) {
@@ -75,18 +69,12 @@ window.Status = (function () {
         var p1 = (update.p1available ? (update.p1ready ? "Ready" : "Thinking...") : "Offline"),
             p2 = (update.p2available ? (update.p2ready ? "Ready" : "Thinking...") : "Offline"),
             ctrlStatusP1 = "White: ".bold() + p1,
-            ctrlStatusP2 = "Black: ".bold() + p2,
-            classp1 = (update.p1available ? (update.p1ready ? "status-icon-ready" : "status-icon-thinking") : "status-icon-offline"),
-            classp2 = (update.p2available ? (update.p2ready ? "status-icon-ready" : "status-icon-thinking") : "status-icon-offline");
+            ctrlStatusP2 = "Black: ".bold() + p2;
         $("#ctrlStatusP1").html(ctrlStatusP1);
         $("#ctrlStatusP2").html(ctrlStatusP2);
         this.renderButtons();
         $("#status-score-p1").html(p1);
         $("#status-score-p2").html(p2);
-        clearStatusIconColor("#status-icon-status-p1");
-        clearStatusIconColor("#status-icon-status-p2");
-        $("#status-icon-status-p1").addClass(classp1);
-        $("#status-icon-status-p2").addClass(classp2);
     };
     return Status;
 }());
