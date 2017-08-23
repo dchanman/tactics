@@ -3,6 +3,7 @@ package game
 import (
 	"encoding/json"
 	"errors"
+	"sync"
 
 	"github.com/sirupsen/logrus"
 )
@@ -34,9 +35,10 @@ type Game struct {
 	history     []Turn
 	completed   bool
 
-	teamToPlayerID []uint64
-	player1ready   bool
-	player2ready   bool
+	teamToPlayerID      []uint64
+	teamToPlayerIDMutex sync.Mutex
+	player1ready        bool
+	player2ready        bool
 }
 
 // BoardType determines the type of the game (board size, pieces, etc)
@@ -271,6 +273,8 @@ func (g *Game) GetPlayerIDs() (uint64, uint64) {
 
 // JoinGame sets an ID as a player currently playing the game
 func (g *Game) JoinGame(team int, id uint64) bool {
+	g.teamToPlayerIDMutex.Lock()
+	defer g.teamToPlayerIDMutex.Unlock()
 	if team > 0 && team <= nMaxPlayers {
 		if g.teamToPlayerID[team] == 0 {
 			g.teamToPlayerID[team] = id
@@ -290,6 +294,8 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 
 // QuitGame allows a player currently playing the game to quit
 func (g *Game) QuitGame(id uint64) {
+	g.teamToPlayerIDMutex.Lock()
+	defer g.teamToPlayerIDMutex.Unlock()
 	team := g.getTeamForPlayerID(id)
 	if team > 0 {
 		g.teamToPlayerID[team] = 0

@@ -69,7 +69,7 @@ func (b *Board) pickup(x int, y int) Unit {
 	return ret
 }
 
-func (b *Board) getValidMovesHelper(dir func(s *Square) Square, origin Square) []Square {
+func (b *Board) getLineInDirection(dir func(s *Square) Square, origin Square) []Square {
 	ret := make([]Square, 0)
 	for next := dir(&origin); b.isValid(next.X, next.Y); next = dir(&next) {
 		ret = append(ret, next)
@@ -82,12 +82,7 @@ func (b *Board) getValidMoves(x int, y int) []Square {
 	if u.Exists == false {
 		return make([]Square, 0)
 	}
-	moves := make([]Square, 0)
-	moves = append(moves, b.getValidMovesHelper((*Square).up, Square{x, y})...)
-	moves = append(moves, b.getValidMovesHelper((*Square).down, Square{x, y})...)
-	moves = append(moves, b.getValidMovesHelper((*Square).left, Square{x, y})...)
-	moves = append(moves, b.getValidMovesHelper((*Square).right, Square{x, y})...)
-	return moves
+	return u.getValidMoves(b, Square{x, y})
 }
 
 func computeIncrement(src int, dst int) int {

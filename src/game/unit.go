@@ -34,6 +34,15 @@ func stack(u1 Unit, u2 Unit) Unit {
 	return Unit{Exists: false}
 }
 
+func (u *Unit) getValidMoves(b *Board, sq Square) []Square {
+	moves := make([]Square, 0)
+	moves = append(moves, b.getLineInDirection((*Square).up, sq)...)
+	moves = append(moves, b.getLineInDirection((*Square).down, sq)...)
+	moves = append(moves, b.getLineInDirection((*Square).left, sq)...)
+	moves = append(moves, b.getLineInDirection((*Square).right, sq)...)
+	return moves
+}
+
 // String representation
 func (u *Unit) String() string {
 	if !u.Exists {
