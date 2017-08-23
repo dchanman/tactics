@@ -76,7 +76,8 @@ window.Main = (function () {
 
 $(document).ready(function () {
     "use strict";
-    var main = new Main();
+    var main = new Main(),
+        resizeTimer = null;
     $("#chatsend").click(function () {
         main.chat.sendMessage();
     });
@@ -84,5 +85,13 @@ $(document).ready(function () {
         if (event.keyCode === 13) {
             main.chat.sendMessage();
         }
+    });
+    $(window).resize(function () {
+        if (resizeTimer !== null) {
+            window.clearTimeout(resizeTimer);
+        }
+        resizeTimer = window.setTimeout(function () {
+            main.board.onWindowResize();
+        }, 200);
     });
 });

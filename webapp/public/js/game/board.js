@@ -58,12 +58,10 @@ window.Board = (function () {
     function Overlay(htmlTable, rows, cols) {
         this.rows = rows;
         this.cols = cols;
+        this.htmlTable = htmlTable;
         this.container = document.createElement("div");
         $(this.container).addClass("overlay-container");
-        this.width = $(htmlTable).width();
-        this.height = $(htmlTable).height();
-        $(this.container).width(this.width);
-        $(this.container).height(this.height);
+        this.resize();
         htmlTable.appendChild(this.container);
     }
     Overlay.prototype.clear = function () {
@@ -71,6 +69,12 @@ window.Board = (function () {
         $(this.container).removeClass("overlay-container-win");
         $(this.container).removeClass("overlay-container-lose");
         $(this.container).removeClass("overlay-container-draw");
+    };
+    Overlay.prototype.resize = function () {
+        this.width = $(this.htmlTable).width();
+        this.height = $(this.htmlTable).height();
+        $(this.container).width(this.width);
+        $(this.container).height(this.height);
     };
     Overlay.prototype.displayWinScreen = function () {
         $(this.container).addClass("overlay-container-win");
@@ -110,6 +114,7 @@ window.Board = (function () {
         this.rows = 0;
         this.playerTeam = 0;
         this.currentBoard = [];
+        this.currentHistory = [];
         this.htmlTable = htmlTable;
         this.grid = [];
         this.overlay = null;
@@ -143,6 +148,7 @@ window.Board = (function () {
         this.renderPieces(board.board);
     };
     Board.prototype.renderHistory = function (history) {
+        this.currentHistory = history;
         this.overlay.clear();
         if (history.length > 0) {
             var lastMove = history[history.length - 1],
@@ -241,6 +247,12 @@ window.Board = (function () {
         } else if (this.playerTeam !== 0 && team !== this.playerTeam) {
             this.overlay.displayLoseScreen();
         }
+    };
+    Board.prototype.onWindowResize = function () {
+        console.log("Rerendering!");
+        this.renderPieces(this.currentBoard);
+        this.overlay.resize();
+        this.renderHistory(this.currentHistory);
     };
     return Board;
 }());
