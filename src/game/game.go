@@ -17,9 +17,17 @@ const (
 	rowsOfPiecesSmall = 2
 )
 
+var (
+	errInvalidBoardType = errors.New("invalid game type")
+	errGameOver         = errors.New("Game is over")
+	errPlayerNotPlaying = errors.New("Player is not playing")
+	errInvalidSquare    = errors.New("invalid square")
+	errPlayerWrongTeam  = errors.New("Player is moving the wrong piece")
+)
+
 // Game is the main game engine
 type Game struct {
-	gameType    GameType
+	gameType    BoardType
 	board       *Board
 	subscribers map[uint64](chan Notification)
 	movesQueue  chan gameMove
@@ -31,28 +39,29 @@ type Game struct {
 	player2ready   bool
 }
 
-// GameType determines the type of the game (board size, pieces, etc)
-type GameType string
+// BoardType determines the type of the game (board size, pieces, etc)
+type BoardType string
 
 const (
-	// Small 8x5 2 row configuration
-	GameTypeSmall GameType = "small"
-	// Large 10x8 3 row configuration
-	GameTypeLarge = "large"
+	// BoardTypeSmall is a 8x5 2 row configuration
+	BoardTypeSmall BoardType = "small"
+	// BoardTypeLarge is a 10x8 3 row configuration
+	BoardTypeLarge = "large"
 )
 
-func (gt *GameType) UnmarshalJSON(b []byte) error {
+// UnmarshalJSON validates BoardTypes
+func (gt *BoardType) UnmarshalJSON(b []byte) error {
 	var s string
 	err := json.Unmarshal(b, &s)
 	if err != nil {
 		return err
 	}
-	ret := GameType(s)
-	if ret == GameTypeSmall || ret == GameTypeLarge {
+	ret := BoardType(s)
+	if ret == BoardTypeSmall || ret == BoardTypeLarge {
 		*gt = ret
 		return nil
 	}
-	return errors.New("invalid game type")
+	return errInvalidBoardType
 }
 
 type gameMove struct {
@@ -61,8 +70,10 @@ type gameMove struct {
 	reset bool
 }
 
+// Turn is a set of moves made by all players
 type Turn map[Team]Move
 
+// NewTurn constructs a new Turn
 func NewTurn(move1 Move, move2 Move) Turn {
 	moves := make(map[Team]Move)
 	moves[1] = move1
@@ -70,7 +81,8 @@ func NewTurn(move1 Move, move2 Move) Turn {
 	return Turn(moves)
 }
 
-type GameInformation struct {
+// Information contains player information
+type Information struct {
 	Board       *Board `json:"board"`
 	History     []Turn `json:"history"`
 	P1Available bool   `json:"p1available"`
@@ -79,7 +91,8 @@ type GameInformation struct {
 	P2Ready     bool   `json:"p2ready"`
 }
 
-func NewGame(gameType GameType) *Game {
+// NewGame constructs a new Game
+func NewGame(gameType BoardType) *Game {
 	game := Game{
 		gameType:       gameType,
 		subscribers:    make(map[uint64](chan Notification)),
@@ -96,22 +109,23 @@ func (g *Game) initGameState() {
 	g.completed = false
 }
 
+// ResetBoard resets the board
 func (g *Game) ResetBoard() {
 	g.initGameState()
 	g.movesQueue <- gameMove{reset: true}
 	g.publishUpdate()
 }
 
-func createGameBoard(gameType GameType) *Board {
+func createGameBoard(gameType BoardType) *Board {
 	var nCols int
 	var nRows int
 	var nRowsOfPieces int
 	switch gameType {
-	case GameTypeSmall:
+	case BoardTypeSmall:
 		nCols = colsSmall
 		nRows = rowsSmall
 		nRowsOfPieces = rowsOfPiecesSmall
-	case GameTypeLarge:
+	case BoardTypeLarge:
 		nCols = colsLarge
 		nRows = rowsLarge
 		nRowsOfPieces = rowsOfPiecesLarge
@@ -159,7 +173,7 @@ func (g *Game) waitForMoves() {
 	}
 }
 
-func (g *Game) getTeamForPlayerId(id uint64) Team {
+func (g *Game) getTeamForPlayerID(id uint64) Team {
 	for team, pid := range g.teamToPlayerID {
 		if pid == id {
 			return Team(team)
@@ -168,29 +182,35 @@ func (g *Game) getTeamForPlayerId(id uint64) Team {
 	return 0
 }
 
-func (g *Game) CommitMove(id uint64, move Move) error {
-	team := g.getTeamForPlayerId(id)
+// CommitMove is called from a client to commit a move on behalf of a player
+func (g *Game) CommitMove(id uint64, src Square, dst Square) error {
+	team := g.getTeamForPlayerID(id)
 	if g.completed {
-		return errors.New("Game is over")
+		return errGameOver
 	}
 	if team == 0 {
-		return errors.New("Player is not playing")
+		return errPlayerNotPlaying
 	}
-	if !g.board.get(move.Src.X, move.Src.Y).Exists || g.board.get(move.Src.X, move.Src.Y).Team != team {
-		return errors.New("Player is moving the wrong piece")
+	if !g.board.isValid(src.X, src.Y) || !g.board.isValid(dst.X, dst.Y) {
+		return errInvalidSquare
 	}
+	if !g.board.get(src.X, src.Y).Exists || g.board.get(src.X, src.Y).Team != team {
+		return errPlayerWrongTeam
+	}
+	move := Move{Src: src, Dst: dst}
 	g.movesQueue <- gameMove{team: team, move: move}
 	return nil
 }
 
 func (g *Game) getValidMoves(id uint64, x int, y int) []Square {
 	u := g.board.get(x, y)
-	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerId(id) {
+	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerID(id) {
 		return g.board.getValidMoves(x, y)
 	}
 	return make([]Square, 0)
 }
 
+// Subscribe implements Subscriber interface
 func (g *Game) Subscribe(id uint64) chan Notification {
 	if _, exists := g.subscribers[id]; exists {
 		log.WithFields(logrus.Fields{"id": id}).Error("Duplicate ID")
@@ -200,6 +220,7 @@ func (g *Game) Subscribe(id uint64) chan Notification {
 	return g.subscribers[id]
 }
 
+// Unsubscribe implements Subscriber interface
 func (g *Game) Unsubscribe(id uint64) {
 	if _, exists := g.subscribers[id]; !exists {
 		log.WithFields(logrus.Fields{"id": id}).Error("Unsubscribing invalid ID")
@@ -208,8 +229,9 @@ func (g *Game) Unsubscribe(id uint64) {
 	delete(g.subscribers, id)
 }
 
-func (g *Game) GetGameInformation() GameInformation {
-	return GameInformation{
+// GetInformation returns the current status of the game
+func (g *Game) GetInformation() Information {
+	return Information{
 		Board:       g.board,
 		History:     g.history,
 		P1Available: g.teamToPlayerID[1] != 0,
@@ -221,7 +243,7 @@ func (g *Game) GetGameInformation() GameInformation {
 func (g *Game) publishUpdate() {
 	notif := Notification{
 		Method: "Game.Update",
-		Params: g.GetGameInformation()}
+		Params: g.GetInformation()}
 	for _, ch := range g.subscribers {
 		ch <- notif
 	}
@@ -242,10 +264,12 @@ func (g *Game) getPlayerReadyStatus() (bool, bool) {
 	return g.player1ready, g.player2ready
 }
 
-func (g *Game) GetPlayerIds() (uint64, uint64) {
+// GetPlayerIDs returns the IDs of the players currently playing the game
+func (g *Game) GetPlayerIDs() (uint64, uint64) {
 	return g.teamToPlayerID[1], g.teamToPlayerID[2]
 }
 
+// JoinGame sets an ID as a player currently playing the game
 func (g *Game) JoinGame(team int, id uint64) bool {
 	if team > 0 && team <= nMaxPlayers {
 		if g.teamToPlayerID[team] == 0 {
@@ -264,8 +288,9 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 	return false
 }
 
+// QuitGame allows a player currently playing the game to quit
 func (g *Game) QuitGame(id uint64) {
-	team := g.getTeamForPlayerId(id)
+	team := g.getTeamForPlayerID(id)
 	if team > 0 {
 		g.teamToPlayerID[team] = 0
 		go g.publishUpdate()

@@ -11,12 +11,14 @@ type chatMsg struct {
 	Message string `json:"message"`
 }
 
+// Chat provides chatroom functionality
 type Chat struct {
 	in    chan chatMsg
 	out   map[uint64](chan Notification)
 	mutex sync.Mutex
 }
 
+// NewChat instantiates a new Chat
 func NewChat() *Chat {
 	chat := Chat{
 		in:  make(chan chatMsg, gameChatBuffer),
@@ -25,12 +27,14 @@ func NewChat() *Chat {
 	return &chat
 }
 
+// Send allows a client to send a message
 func (c *Chat) Send(id string, msg string) {
 	c.in <- chatMsg{
 		Sender:  id,
 		Message: msg}
 }
 
+// Subscribe allows a client to receive chat notifications
 func (c *Chat) Subscribe(id uint64) chan Notification {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -42,6 +46,7 @@ func (c *Chat) Subscribe(id uint64) chan Notification {
 	return c.out[id]
 }
 
+// Unsubscribe allows a client to stop receiving chat notifications
 func (c *Chat) Unsubscribe(id uint64) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()

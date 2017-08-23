@@ -2,23 +2,26 @@ package game
 
 import "bytes"
 
+// Square is a (x, y) coordinate tuple
 type Square struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
+// Board represents the game board and the pieces on the board
 type Board struct {
 	Board []Unit `json:"board"`
 	Cols  int    `json:"cols"`
 	Rows  int    `json:"rows"`
 }
 
+// Move is a set of source and destination squares
 type Move struct {
 	Src Square
 	Dst Square
 }
 
-// Assumption: A step's Src and Dst are adjacent squares
+// Step assumes Src and Dst are adjacent squares
 type Step Move
 
 func (s *Square) up() Square {

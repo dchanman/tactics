@@ -27,7 +27,7 @@ func NewServer() *Server {
 	return &Server{games: games, chats: chats, maxid: 1}
 }
 
-func (s *Server) createNewGame(gameid uint32, gameType game.GameType) error {
+func (s *Server) createNewGame(gameid uint32, gameType game.BoardType) error {
 	if s.DoesGameIDExist(gameid) {
 		return errors.New("game already exists")
 	}
@@ -58,14 +58,14 @@ func (s *Server) GetGameIds(req *http.Request, args *struct{}, result *struct {
 
 // CreateGame creates a new game and returns the game's ID
 func (s *Server) CreateGame(req *http.Request, args *struct {
-	GameType game.GameType `json:"gameType"`
+	BoardType game.BoardType `json:"gameType"`
 }, result *struct {
 	GameID uint32 `json:"gameid"`
 }) error {
 	var randID uint32
 	for randID = generateRandomID(); s.DoesGameIDExist(randID); randID = generateRandomID() {
 	}
-	s.createNewGame(randID, args.GameType)
+	s.createNewGame(randID, args.BoardType)
 	*result = struct {
 		GameID uint32 `json:"gameid"`
 	}{randID}

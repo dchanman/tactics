@@ -2,9 +2,10 @@ package game
 
 import "fmt"
 
+// Team is a number
 type Team int8
 
-// unit is a basic unit in the game
+// Unit is a basic unit in the game
 type Unit struct {
 	Team   Team `json:"team,omitempty"`
 	Stack  int8 `json:"stack,omitempty"`
@@ -33,6 +34,7 @@ func stack(u1 Unit, u2 Unit) Unit {
 	return Unit{Exists: false}
 }
 
+// String representation
 func (u *Unit) String() string {
 	if !u.Exists {
 		return "."

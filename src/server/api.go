@@ -101,11 +101,11 @@ func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
 	return nil
 }
 
-func (api *TacticsApi) GetGame(args *struct{}, result *game.GameInformation) error {
+func (api *TacticsApi) GetGame(args *struct{}, result *game.Information) error {
 	if api.game == nil {
 		return TacticsApiErrorNoGame
 	}
-	*result = api.game.GetGameInformation()
+	*result = api.game.GetInformation()
 	return nil
 }
 
@@ -128,10 +128,7 @@ func (api *TacticsApi) CommitMove(args *struct {
 	if api.game == nil {
 		return TacticsApiErrorNoGame
 	}
-	move := game.Move{
-		Src: game.Square{X: args.FromX, Y: args.FromY},
-		Dst: game.Square{X: args.ToX, Y: args.ToY}}
-	return api.game.CommitMove(api.id, move)
+	return api.game.CommitMove(api.id, game.Square{X: args.FromX, Y: args.FromY}, game.Square{X: args.ToX, Y: args.ToY})
 }
 
 func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {
@@ -162,7 +159,7 @@ func (api *TacticsApi) GetRole(args *struct{}, result *struct {
 	if api.game == nil {
 		return TacticsApiErrorNoGame
 	}
-	p1id, p2id := api.game.GetPlayerIds()
+	p1id, p2id := api.game.GetPlayerIDs()
 	role := TacticsApiRoleObserver
 	team := game.Team(0)
 	if api.id == p1id {
