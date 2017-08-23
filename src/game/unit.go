@@ -6,10 +6,9 @@ type Team int8
 
 // unit is a basic unit in the game
 type Unit struct {
-	Name   string `json:"name,omitempty"`
-	Team   Team   `json:"team,omitempty"`
-	Stack  int8   `json:"stack,omitempty"`
-	Exists bool   `json:"exists"`
+	Team   Team `json:"team,omitempty"`
+	Stack  int8 `json:"stack,omitempty"`
+	Exists bool `json:"exists"`
 }
 
 func stack(u1 Unit, u2 Unit) Unit {

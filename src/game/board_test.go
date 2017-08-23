@@ -4,14 +4,14 @@ import "testing"
 
 func TestGetSet(t *testing.T) {
 	b := newBoard(3, 4)
-	u := Unit{Name: "test", Exists: true}
+	u := Unit{Exists: true}
 	tu := b.get(0, 0)
 	if tu.Exists {
 		t.Error("Unexpected Unit")
 	}
 	b.set(0, 0, u)
 	tu = b.get(0, 0)
-	if !tu.Exists || tu.Name != "test" {
+	if !tu.Exists {
 		t.Error("Unexpected Unit")
 	}
 
@@ -21,14 +21,14 @@ func TestGetSet(t *testing.T) {
 	}
 	b.set(2, 3, u)
 	tu = b.get(2, 3)
-	if !tu.Exists || tu.Name != "test" {
+	if !tu.Exists {
 		t.Error("Unexpected Unit")
 	}
 }
 
 func TestGetSetOutOfBounds(t *testing.T) {
 	b := newBoard(3, 4)
-	u := Unit{Name: "test", Exists: true}
+	u := Unit{Exists: true}
 	tu := b.get(3, 4)
 	if tu.Exists {
 		t.Error("Unexpected Unit")
