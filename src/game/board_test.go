@@ -384,6 +384,28 @@ func TestResolveMoveWinConditions(t *testing.T) {
 		t.Error("Moves resolved incorrectly. Team: ", team)
 	}
 
+	// Test race victory: more pieces on team 1
+	b = newBoard(cols, rows)
+	b.set(1, 3, Unit{Stack: 2, Team: 1, Exists: true})
+	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
+	winner, team = b.resolveMove(m1, m2)
+	if !winner || team != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test race victory: more pieces on team 2
+	b = newBoard(cols, rows)
+	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.set(0, 1, Unit{Stack: 3, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
+	winner, team = b.resolveMove(m1, m2)
+	if !winner || team != 2 {
+		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
 	// Test one side victory, other side move short
 	b = newBoard(cols, rows)
 	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})

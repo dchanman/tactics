@@ -145,27 +145,27 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 }
 
 func checkWinCondition(b *Board) (bool, Team) {
-	team1win := false
-	team2win := false
+	team1win := int8(0)
+	team2win := int8(0)
 	// Let rank 0 be team 1's "endzone"
 	for i := 0; i < b.Cols; i++ {
 		if b.get(i, 0).Exists && b.get(i, 0).Team == 1 {
-			team1win = true
+			team1win = b.get(i, 0).Stack
 		}
 	}
 	// Let rank nRows be team 2's "endzone"
 	for i := 0; i < b.Cols; i++ {
 		if b.get(i, b.Rows-1).Exists && b.get(i, b.Rows-1).Team == 2 {
-			team2win = true
+			team2win = b.get(i, b.Rows-1).Stack
 		}
 	}
-	if team1win && team2win {
-		// TODO: compare stack sizes
-		return true, 0
-	} else if team1win {
+	if team1win > team2win {
 		return true, 1
-	} else if team2win {
+	} else if team2win > team1win {
 		return true, 2
+	} else if team1win > 0 {
+		// draw game: both sides got the same number of pieces across
+		return true, 0
 	}
 	return false, 0
 }
