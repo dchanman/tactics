@@ -24,20 +24,6 @@ const (
 	TacticsApiRolePlayer                  = "Player"
 )
 
-type TacticsApiPlayerStatus string
-
-const (
-	TacticsApiPlayerStatusUnavailable TacticsApiPlayerStatus = "Unavailable"
-	TacticsApiPlayerStatusThinking                           = "Thinking of move..."
-	TacticsApiPlayerStatusCommitted                          = "Move committed"
-)
-
-type TacticsApiStatus struct {
-	Role     TacticsApiRole         `json:"role"`
-	P1Status TacticsApiPlayerStatus `json:"p1status"`
-	P2Status TacticsApiPlayerStatus `json:"p2status"`
-}
-
 // TacticsApi exposes game APIs to the client
 type TacticsApi struct {
 	server  *Server
