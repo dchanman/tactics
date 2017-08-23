@@ -84,7 +84,7 @@ func (s *Server) nextID() uint64 {
 
 // RegisterNewClient registers a new websocket connection with the server
 func (s *Server) RegisterNewClient(conn *websocket.Conn) error {
-	api := NewTacticsApi(s.nextID(), conn, s)
+	api := newTacticsAPI(s.nextID(), conn, s)
 	go api.serveRPC()
 	return nil
 }

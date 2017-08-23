@@ -85,7 +85,7 @@ window.Api = (function () {
     Api.prototype.heartbeat = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.Heartbeat", [], function (result, err) {
+            sendmsg(api, "TacticsAPI.Heartbeat", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -97,7 +97,7 @@ window.Api = (function () {
     Api.prototype.getGame = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.GetGame", [], function (result, err) {
+            sendmsg(api, "TacticsAPI.GetGame", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -109,7 +109,7 @@ window.Api = (function () {
     Api.prototype.getRole = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.GetRole", [], function (result, err) {
+            sendmsg(api, "TacticsAPI.GetRole", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -124,7 +124,7 @@ window.Api = (function () {
             var params = {
                 "playerNumber": playerNumber
             };
-            sendmsg(api, "TacticsApi.JoinGame", [params], function (result, err) {
+            sendmsg(api, "TacticsAPI.JoinGame", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -139,7 +139,7 @@ window.Api = (function () {
             var params = {
                 "message": msg
             };
-            sendmsg(api, "TacticsApi.SendChat", [params], function (result, err) {
+            sendmsg(api, "TacticsAPI.SendChat", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -157,7 +157,7 @@ window.Api = (function () {
                 "toX": toX,
                 "toY": toY
             };
-            sendmsg(api, "TacticsApi.CommitMove", [params], function (result, err) {
+            sendmsg(api, "TacticsAPI.CommitMove", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -169,7 +169,7 @@ window.Api = (function () {
     Api.prototype.resetBoard = function () {
         var api = this;
         return new Promise(function (resolve, reject) {
-            sendmsg(api, "TacticsApi.ResetBoard", [], function (result, err) {
+            sendmsg(api, "TacticsAPI.ResetBoard", [], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -184,7 +184,7 @@ window.Api = (function () {
             var params = {
                 "id": id
             };
-            sendmsg(api, "TacticsApi.SubscribeGame", [params], function (result, err) {
+            sendmsg(api, "TacticsAPI.SubscribeGame", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -199,7 +199,7 @@ window.Api = (function () {
             var params = {
                 "id": id
             };
-            sendmsg(api, "TacticsApi.SubscribeChat", [params], function (result, err) {
+            sendmsg(api, "TacticsAPI.SubscribeChat", [params], function (result, err) {
                 if (err) {
                     reject(err);
                 } else {

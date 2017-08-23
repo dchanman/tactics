@@ -12,20 +12,21 @@ import (
 )
 
 var (
-	TacticsApiErrorNoID   = errors.New("ID not found")
-	TacticsApiErrorNoGame = errors.New("no registered game")
-	TacticsApiErrorNoChat = errors.New("no registered chat")
+	errNoID   = errors.New("ID not found")
+	errNoGame = errors.New("no registered game")
+	errNoChat = errors.New("no registered chat")
 )
 
-type TacticsApiRole string
+// Role is a user's role in a game
+type Role string
 
 const (
-	TacticsApiRoleObserver TacticsApiRole = "Spectator"
-	TacticsApiRolePlayer                  = "Player"
+	roleObserver Role = "Spectator"
+	rolePlayer        = "Player"
 )
 
-// TacticsApi exposes game APIs to the client
-type TacticsApi struct {
+// TacticsAPI exposes game APIs to the client
+type TacticsAPI struct {
 	server  *Server
 	id      uint64
 	game    *game.Game
@@ -35,9 +36,9 @@ type TacticsApi struct {
 	client  *Client
 }
 
-func NewTacticsApi(id uint64, conn *websocket.Conn, s *Server) *TacticsApi {
+func newTacticsAPI(id uint64, conn *websocket.Conn, s *Server) *TacticsAPI {
 	client := Client{conn: conn}
-	api := TacticsApi{
+	api := TacticsAPI{
 		id:      id,
 		gameFin: make(map[game.Subscribable](chan bool)),
 		client:  &client,
@@ -45,7 +46,7 @@ func NewTacticsApi(id uint64, conn *websocket.Conn, s *Server) *TacticsApi {
 	return &api
 }
 
-func (api *TacticsApi) subscribeAndServe(s game.Subscribable) {
+func (api *TacticsAPI) subscribeAndServe(s game.Subscribable) {
 	ch := s.Subscribe(api.id)
 	defer s.Unsubscribe(api.id)
 	fin := make(chan bool)
@@ -61,7 +62,7 @@ func (api *TacticsApi) subscribeAndServe(s game.Subscribable) {
 	}
 }
 
-func (api *TacticsApi) serveRPC() {
+func (api *TacticsAPI) serveRPC() {
 	defer func() {
 		log.Info("Done Serving")
 		if r := recover(); r != nil {
@@ -83,53 +84,53 @@ func (api *TacticsApi) serveRPC() {
 	rpcserver.ServeCodec(jsonrpc.NewServerCodec(api.client))
 }
 
-func (api *TacticsApi) Heartbeat(args *struct{}, result *struct{}) error {
+func (api *TacticsAPI) Heartbeat(args *struct{}, result *struct{}) error {
 	return nil
 }
 
-func (api *TacticsApi) GetGame(args *struct{}, result *game.Information) error {
+func (api *TacticsAPI) GetGame(args *struct{}, result *game.Information) error {
 	if api.game == nil {
-		return TacticsApiErrorNoGame
+		return errNoGame
 	}
 	*result = api.game.GetInformation()
 	return nil
 }
 
-func (api *TacticsApi) SendChat(args *struct {
+func (api *TacticsAPI) SendChat(args *struct {
 	Message string `json:"message"`
 }, result *struct{}) error {
 	if api.chat == nil {
-		return TacticsApiErrorNoChat
+		return errNoChat
 	}
 	api.chat.Send(strconv.FormatUint(api.id, 10), args.Message)
 	return nil
 }
 
-func (api *TacticsApi) CommitMove(args *struct {
+func (api *TacticsAPI) CommitMove(args *struct {
 	FromX int `json:"fromX"`
 	FromY int `json:"fromY"`
 	ToX   int `json:"toX"`
 	ToY   int `json:"toY"`
 }, result *struct{}) error {
 	if api.game == nil {
-		return TacticsApiErrorNoGame
+		return errNoGame
 	}
 	return api.game.CommitMove(api.id, game.Square{X: args.FromX, Y: args.FromY}, game.Square{X: args.ToX, Y: args.ToY})
 }
 
-func (api *TacticsApi) ResetBoard(args *struct{}, result *struct{}) error {
+func (api *TacticsAPI) ResetBoard(args *struct{}, result *struct{}) error {
 	if api.game == nil {
-		return TacticsApiErrorNoGame
+		return errNoGame
 	}
 	api.game.ResetBoard()
 	return nil
 }
 
-func (api *TacticsApi) JoinGame(args *struct {
+func (api *TacticsAPI) JoinGame(args *struct {
 	PlayerNumber int `json:"playerNumber"`
 }, result *struct{}) error {
 	if api.game == nil {
-		return TacticsApiErrorNoGame
+		return errNoGame
 	}
 	joinedResult := api.game.JoinGame(args.PlayerNumber, api.id)
 	if !joinedResult {
@@ -138,42 +139,42 @@ func (api *TacticsApi) JoinGame(args *struct {
 	return nil
 }
 
-func (api *TacticsApi) GetRole(args *struct{}, result *struct {
-	Role TacticsApiRole `json:"role"`
-	Team game.Team      `json:"team"`
+func (api *TacticsAPI) GetRole(args *struct{}, result *struct {
+	Role Role      `json:"role"`
+	Team game.Team `json:"team"`
 }) error {
 	if api.game == nil {
-		return TacticsApiErrorNoGame
+		return errNoGame
 	}
 	p1id, p2id := api.game.GetPlayerIDs()
-	role := TacticsApiRoleObserver
+	role := roleObserver
 	team := game.Team(0)
 	if api.id == p1id {
-		role = TacticsApiRolePlayer
+		role = rolePlayer
 		team = 1
 	}
 	if api.id == p2id {
-		role = TacticsApiRolePlayer
+		role = rolePlayer
 		team = 2
 	}
 
 	*result = struct {
-		Role TacticsApiRole `json:"role"`
-		Team game.Team      `json:"team"`
+		Role Role      `json:"role"`
+		Team game.Team `json:"team"`
 	}{
 		Role: role,
 		Team: team}
 	return nil
 }
 
-func (api *TacticsApi) SubscribeGame(args *struct {
+func (api *TacticsAPI) SubscribeGame(args *struct {
 	ID uint32 `json:"id"`
 }, result *struct{}) error {
 	// TODO: threadsafety
 	log.WithFields(logrus.Fields{"id": args.ID}).Info("SubG")
 	game, ok := api.server.games[args.ID]
 	if !ok {
-		return TacticsApiErrorNoID
+		return errNoID
 	}
 	if api.game != nil {
 		fin := api.gameFin[api.game]
@@ -185,13 +186,13 @@ func (api *TacticsApi) SubscribeGame(args *struct {
 	return nil
 }
 
-func (api *TacticsApi) SubscribeChat(args *struct {
+func (api *TacticsAPI) SubscribeChat(args *struct {
 	ID uint32 `json:"id"`
 }, result *struct{}) error {
 	log.WithFields(logrus.Fields{"id": args.ID}).Info("SubC")
 	chat, ok := api.server.chats[args.ID]
 	if !ok {
-		return TacticsApiErrorNoID
+		return errNoID
 	}
 	if api.chat != nil {
 		fin := api.gameFin[api.chat]
