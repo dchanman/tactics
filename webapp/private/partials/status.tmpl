@@ -1,0 +1,33 @@
+{{define "status"}}
+<div id="status" class="container margin-vert">
+    <div class="row status-header">
+        <div class="col-1"></div>
+        <div id="status-player-p1" class="col-5 status-player">
+            <div id="status-score-p1" class="status-score status-score-white">
+            </div>
+            <div id="status-icon-role-p1" class="status-icon status-icon-left status-icon-top">
+            </div>
+            <div id="status-icon-status-p1" class="status-icon status-icon-left status-icon-bottom">
+            </div>
+        </div>
+        <div id="status-player-p2" class="col-5 status-player">
+            <div id="status-score-p2" class="status-score status-score-black">
+            </div>
+            <div id="status-icon-role-p2" class="status-icon status-icon-right status-icon-top">
+            </div>
+            <div id="status-icon-status-p2" class="status-icon status-icon-right status-icon-bottom">
+            </div>
+        </div>
+        <div class="col-1"></div>
+    </div>
+    <h3>Game Status</h3>
+    <ul>
+        <li id="ctrlStatusRole"></li>
+        <li id="ctrlStatusP1"></li>
+        <li id="ctrlStatusP2"></li>
+    </ul>
+    <button class="btn btn-danger" type="button" id="ctrlReset">Reset Game</button>
+    <button class="btn btn-success" type="button" id="ctrlSitP1">Sit as White</button>
+    <button class="btn btn-success" type="button" id="ctrlSitP2">Sit as Black</button>
+</div>
+{{end}}

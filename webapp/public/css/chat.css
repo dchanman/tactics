@@ -1,0 +1,23 @@
+.chat-container {
+    width: 100%;
+    margin: 10px;
+    padding: 10px;
+    background-color: red;
+}
+.chat-message {
+    margin: 0;
+}
+.chat-greeting {
+    font-style: italic;
+    font-color: lightgrey;
+}
+#chatlog {
+    padding: 20px;
+    height: 30vh;
+    overflow: auto;
+}
+#chat {
+    max-width: 400px;
+    outline: 2px solid;
+    padding: 20px;
+}

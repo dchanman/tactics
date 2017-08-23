@@ -1,0 +1,61 @@
+.status-header {
+    margin: 20px 0 20px;
+}
+.status-player {
+    text-align: center;
+}
+.status-icon {
+    position: absolute;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.status-icon-top {
+    top: -15px;
+}
+.status-icon-bottom {
+    bottom: -15px;
+}
+.status-icon-left {
+    left: 0;
+}
+.status-icon-right {
+    right: 0;
+}
+.status-icon-current-player {
+    background-color: #5cb85c;
+    box-shadow: 0 0 1pt 3pt #5cb85c;
+}
+.status-icon-thinking {
+    background-color: #f0ad4e;
+    box-shadow: 0 0 1pt 3pt #f0ad4e;
+}
+.status-icon-ready {
+    background-color: #5bc0de;
+    box-shadow: 0 0 1pt 3pt #5bc0de;
+}
+.status-icon-offline {
+    background-color: #d9534f;
+    box-shadow: 0 0 1pt 3pt #d9534f;
+}
+.status-score {
+    position: relative;
+    z-index: 2;
+    line-height: 50px;
+    font-size: 20px;
+    text-align: center;
+    height: 50px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.status-score-black {
+    background-color: black;
+    color: white;
+    box-shadow: 0 0 0 2pt white;
+}
+.status-score-white {
+    background-color: white;
+    color: black;
+    box-shadow: 0 0 0 2pt black;
+}

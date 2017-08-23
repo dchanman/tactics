@@ -9,21 +9,15 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 col-lg-4 push-lg-8 col-xl-6 push-xl-6">
-                <div class="container margin-vert">
-                    <div class="game-status">
-                        <h3>Game Status</h3>
-                        <ul>
-                            <li id="ctrlStatusRole"></li>
-                            <li id="ctrlStatusP1"></li>
-                            <li id="ctrlStatusP2"></li>
-                        </ul>
+                <div class="row justify-content-center margin-vert">
+                    <div class="col-md-6 col-lg-12">
+                        {{template "status" .}}
                     </div>
-                    <button class="btn btn-danger" type="button" id="ctrlReset">Reset Game</button>
-                    <button class="btn btn-success" type="button" id="ctrlSitP1">Sit as White</button>
-                    <button class="btn btn-success" type="button" id="ctrlSitP2">Sit as Black</button>
+                    <br>
+                    <div class="col-md-6 col-lg-12">
+                        {{template "chat" .}}
+                    </div>
                 </div>
-                <hr>
-                {{template "chat" .}}
             </div>
             <div class="col-md-12 col-lg-8 pull-lg-4 col-xl-6 pull-xl-6">
                 <div class="container margin-vert">
