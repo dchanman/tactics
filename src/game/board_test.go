@@ -80,6 +80,34 @@ func TestGetSetOutOfBounds(t *testing.T) {
 	}
 }
 
+func TestSetNUnits(t *testing.T) {
+	b := newBoard(2, 2)
+	if b.nUnits != 0 {
+		t.Error("Unexpected nUnits", b.nUnits)
+	}
+	// Place 1 piece
+	b.set(0, 0, Unit{Exists: true, Stack: 1})
+	if b.nUnits != 1 {
+		t.Error("Unexpected nUnits", b.nUnits)
+	}
+	// Place another piece
+	b.set(0, 1, Unit{Exists: true, Stack: 2})
+	if b.nUnits != 3 {
+		t.Error("Unexpected nUnits", b.nUnits)
+	}
+	// Replace another piece
+	b.set(0, 0, Unit{Exists: true, Stack: 3})
+	if b.nUnits != 5 {
+		t.Error("Unexpected nUnits", b.nUnits)
+	}
+	// Remove all pieces
+	b.set(0, 0, Unit{})
+	b.set(0, 1, Unit{})
+	if b.nUnits != 0 {
+		t.Error("Unexpected nUnits", b.nUnits)
+	}
+}
+
 func TestGetValidMovesNil(t *testing.T) {
 	b := newBoard(5, 5)
 	moves := b.getValidMoves(2, 2)
@@ -482,19 +510,6 @@ func TestResolveMoveWinConditions(t *testing.T) {
 		t.Error("Moves resolved incorrectly. Team: ", team)
 	}
 
-	// Test both sides collision, nobody wins
-	b = newBoard(cols, rows)
-	b.set(1, 1, Unit{Stack: 1, Team: 2, Exists: true})
-	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
-	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
-	b.set(0, 3, Unit{Stack: 1, Team: 1, Exists: true})
-	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
-	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, _ = b.resolveMove(m1, m2)
-	if winner {
-		t.Error("Moves resolved incorrectly. Team: ", team)
-	}
-
 	// Test collision, make sure pieces stop
 	b = newBoard(cols, rows)
 	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
@@ -505,11 +520,27 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 2}}
 	winner, _ = b.resolveMove(m1, m2)
 	if winner {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+		t.Error("Moves resolved incorrectly. Winner: ", winner)
 	}
 	if b.get(1, 3).Exists ||
 		!(b.get(1, 2).Exists && b.get(1, 2).Stack == 2) ||
 		!(b.get(1, 1).Exists && b.get(1, 1).Stack == 1) {
 		t.Error("Moves resolved incorrectly. Team: ", team)
+	}
+
+	// Test collision, no pieces remaining, draw
+	b = newBoard(cols, rows)
+	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
+	b.set(1, 2, Unit{Stack: 1, Team: 2, Exists: true})
+	b.set(0, 2, Unit{Stack: 1, Team: 1, Exists: true})
+	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
+	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
+	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 3}}
+	winner, team = b.resolveMove(m1, m2)
+	if !winner || team != 0 {
+		t.Error("Moves resolved incorrectly. Winner: ", winner, " Team: ", team, b)
+	}
+	if b.nUnits > 0 {
+		t.Error("Moves resolved incorrectly. ", b.nUnits, " units leftover.", b)
 	}
 }

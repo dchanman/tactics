@@ -10,9 +10,10 @@ type Square struct {
 
 // Board represents the game board and the pieces on the board
 type Board struct {
-	Board []Unit `json:"board"`
-	Cols  int    `json:"cols"`
-	Rows  int    `json:"rows"`
+	Board  []Unit `json:"board"`
+	Cols   int    `json:"cols"`
+	Rows   int    `json:"rows"`
+	nUnits int8
 }
 
 // Move is a set of source and destination squares
@@ -60,7 +61,14 @@ func (b *Board) set(x int, y int, u Unit) {
 	if !b.isValid(x, y) {
 		return
 	}
+	prev := b.get(x, y)
+	if prev.Exists {
+		b.nUnits -= prev.Stack
+	}
 	b.Board[x*b.Rows+y] = u
+	if u.Exists {
+		b.nUnits += u.Stack
+	}
 }
 
 func (b *Board) pickup(x int, y int) Unit {
@@ -145,6 +153,9 @@ func (b *Board) resolveStep(step1 Step, step2 Step) (bool, bool) {
 }
 
 func checkWinCondition(b *Board) (bool, Team) {
+	if b.nUnits <= 0 {
+		return true, 0
+	}
 	team1win := int8(0)
 	team2win := int8(0)
 	// Let rank 0 be team 1's "endzone"
