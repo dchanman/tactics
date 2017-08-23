@@ -1,13 +1,15 @@
 {{define "chat"}}
-<div id="chat" class="container">
-    <div class="border-bottom-0" id="chatlog">
-        <p class="chat-message chat-greeting"><i>Welcome to the chat! Please be nice!</i><p>
-    </div>
-    <div class="input-group">
-        <input class="form-control" type="text" id="chatmsg"></input>
-        <span class=input-group-btn>
-            <button class="btn btn-default" type="button" id="chatsend"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-        </span>
+<div class="container">
+    <div id="chat">
+        <div class="border-bottom-0" id="chatlog">
+            <p class="chat-message chat-greeting"><i>Welcome to the chat! Please be nice!</i><p>
+        </div>
+        <div class="input-group">
+            <input class="form-control" type="text" id="chatmsg"></input>
+            <span class=input-group-btn>
+                <button class="btn btn-default" type="button" id="chatsend"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+            </span>
+        </div>
     </div>
 </div>
 {{end}}
