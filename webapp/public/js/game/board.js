@@ -214,8 +214,9 @@ window.Board = (function () {
         console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {
-        var i, x, y, cls, num;
+        var i, x, y, cls, num, width;
         this.currentBoard = pieces;
+        width = $(this.grid[0][0].container).width();
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
             y = i % this.rows;
@@ -228,7 +229,7 @@ window.Board = (function () {
                 cls = "piece";
                 cls += " " + (pieces[i].team === 1 ? "piece-1" : "piece-2");
                 num = (pieces[i].stack > 1 ? pieces[i].stack : "");
-                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle cx="50%" cy="50%" r="30"></circle><text x="50%" y="50%">' + num + '</text></svg>');
+                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle cx="50%" cy="50%" r="' + (width * 0.4) + '"></circle><text x="50%" y="50%">' + num + '</text></svg>');
             }
         }
     };
