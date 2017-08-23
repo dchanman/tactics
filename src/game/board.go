@@ -172,7 +172,7 @@ func checkWinCondition(b *Board) (bool, Team) {
 	return false, 0
 }
 
-func (b *Board) ResolveMove(move1 Move, move2 Move) (bool, Team) {
+func (b *Board) resolveMove(move1 Move, move2 Move) (bool, Team) {
 	// TODO: validate moves
 	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
 	// defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")

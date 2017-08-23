@@ -148,7 +148,7 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			winner, team = g.board.ResolveMove(move1, move2)
+			winner, team = g.board.resolveMove(move1, move2)
 			g.history = append(g.history, NewTurn(move1, move2))
 		}
 		g.publishUpdate()
