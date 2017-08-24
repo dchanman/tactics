@@ -29,6 +29,7 @@ var (
 		"./webapp/private/partials/commonjs.tmpl",
 		"./webapp/private/partials/head.tmpl",
 		"./webapp/private/partials/nav.tmpl",
+		"./webapp/private/partials/overlaysetting.tmpl",
 		"./webapp/private/partials/status.tmpl"))
 )
 
