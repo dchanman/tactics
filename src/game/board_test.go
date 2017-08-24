@@ -387,6 +387,7 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	var m2 Move
 	var winner bool
 	var team Team
+	var collisions []Square
 	cols := 3
 	rows := 5
 
@@ -396,8 +397,8 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 2}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 1 {
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 1 || len(collisions) != 0 {
 		t.Error("Moves resolved incorrectly")
 	}
 
@@ -407,9 +408,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 0 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 0 || len(collisions) != 0 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test race victory: more pieces on team 1
@@ -418,9 +419,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 1 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 1 || len(collisions) != 0 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test race victory: more pieces on team 2
@@ -429,9 +430,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 3, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 5}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 0 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test one side victory, other side move short
@@ -440,18 +441,18 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 2}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 1 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 1 || len(collisions) != 0 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 	b = newBoard(cols, rows)
 	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 1}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, team = b.resolveMove(m1, m2)
+	winner, team, collisions = b.resolveMove(m1, m2)
 	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test one side victory, other side friendly collision
@@ -461,9 +462,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 	b = newBoard(cols, rows)
 	b.set(1, 3, Unit{Stack: 1, Team: 1, Exists: true})
@@ -471,9 +472,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 	b = newBoard(cols, rows)
 	b.set(1, 3, Unit{Stack: 2, Team: 1, Exists: true})
@@ -481,9 +482,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test one side victory, other side enemy collision
@@ -493,9 +494,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 4}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test one side collision, which removes a blockade allowing other side win
@@ -505,9 +506,9 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(1, 4, Unit{Stack: 1, Team: 1, Exists: true})
 	m1 = Move{Src: Square{1, 4}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{1, 1}, Dst: Square{1, 4}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 2 {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 2 || len(collisions) != 1 {
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test collision, make sure pieces stop
@@ -518,14 +519,14 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 2}}
-	winner, _ = b.resolveMove(m1, m2)
+	winner, _, _ = b.resolveMove(m1, m2)
 	if winner {
 		t.Error("Moves resolved incorrectly. Winner: ", winner)
 	}
 	if b.get(1, 3).Exists ||
 		!(b.get(1, 2).Exists && b.get(1, 2).Stack == 2) ||
 		!(b.get(1, 1).Exists && b.get(1, 1).Stack == 1) {
-		t.Error("Moves resolved incorrectly. Team: ", team)
+		t.Error("Moves resolved incorrectly. Team: ", team, " Collisions: ", collisions)
 	}
 
 	// Test collision, no pieces remaining, draw
@@ -536,8 +537,8 @@ func TestResolveMoveWinConditions(t *testing.T) {
 	b.set(0, 1, Unit{Stack: 1, Team: 2, Exists: true})
 	m1 = Move{Src: Square{1, 3}, Dst: Square{1, 0}}
 	m2 = Move{Src: Square{0, 1}, Dst: Square{0, 3}}
-	winner, team = b.resolveMove(m1, m2)
-	if !winner || team != 0 {
+	winner, team, collisions = b.resolveMove(m1, m2)
+	if !winner || team != 0 || len(collisions) != 2 {
 		t.Error("Moves resolved incorrectly. Winner: ", winner, " Team: ", team, b)
 	}
 	if b.nUnits > 0 {

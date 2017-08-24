@@ -181,12 +181,13 @@ func checkWinCondition(b *Board) (bool, Team) {
 	return false, 0
 }
 
-func (b *Board) resolveMove(move1 Move, move2 Move) (bool, Team) {
+func (b *Board) resolveMove(move1 Move, move2 Move) (winner bool, team Team, collisions []Square) {
 	// TODO: validate moves
 	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
 	// defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
 	steps1 := decomposeMoveToSteps(move1)
 	steps2 := decomposeMoveToSteps(move2)
+	collisionsSet := make(map[Square]bool, 0)
 
 	nSteps := len(steps1)
 	if len(steps2) > len(steps1) {
@@ -209,14 +210,24 @@ func (b *Board) resolveMove(move1 Move, move2 Move) (bool, Team) {
 			s2 = steps2[i]
 		}
 		collision1, collision2 := b.resolveStep(s1, s2)
+		if collision1 {
+			collisionsSet[s1.Dst] = true
+		}
+		if collision2 {
+			collisionsSet[s2.Dst] = true
+		}
 		stopped1 = collision1 || stopped1
 		stopped2 = collision2 || stopped2
-		winner, team := checkWinCondition(b)
+		winner, team = checkWinCondition(b)
 		if winner {
-			return true, team
+			break
 		}
 	}
-	return false, 0
+	collisions = make([]Square, 0)
+	for k, _ := range collisionsSet {
+		collisions = append(collisions, k)
+	}
+	return
 }
 
 func (b *Board) String() string {

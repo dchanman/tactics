@@ -80,14 +80,14 @@ type Turn struct {
 }
 
 // NewTurn constructs a new Turn
-func NewTurn(move1 Move, move2 Move, oldUnit1 Unit, oldUnit2 Unit) Turn {
+func NewTurn(move1 Move, move2 Move, oldUnit1 Unit, oldUnit2 Unit, collisions []Square) Turn {
 	moves := make(map[Team]Move)
 	moves[1] = move1
 	moves[2] = move2
 	units := make(map[Team]Unit)
 	units[1] = oldUnit1
 	units[2] = oldUnit2
-	return Turn{Moves: moves, OldUnits: units}
+	return Turn{Moves: moves, OldUnits: units, Collisions: collisions}
 }
 
 // Information contains player information
@@ -151,6 +151,7 @@ func createGameBoard(gameType BoardType) *Board {
 }
 
 func (g *Game) waitForMoves() {
+	var collisions []Square
 	var team Team
 	var move1 Move
 	var move2 Move
@@ -173,8 +174,8 @@ func (g *Game) waitForMoves() {
 			g.player2ready = false
 			oldUnit1 := g.board.get(move1.Src.X, move1.Src.Y)
 			oldUnit2 := g.board.get(move2.Src.X, move2.Src.Y)
-			winner, team = g.board.resolveMove(move1, move2)
-			g.history = append(g.history, NewTurn(move1, move2, oldUnit1, oldUnit2))
+			winner, team, collisions = g.board.resolveMove(move1, move2)
+			g.history = append(g.history, NewTurn(move1, move2, oldUnit1, oldUnit2, collisions))
 		}
 		g.publishUpdate()
 		if winner {
