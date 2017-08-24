@@ -92,11 +92,16 @@
         min-width: 35px;
         max-width: 35px;
     }
-    .piece{
+    .piece {
         height: 35px;
         width: 35px;
         stroke-width: 2;
         font-size: 12px;
+    }
+    .overlay-collision {
+        color: darkorange;
+        font-size: 17.5px;
+        -webkit-transform: translate(-50%, -50%);
     }
 }
 /* medium devices */
@@ -116,6 +121,11 @@
         stroke-width: 3;
         font-size: 15px;
     }
+    .overlay-collision {
+        color: darkorange;
+        font-size: 25px;
+        -webkit-transform: translate(-50%, -50%);
+    }
 }
 /* large devices */
 @media (min-width: 992px) {
@@ -133,6 +143,11 @@
         width: 75px;
         stroke-width: 3;
         font-size: 20px;
+    }
+    .overlay-collision {
+        color: darkorange;
+        font-size: 37.5px;
+        -webkit-transform: translate(-50%, -50%);
     }
 }
 .piece text {

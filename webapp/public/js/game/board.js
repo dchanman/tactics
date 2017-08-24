@@ -26,7 +26,6 @@ window.Board = (function () {
             $(this.container).addClass("grid-square-commit-dst");
         } else if ($(this.container).hasClass("grid-square-commit-dst")) {
             this.board.removeSelectableSquares();
-            console.log("Committing move (" + this.board.selectedSquare.x + "," + this.board.selectedSquare.y + ") to (" + this.x + "," + this.y + ")");
             this.board.main.api.commitMove(
                 this.board.selectedSquare.x,
                 this.board.selectedSquare.y,
@@ -87,7 +86,6 @@ window.Board = (function () {
     };
     Overlay.prototype.renderMove = function (fromX, fromY, toX, toY, team, playerTeam) {
         var x1, y1, x2, y2, markerid, markerdef, line, cls;
-        console.log("Drawing arrow from (" + fromX + "," + fromY + ") to (" + toX + "," + toY + ")");
         // Calculation:
         // (top left pixel coordinate of the desired square) + (offset to reach the square midpoint)
         x1 = parseFloat(fromX) / this.cols * this.width + (this.width / 2.0 / this.cols);
@@ -122,6 +120,16 @@ window.Board = (function () {
             .css("opacity", 0.5);
         $(this.container).append(node);
     };
+    Overlay.prototype.renderCollision = function (x, y) {
+        var drawX, drawY, node;
+        node = $.parseHTML('<div class="overlay-collision"><i class="fa fa-times" aria-hidden="true"></i></div>');
+        drawX = Math.round(parseFloat(x) / this.cols * this.width) + (this.width / 2.0 / this.cols);
+        drawY = Math.round(parseFloat(y) / this.rows * this.height) + (this.height / 2.0 / this.rows);
+        $(node).css("position", "absolute")
+            .css("left", drawX)
+            .css("top", drawY);
+        $(this.container).append(node);
+    };
     function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
@@ -135,6 +143,7 @@ window.Board = (function () {
         this.main = main;
         this.showLastUnit = false;
         this.showLastMove = false;
+        this.showCollisions = false;
     }
     Board.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
@@ -169,7 +178,8 @@ window.Board = (function () {
         this.currentHistory = history;
         this.overlay.clear();
         if (history.length > 0) {
-            var lastMove = history[history.length - 1],
+            var i,
+                lastMove = history[history.length - 1],
                 m1 = lastMove.moves[1],
                 m2 = lastMove.moves[2];
             if (this.showLastUnit) {
@@ -179,6 +189,11 @@ window.Board = (function () {
             if (this.showLastMove) {
                 this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
                 this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
+            }
+            if (this.showCollisions) {
+                for (i = 0; i < lastMove.collisions.length; i += 1) {
+                    this.overlay.renderCollision(lastMove.collisions[i].x, lastMove.collisions[i].y);
+                }
             }
         }
     };
@@ -241,7 +256,6 @@ window.Board = (function () {
         this.renderEndzones();
         // Create overlay
         this.overlay = new Overlay(this.htmlTable, rows, cols);
-        console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {
         var i, x, y, width;
@@ -270,14 +284,14 @@ window.Board = (function () {
         }
     };
     Board.prototype.onWindowResize = function () {
-        console.log("Rerendering!");
         this.renderPieces(this.currentBoard);
         this.overlay.resize();
         this.renderHistory(this.currentHistory);
     };
-    Board.prototype.setOverlaySettings = function (showLastMove, showLastUnit) {
+    Board.prototype.setOverlaySettings = function (showLastMove, showLastUnit, showCollisions) {
         this.showLastUnit = showLastUnit;
         this.showLastMove = showLastMove;
+        this.showCollisions = showCollisions;
         this.renderHistory(this.currentHistory);
     };
     return Board;

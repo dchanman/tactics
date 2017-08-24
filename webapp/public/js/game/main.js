@@ -88,9 +88,9 @@ $(document).ready(function () {
     });
     function setOverlaySettings() {
         var showLastMove = $("#overlay-setting-ctrl-showLastMove").is(':checked'),
-            showLastUnit = $("#overlay-setting-ctrl-showLastUnit").is(':checked');
-        console.log({"m": showLastMove, "u": showLastUnit});
-        main.board.setOverlaySettings(showLastMove, showLastUnit);
+            showLastUnit = $("#overlay-setting-ctrl-showLastUnit").is(':checked'),
+            showCollisions = $("#overlay-setting-ctrl-showCollisions").is(':checked');
+        main.board.setOverlaySettings(showLastMove, showLastUnit, showCollisions);
     }
     setOverlaySettings();
     $(".overlay-setting-ctrl").click(function () {
