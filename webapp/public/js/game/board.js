@@ -109,6 +109,19 @@ window.Board = (function () {
         }
         $(this.container).append('<svg class="overlay-arrow ' + cls + '" height="' + this.height + '" width="' + this.width + '">' + markerdef + line + '</svg>');
     };
+    Overlay.prototype.renderPiece = function (x, y, unit) {
+        var drawX, drawY, width, node;
+        drawX = Math.round(parseFloat(x) / this.cols * this.width) + 1;
+        drawY = Math.round(parseFloat(y) / this.rows * this.height) + 1;
+        width = Math.round(this.width / this.cols * 0.75);
+        node = $.parseHTML(unit.getRenderHtml(width));
+        $(node).addClass("overlay-piece");
+        $(node).css("position", "absolute")
+            .css("left", drawX)
+            .css("top", drawY)
+            .css("opacity", 0.5);
+        $(this.container).append(node);
+    };
     function Board(htmlTable, main) {
         this.cols = 0;
         this.rows = 0;
@@ -120,6 +133,8 @@ window.Board = (function () {
         this.overlay = null;
         this.selectedSquare = null;
         this.main = main;
+        this.showLastUnit = false;
+        this.showLastMove = false;
     }
     Board.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
@@ -148,14 +163,23 @@ window.Board = (function () {
         this.renderPieces(board.board);
     };
     Board.prototype.renderHistory = function (history) {
+        if (this.overlay === null) {
+            return;
+        }
         this.currentHistory = history;
         this.overlay.clear();
         if (history.length > 0) {
             var lastMove = history[history.length - 1],
                 m1 = lastMove.moves[1],
                 m2 = lastMove.moves[2];
-            this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
-            this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
+            if (this.showLastUnit) {
+                this.overlay.renderPiece(m1.Src.x, m1.Src.y, Unit.fromJSON(lastMove.oldUnits[1]));
+                this.overlay.renderPiece(m2.Src.x, m2.Src.y, Unit.fromJSON(lastMove.oldUnits[2]));
+            }
+            if (this.showLastMove) {
+                this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
+                this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
+            }
         }
     };
     Board.prototype.setActiveSquare = function (x, y) {
@@ -220,7 +244,7 @@ window.Board = (function () {
         console.log("Created grid");
     };
     Board.prototype.renderPieces = function (pieces) {
-        var i, x, y, cls, num, width;
+        var i, x, y, width;
         this.currentBoard = pieces;
         width = $(this.grid[0][0].container).width();
         for (i = 0; i < pieces.length; i += 1) {
@@ -231,11 +255,8 @@ window.Board = (function () {
             $(this.grid[x][y].container).removeClass("piece-friendly");
             $(this.grid[x][y].container).removeClass("piece-enemy");
             if (pieces[i].exists) {
-                this.grid[x][y].unit = pieces[i];
-                cls = "piece";
-                cls += " " + (pieces[i].team === 1 ? "piece-1" : "piece-2");
-                num = (pieces[i].stack > 1 ? pieces[i].stack : "");
-                $(this.grid[x][y].dom).html('<svg class="' + cls + '"><circle cx="50%" cy="50%" r="' + (width * 0.4) + '"></circle><text x="50%" y="50%">' + num + '</text></svg>');
+                this.grid[x][y].unit = Unit.fromJSON(pieces[i]);
+                $(this.grid[x][y].dom).html(this.grid[x][y].unit.getRenderHtml(width));
             }
         }
     };
@@ -252,6 +273,11 @@ window.Board = (function () {
         console.log("Rerendering!");
         this.renderPieces(this.currentBoard);
         this.overlay.resize();
+        this.renderHistory(this.currentHistory);
+    };
+    Board.prototype.setOverlaySettings = function (showLastMove, showLastUnit) {
+        this.showLastUnit = showLastUnit;
+        this.showLastMove = showLastMove;
         this.renderHistory(this.currentHistory);
     };
     return Board;

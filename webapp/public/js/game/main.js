@@ -86,6 +86,16 @@ $(document).ready(function () {
             main.chat.sendMessage();
         }
     });
+    function setOverlaySettings() {
+        var showLastMove = $("#overlay-setting-ctrl-showLastMove").is(':checked'),
+            showLastUnit = $("#overlay-setting-ctrl-showLastUnit").is(':checked');
+        console.log({"m": showLastMove, "u": showLastUnit});
+        main.board.setOverlaySettings(showLastMove, showLastUnit);
+    }
+    setOverlaySettings();
+    $(".overlay-setting-ctrl").click(function () {
+        setOverlaySettings();
+    });
     $(window).resize(function () {
         if (resizeTimer !== null) {
             window.clearTimeout(resizeTimer);
