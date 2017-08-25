@@ -1,7 +1,5 @@
 package game
 
-import "bytes"
-
 // Square is a (x, y) coordinate tuple
 type Square struct {
 	X int `json:"x"`
@@ -13,7 +11,7 @@ type Board struct {
 	Board  []Unit `json:"board"`
 	Cols   int    `json:"cols"`
 	Rows   int    `json:"rows"`
-	nUnits int8
+	nUnits int
 }
 
 // Move is a set of source and destination squares
@@ -38,6 +36,7 @@ func (s *Square) right() Square {
 	return Square{s.X + 1, s.Y}
 }
 
+// NewBoard instantiates a board
 func NewBoard(cols int, rows int) Board {
 	b := Board{
 		Board: make([]Unit, cols*rows),
@@ -46,10 +45,19 @@ func NewBoard(cols int, rows int) Board {
 	return b
 }
 
+// IsValid returns true if the given position exists on the board
 func (b *Board) IsValid(x int, y int) bool {
 	return (x >= 0 && y >= 0 && x < b.Cols && y < b.Rows)
 }
 
+func (b *Board) GetBoard() (board []Unit, cols int, rows int) {
+	board = b.Board
+	cols = b.Cols
+	rows = b.Rows
+	return
+}
+
+// Get retrieves the unit on the board at the given position
 func (b *Board) Get(x int, y int) Unit {
 	if !b.IsValid(x, y) {
 		return Unit{Exists: false}
@@ -57,6 +65,7 @@ func (b *Board) Get(x int, y int) Unit {
 	return b.Board[x*b.Rows+y]
 }
 
+// Set places a unit on the board at the given position
 func (b *Board) Set(x int, y int, u Unit) {
 	if !b.IsValid(x, y) {
 		return
@@ -85,6 +94,7 @@ func (b *Board) getLineInDirection(dir func(s *Square) Square, origin Square) []
 	return ret
 }
 
+// GetValidMoves gets a list of valid moves for a given piece
 func (b *Board) GetValidMoves(x int, y int) []Square {
 	u := b.Get(x, y)
 	if u.Exists == false {
@@ -156,8 +166,8 @@ func checkWinCondition(b *Board) (bool, Team) {
 	if b.nUnits <= 0 {
 		return true, 0
 	}
-	team1win := int8(0)
-	team2win := int8(0)
+	team1win := 0
+	team2win := 0
 	// Let rank 0 be team 1's "endzone"
 	for i := 0; i < b.Cols; i++ {
 		if b.Get(i, 0).Exists && b.Get(i, 0).Team == 1 {
@@ -181,6 +191,7 @@ func checkWinCondition(b *Board) (bool, Team) {
 	return false, 0
 }
 
+// ResolveMove resolves two moves simultaneously for a single turn
 func (b *Board) ResolveMove(move1 Move, move2 Move) (winner bool, team Team, collisions []Square) {
 	// TODO: validate moves
 	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
@@ -224,21 +235,8 @@ func (b *Board) ResolveMove(move1 Move, move2 Move) (winner bool, team Team, col
 		}
 	}
 	collisions = make([]Square, 0)
-	for k, _ := range collisionsSet {
+	for k := range collisionsSet {
 		collisions = append(collisions, k)
 	}
 	return
-}
-
-func (b *Board) String() string {
-	var buf bytes.Buffer
-
-	for i := 0; i < len(b.Board); i++ {
-		if i%b.Rows == 0 {
-			buf.WriteString("\n")
-		}
-		buf.WriteString(b.Board[i].String())
-		buf.WriteString("\t\t| ")
-	}
-	return buf.String()
 }

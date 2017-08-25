@@ -1,14 +1,12 @@
 package game
 
-import "fmt"
-
 // Team is a number
 type Team int8
 
 // Unit is a basic unit in the game
 type Unit struct {
 	Team   Team `json:"team,omitempty"`
-	Stack  int8 `json:"stack,omitempty"`
+	Stack  int  `json:"stack,omitempty"`
 	Exists bool `json:"exists"`
 }
 
@@ -34,6 +32,7 @@ func stack(u1 Unit, u2 Unit) Unit {
 	return Unit{Exists: false}
 }
 
+// GetValidMoves returns the valid moves for this unit
 func (u *Unit) GetValidMoves(b *Board, sq Square) []Square {
 	moves := make([]Square, 0)
 	moves = append(moves, b.getLineInDirection((*Square).up, sq)...)
@@ -41,12 +40,4 @@ func (u *Unit) GetValidMoves(b *Board, sq Square) []Square {
 	moves = append(moves, b.getLineInDirection((*Square).left, sq)...)
 	moves = append(moves, b.getLineInDirection((*Square).right, sq)...)
 	return moves
-}
-
-// String representation
-func (u *Unit) String() string {
-	if !u.Exists {
-		return "."
-	}
-	return fmt.Sprintf("T%d:%d", u.Team, u.Stack)
 }
