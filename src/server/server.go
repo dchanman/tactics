@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net/http"
 
-	"github.com/dchanman/tactics/src/game"
 	"github.com/gorilla/websocket"
 )
 
@@ -15,24 +14,24 @@ const (
 
 // Server manages the communications with clients in order to manage games
 type Server struct {
-	games map[uint32]*game.Game
-	chats map[uint32]*game.Chat
+	games map[uint32]*Game
+	chats map[uint32]*Chat
 	maxid uint64
 }
 
 // NewServer instantiates a new server
 func NewServer() *Server {
-	games := make(map[uint32]*game.Game)
-	chats := make(map[uint32]*game.Chat)
+	games := make(map[uint32]*Game)
+	chats := make(map[uint32]*Chat)
 	return &Server{games: games, chats: chats, maxid: 1}
 }
 
-func (s *Server) createNewGame(gameid uint32, gameType game.BoardType) error {
+func (s *Server) createNewGame(gameid uint32, gameType BoardType) error {
 	if s.DoesGameIDExist(gameid) {
 		return errors.New("game already exists")
 	}
-	s.games[gameid] = game.NewGame(gameType)
-	s.chats[gameid] = game.NewChat()
+	s.games[gameid] = NewGame(gameType)
+	s.chats[gameid] = NewChat()
 	return nil
 }
 
@@ -58,7 +57,7 @@ func (s *Server) GetGameIds(req *http.Request, args *struct{}, result *struct {
 
 // CreateGame creates a new game and returns the game's ID
 func (s *Server) CreateGame(req *http.Request, args *struct {
-	BoardType game.BoardType `json:"gameType"`
+	BoardType BoardType `json:"gameType"`
 }, result *struct {
 	GameID uint32 `json:"gameid"`
 }) error {

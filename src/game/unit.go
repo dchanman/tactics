@@ -34,7 +34,7 @@ func stack(u1 Unit, u2 Unit) Unit {
 	return Unit{Exists: false}
 }
 
-func (u *Unit) getValidMoves(b *Board, sq Square) []Square {
+func (u *Unit) GetValidMoves(b *Board, sq Square) []Square {
 	moves := make([]Square, 0)
 	moves = append(moves, b.getLineInDirection((*Square).up, sq)...)
 	moves = append(moves, b.getLineInDirection((*Square).down, sq)...)

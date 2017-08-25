@@ -6,7 +6,8 @@ import (
 	"net/rpc/jsonrpc"
 	"strconv"
 
-	"github.com/dchanman/tactics/src/game"
+	"game"
+
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -29,9 +30,9 @@ const (
 type TacticsAPI struct {
 	server  *Server
 	id      uint64
-	game    *game.Game
-	chat    *game.Chat
-	gameFin map[game.Subscribable](chan bool)
+	game    *Game
+	chat    *Chat
+	gameFin map[Subscribable](chan bool)
 	done    bool
 	client  *Client
 }
@@ -40,13 +41,13 @@ func newTacticsAPI(id uint64, conn *websocket.Conn, s *Server) *TacticsAPI {
 	client := Client{conn: conn}
 	api := TacticsAPI{
 		id:      id,
-		gameFin: make(map[game.Subscribable](chan bool)),
+		gameFin: make(map[Subscribable](chan bool)),
 		client:  &client,
 		server:  s}
 	return &api
 }
 
-func (api *TacticsAPI) subscribeAndServe(s game.Subscribable) {
+func (api *TacticsAPI) subscribeAndServe(s Subscribable) {
 	ch := s.Subscribe(api.id)
 	defer s.Unsubscribe(api.id)
 	fin := make(chan bool)
@@ -88,7 +89,7 @@ func (api *TacticsAPI) Heartbeat(args *struct{}, result *struct{}) error {
 	return nil
 }
 
-func (api *TacticsAPI) GetGame(args *struct{}, result *game.Information) error {
+func (api *TacticsAPI) GetGame(args *struct{}, result *Information) error {
 	if api.game == nil {
 		return errNoGame
 	}
@@ -115,7 +116,9 @@ func (api *TacticsAPI) CommitMove(args *struct {
 	if api.game == nil {
 		return errNoGame
 	}
-	return api.game.CommitMove(api.id, game.Square{X: args.FromX, Y: args.FromY}, game.Square{X: args.ToX, Y: args.ToY})
+	from := game.Square{X: args.FromX, Y: args.FromY}
+	to := game.Square{X: args.ToX, Y: args.ToY}
+	return api.game.CommitMove(api.id, from, to)
 }
 
 func (api *TacticsAPI) ResetBoard(args *struct{}, result *struct{}) error {

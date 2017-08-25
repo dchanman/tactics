@@ -1,8 +1,9 @@
-package game
+package server
 
 import (
 	"encoding/json"
 	"errors"
+	"game"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -29,7 +30,7 @@ var (
 // Game is the main game engine
 type Game struct {
 	gameType    BoardType
-	board       *Board
+	board       *game.Board
 	subscribers map[uint64](chan Notification)
 	movesQueue  chan gameMove
 	history     []Turn
@@ -67,24 +68,24 @@ func (gt *BoardType) UnmarshalJSON(b []byte) error {
 }
 
 type gameMove struct {
-	move  Move
-	team  Team
+	move  game.Move
+	team  game.Team
 	reset bool
 }
 
 // Turn is a set of moves made by all players
 type Turn struct {
-	Moves      map[Team]Move `json:"moves"`
-	OldUnits   map[Team]Unit `json:"oldUnits"`
-	Collisions []Square      `json:"collisions"`
+	Moves      map[game.Team]game.Move `json:"moves"`
+	OldUnits   map[game.Team]game.Unit `json:"oldUnits"`
+	Collisions []game.Square           `json:"collisions"`
 }
 
 // NewTurn constructs a new Turn
-func NewTurn(move1 Move, move2 Move, oldUnit1 Unit, oldUnit2 Unit, collisions []Square) Turn {
-	moves := make(map[Team]Move)
+func NewTurn(move1 game.Move, move2 game.Move, oldUnit1 game.Unit, oldUnit2 game.Unit, collisions []game.Square) Turn {
+	moves := make(map[game.Team]game.Move)
 	moves[1] = move1
 	moves[2] = move2
-	units := make(map[Team]Unit)
+	units := make(map[game.Team]game.Unit)
 	units[1] = oldUnit1
 	units[2] = oldUnit2
 	return Turn{Moves: moves, OldUnits: units, Collisions: collisions}
@@ -92,12 +93,12 @@ func NewTurn(move1 Move, move2 Move, oldUnit1 Unit, oldUnit2 Unit, collisions []
 
 // Information contains player information
 type Information struct {
-	Board       *Board `json:"board"`
-	History     []Turn `json:"history"`
-	P1Available bool   `json:"p1available"`
-	P2Available bool   `json:"p2available"`
-	P1Ready     bool   `json:"p1ready"`
-	P2Ready     bool   `json:"p2ready"`
+	Board       *game.Board `json:"board"`
+	History     []Turn      `json:"history"`
+	P1Available bool        `json:"p1available"`
+	P2Available bool        `json:"p2available"`
+	P1Ready     bool        `json:"p1ready"`
+	P2Ready     bool        `json:"p2ready"`
 }
 
 // NewGame constructs a new Game
@@ -125,7 +126,7 @@ func (g *Game) ResetBoard() {
 	g.publishUpdate()
 }
 
-func createGameBoard(gameType BoardType) *Board {
+func createGameBoard(gameType BoardType) *game.Board {
 	var nCols int
 	var nRows int
 	var nRowsOfPieces int
@@ -139,22 +140,22 @@ func createGameBoard(gameType BoardType) *Board {
 		nRows = rowsLarge
 		nRowsOfPieces = rowsOfPiecesLarge
 	}
-	b := newBoard(nCols, nRows)
+	b := game.NewBoard(nCols, nRows)
 	// Add pieces
 	for i := 0; i < nCols; i++ {
 		for j := 0; j < nRowsOfPieces; j++ {
-			b.set(i, 1+j, Unit{Team: 2, Stack: 1, Exists: true})
-			b.set(i, nRows-2-j, Unit{Team: 1, Stack: 1, Exists: true})
+			b.Set(i, 1+j, game.Unit{Team: 2, Stack: 1, Exists: true})
+			b.Set(i, nRows-2-j, game.Unit{Team: 1, Stack: 1, Exists: true})
 		}
 	}
 	return &b
 }
 
 func (g *Game) waitForMoves() {
-	var collisions []Square
-	var team Team
-	var move1 Move
-	var move2 Move
+	var collisions []game.Square
+	var team game.Team
+	var move1 game.Move
+	var move2 game.Move
 	g.player1ready = false
 	g.player2ready = false
 	for m := range g.movesQueue {
@@ -172,9 +173,9 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			oldUnit1 := g.board.get(move1.Src.X, move1.Src.Y)
-			oldUnit2 := g.board.get(move2.Src.X, move2.Src.Y)
-			winner, team, collisions = g.board.resolveMove(move1, move2)
+			oldUnit1 := g.board.Get(move1.Src.X, move1.Src.Y)
+			oldUnit2 := g.board.Get(move2.Src.X, move2.Src.Y)
+			winner, team, collisions = g.board.ResolveMove(move1, move2)
 			g.history = append(g.history, NewTurn(move1, move2, oldUnit1, oldUnit2, collisions))
 		}
 		g.publishUpdate()
@@ -185,17 +186,17 @@ func (g *Game) waitForMoves() {
 	}
 }
 
-func (g *Game) getTeamForPlayerID(id uint64) Team {
+func (g *Game) getTeamForPlayerID(id uint64) game.Team {
 	for team, pid := range g.teamToPlayerID {
 		if pid == id {
-			return Team(team)
+			return game.Team(team)
 		}
 	}
 	return 0
 }
 
 // CommitMove is called from a client to commit a move on behalf of a player
-func (g *Game) CommitMove(id uint64, src Square, dst Square) error {
+func (g *Game) CommitMove(id uint64, src game.Square, dst game.Square) error {
 	team := g.getTeamForPlayerID(id)
 	if g.completed {
 		return errGameOver
@@ -203,23 +204,23 @@ func (g *Game) CommitMove(id uint64, src Square, dst Square) error {
 	if team == 0 {
 		return errPlayerNotPlaying
 	}
-	if !g.board.isValid(src.X, src.Y) || !g.board.isValid(dst.X, dst.Y) {
+	if !g.board.IsValid(src.X, src.Y) || !g.board.IsValid(dst.X, dst.Y) {
 		return errInvalidSquare
 	}
-	if !g.board.get(src.X, src.Y).Exists || g.board.get(src.X, src.Y).Team != team {
+	if !g.board.Get(src.X, src.Y).Exists || g.board.Get(src.X, src.Y).Team != team {
 		return errPlayerWrongTeam
 	}
-	move := Move{Src: src, Dst: dst}
+	move := game.Move{Src: src, Dst: dst}
 	g.movesQueue <- gameMove{team: team, move: move}
 	return nil
 }
 
-func (g *Game) getValidMoves(id uint64, x int, y int) []Square {
-	u := g.board.get(x, y)
+func (g *Game) GetValidMoves(id uint64, x int, y int) []game.Square {
+	u := g.board.Get(x, y)
 	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerID(id) {
-		return g.board.getValidMoves(x, y)
+		return g.board.GetValidMoves(x, y)
 	}
-	return make([]Square, 0)
+	return make([]game.Square, 0)
 }
 
 // Subscribe implements Subscriber interface
@@ -261,11 +262,11 @@ func (g *Game) publishUpdate() {
 	}
 }
 
-func (g *Game) publishVictory(team Team) {
+func (g *Game) publishVictory(team game.Team) {
 	notif := Notification{
 		Method: "Game.Over",
 		Params: struct {
-			Team Team `json:"team"`
+			Team game.Team `json:"team"`
 		}{team}}
 	for _, ch := range g.subscribers {
 		ch <- notif

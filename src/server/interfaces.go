@@ -1,4 +1,4 @@
-package game
+package server
 
 // Notification is a JSONRPC notification
 type Notification struct {
