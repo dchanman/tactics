@@ -2758,14 +2758,35 @@ $packages["game"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, game, js, ptrType, funcType, funcType$1, funcType$2, mapType, newBoard, unit, newMove, main;
+	var $pkg = {}, $init, game, js, ptrType, funcType, structType, sliceType, funcType$1, funcType$2, funcType$3, mapType, newBoardFromBoard, newBoard, unit, newMove, main;
 	game = $packages["game"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	ptrType = $ptrType(js.Object);
 	funcType = $funcType([$Int, $Int], [ptrType], false);
-	funcType$1 = $funcType([game.Team, $Int], [ptrType], false);
-	funcType$2 = $funcType([$Int, $Int, $Int, $Int], [ptrType], false);
+	structType = $structType("", [{prop: "Object", name: "", exported: true, typ: ptrType, tag: ""}, {prop: "Team", name: "Team", exported: true, typ: $Int, tag: "js:\"team\""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: "js:\"stack\""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: "js:\"exists\""}]);
+	sliceType = $sliceType(structType);
+	funcType$1 = $funcType([$Int, $Int, sliceType], [ptrType], false);
+	funcType$2 = $funcType([game.Team, $Int], [ptrType], false);
+	funcType$3 = $funcType([$Int, $Int, $Int, $Int], [ptrType], false);
 	mapType = $mapType($String, $emptyInterface);
+	newBoardFromBoard = function(cols, rows, obj) {
+		var $ptr, b, cols, i, obj, rows, u, x, y;
+		b = $clone(game.NewBoard(cols, rows), game.Board);
+		x = 0;
+		while (true) {
+			if (!(x < cols)) { break; }
+			y = 0;
+			while (true) {
+				if (!(y < rows)) { break; }
+				i = (($imul(x, rows))) + y >> 0;
+				u = new game.Unit.ptr(((($parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.team) >> 0) << 24 >> 24)), $parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.stack) >> 0, !!(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.exists));
+				b.Set(x, y, $clone(u, game.Unit));
+				y = y + (1) >> 0;
+			}
+			x = x + (1) >> 0;
+		}
+		return js.MakeWrapper(b);
+	};
 	newBoard = function(cols, rows) {
 		var $ptr, b, cols, rows;
 		b = $clone(game.NewBoard(cols, rows), game.Board);
@@ -2781,7 +2802,7 @@ $packages["main"] = (function() {
 	};
 	main = function() {
 		var $ptr;
-		$global.Engine = $externalize($makeMap($String.keyFor, [{ k: "NewBoard", v: new funcType(newBoard) }, { k: "NewUnit", v: new funcType$1(unit) }, { k: "NewMove", v: new funcType$2(newMove) }]), mapType);
+		$global.Engine = $externalize($makeMap($String.keyFor, [{ k: "NewBoard", v: new funcType(newBoard) }, { k: "NewBoardFromBoard", v: new funcType$1(newBoardFromBoard) }, { k: "NewUnit", v: new funcType$2(unit) }, { k: "NewMove", v: new funcType$3(newMove) }]), mapType);
 	};
 	$init = function() {
 		$pkg.$init = function() {};

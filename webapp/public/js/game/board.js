@@ -144,7 +144,41 @@ window.Board = (function () {
         this.showLastUnit = false;
         this.showLastMove = false;
         this.showCollisions = false;
+        //
+        this.engineBoard = null;
+        this.engineBoardHistory = [];
+        this.engineBoardCols = 0;
+        this.engineBoardRows = 0;
     }
+    function createInitialEngineBoard(update) {
+        var mappedUnits = [], i, ptr, engineBoard;
+        for (i = 0; i < update.board.board.length; i += 1) {
+            ptr = {
+                Team: update.board.board[i].team || 0,
+                Stack: update.board.board[i].stack || 0,
+                Exists: update.board.board[i].exists || 0
+            };
+            ptr.$val = ptr;
+            mappedUnits.push(ptr);
+        }
+        engineBoard = Engine.NewBoardFromBoard(update.board.cols, update.board.rows, update.board.board);
+        return engineBoard;
+    }
+    Board.prototype.runEngine = function (update) {
+        if (this.engineBoard === null) {
+            this.engineBoard = createInitialEngineBoard(update);
+        }
+        var i, m1, m2, move1, move2;
+        for (i = 0; i < update.history.length; i += 1) {
+            console.log(update.history[i].moves);
+            m1 = update.history[i].moves[1];
+            m2 = update.history[i].moves[2];
+            move1 = Engine.NewMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y);
+            move2 = Engine.NewMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y);
+            this.engineBoard.ResolveMove(move1, move2);
+            console.log(this.engineBoard.GetBoard());
+        }
+    };
     Board.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
             this.playerTeam = team;

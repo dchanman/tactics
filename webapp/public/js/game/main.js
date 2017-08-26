@@ -21,6 +21,7 @@ window.Main = (function () {
             switch (method) {
             case "Game.Update":
                 main.handleGameInfo(params);
+                main.board.runEngine(params);
                 break;
             case "Game.Chat":
                 main.chat.receiveMessage(params);
