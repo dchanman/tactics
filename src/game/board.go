@@ -2,15 +2,15 @@ package game
 
 // Square is a (x, y) coordinate tuple
 type Square struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X int
+	Y int
 }
 
 // Board represents the game board and the pieces on the board
 type Board struct {
-	Board  []Unit `json:"board"`
-	Cols   int    `json:"cols"`
-	Rows   int    `json:"rows"`
+	Board  []Unit
+	Cols   int
+	Rows   int
 	nUnits int
 }
 
@@ -50,11 +50,8 @@ func (b *Board) IsValid(x int, y int) bool {
 	return (x >= 0 && y >= 0 && x < b.Cols && y < b.Rows)
 }
 
-func (b *Board) GetBoard() (board []Unit, cols int, rows int) {
-	board = b.Board
-	cols = b.Cols
-	rows = b.Rows
-	return
+func (b *Board) GetBoard() Board {
+	return *b
 }
 
 // Get retrieves the unit on the board at the given position

@@ -152,31 +152,40 @@ window.Board = (function () {
     }
     function createInitialEngineBoard(update) {
         var mappedUnits = [], i, ptr, engineBoard;
-        for (i = 0; i < update.board.board.length; i += 1) {
+        for (i = 0; i < update.board.Board.length; i += 1) {
             ptr = {
-                Team: update.board.board[i].team || 0,
-                Stack: update.board.board[i].stack || 0,
-                Exists: update.board.board[i].exists || 0
+                Team: update.board.Board[i].Team,
+                Stack: update.board.Board[i].Stack,
+                Exists: update.board.Board[i].Exists
             };
             ptr.$val = ptr;
             mappedUnits.push(ptr);
         }
-        engineBoard = Engine.NewBoardFromBoard(update.board.cols, update.board.rows, update.board.board);
+        engineBoard = Engine.NewBoardFromBoard(update.board.Cols, update.board.Rows, mappedUnits);
         return engineBoard;
     }
     Board.prototype.runEngine = function (update) {
+        if (this.engineBoardHistory.length > update.history.length) {
+            // The game was reset, force redraw of board
+            this.engineBoard = null;
+        }
+        this.engineBoardHistory = update.history;
         if (this.engineBoard === null) {
             this.engineBoard = createInitialEngineBoard(update);
-        }
-        var i, m1, m2, move1, move2;
-        for (i = 0; i < update.history.length; i += 1) {
-            console.log(update.history[i].moves);
-            m1 = update.history[i].moves[1];
-            m2 = update.history[i].moves[2];
-            move1 = Engine.NewMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y);
-            move2 = Engine.NewMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y);
-            this.engineBoard.ResolveMove(move1, move2);
-            console.log(this.engineBoard.GetBoard());
+            console.log("Created initial board");
+            this.render(this.engineBoard.GetBoard());
+        } else {
+            var up, m1, m2, move1, move2;
+            if (update.history.length < 1) {
+                return;
+            }
+            up = update.history[update.history.length - 1];
+            m1 = up.moves[1];
+            m2 = up.moves[2];
+            move1 = Engine.NewMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y);
+            move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
+            console.log({"resolution": this.engineBoard.ResolveMove(move1, move2)});
+            this.render(this.engineBoard.GetBoard());
         }
     };
     Board.prototype.setPlayerTeam = function (team) {
@@ -197,13 +206,15 @@ window.Board = (function () {
         }
     };
     Board.prototype.render = function (board) {
-        if (board.board.length !== (board.cols * board.rows)) {
+        console.log("Rendering!");
+        console.log(board);
+        if (board.Board.length !== (board.Cols * board.Rows)) {
             throw ("Invalid board data");
         }
-        if (this.cols !== board.cols || this.rows !== board.rows) {
-            this.createGrid(board.cols, board.rows);
+        if (this.cols !== board.Cols || this.rows !== board.Rows) {
+            this.createGrid(board.Cols, board.Rows);
         }
-        this.renderPieces(board.board);
+        this.renderPieces(board.Board);
     };
     Board.prototype.renderHistory = function (history) {
         if (this.overlay === null) {
@@ -217,16 +228,16 @@ window.Board = (function () {
                 m1 = lastMove.moves[1],
                 m2 = lastMove.moves[2];
             if (this.showLastUnit) {
-                this.overlay.renderPiece(m1.Src.x, m1.Src.y, Unit.fromJSON(lastMove.oldUnits[1]));
-                this.overlay.renderPiece(m2.Src.x, m2.Src.y, Unit.fromJSON(lastMove.oldUnits[2]));
+                this.overlay.renderPiece(m1.Src.X, m1.Src.Y, Unit.fromJSON(lastMove.oldUnits[1]));
+                this.overlay.renderPiece(m2.Src.X, m2.Src.Y, Unit.fromJSON(lastMove.oldUnits[2]));
             }
             if (this.showLastMove) {
-                this.overlay.renderMove(m1.Src.x, m1.Src.y, m1.Dst.x, m1.Dst.y, 1, this.playerTeam);
-                this.overlay.renderMove(m2.Src.x, m2.Src.y, m2.Dst.x, m2.Dst.y, 2, this.playerTeam);
+                this.overlay.renderMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y, 1, this.playerTeam);
+                this.overlay.renderMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y, 2, this.playerTeam);
             }
             if (this.showCollisions) {
                 for (i = 0; i < lastMove.collisions.length; i += 1) {
-                    this.overlay.renderCollision(lastMove.collisions[i].x, lastMove.collisions[i].y);
+                    this.overlay.renderCollision(lastMove.collisions[i].X, lastMove.collisions[i].Y);
                 }
             }
         }
@@ -302,7 +313,7 @@ window.Board = (function () {
             $(this.grid[x][y].dom).html("");
             $(this.grid[x][y].container).removeClass("piece-friendly");
             $(this.grid[x][y].container).removeClass("piece-enemy");
-            if (pieces[i].exists) {
+            if (pieces[i].Exists) {
                 this.grid[x][y].unit = Unit.fromJSON(pieces[i]);
                 $(this.grid[x][y].dom).html(this.grid[x][y].unit.getRenderHtml(width));
             }

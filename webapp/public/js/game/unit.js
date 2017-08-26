@@ -7,9 +7,9 @@ window.Unit = (function () {
     }
     Unit.fromJSON = function (json) {
         var u = new Unit();
-        u.stack = json.stack;
-        u.team = json.team;
-        u.exists = json.exists;
+        u.stack = json.Stack;
+        u.team = json.Team;
+        u.exists = json.Exists;
         return u;
     };
     Unit.prototype.getRenderHtml = function (width) {

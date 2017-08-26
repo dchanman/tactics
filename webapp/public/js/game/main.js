@@ -21,7 +21,6 @@ window.Main = (function () {
             switch (method) {
             case "Game.Update":
                 main.handleGameInfo(params);
-                main.board.runEngine(params);
                 break;
             case "Game.Chat":
                 main.chat.receiveMessage(params);
@@ -38,7 +37,8 @@ window.Main = (function () {
         var main = this;
         console.log("Received update!");
         console.log(data.history);
-        this.board.render(data.board);
+        // this.board.render(data.board);
+        this.board.runEngine(data);
         this.board.renderHistory(data.history);
         this.status.updatePlayerReady(data);
         this.api.getRole()

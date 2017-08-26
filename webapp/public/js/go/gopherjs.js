@@ -2456,15 +2456,9 @@ $packages["game"] = (function() {
 	};
 	Board.prototype.IsValid = function(x, y) { return this.$val.IsValid(x, y); };
 	Board.ptr.prototype.GetBoard = function() {
-		var $ptr, b, board, cols, rows;
-		board = sliceType.nil;
-		cols = 0;
-		rows = 0;
+		var $ptr, b;
 		b = this;
-		board = b.Board;
-		cols = b.Cols;
-		rows = b.Rows;
-		return [board, cols, rows];
+		return b;
 	};
 	Board.prototype.GetBoard = function() { return this.$val.GetBoard(); };
 	Board.ptr.prototype.Get = function(x, y) {
@@ -2742,13 +2736,13 @@ $packages["game"] = (function() {
 	};
 	Unit.prototype.GetValidMoves = function(b, sq) { return this.$val.GetValidMoves(b, sq); };
 	ptrType.methods = [{prop: "up", name: "up", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "down", name: "down", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "left", name: "left", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "right", name: "right", pkg: "game", typ: $funcType([], [Square], false)}];
-	ptrType$1.methods = [{prop: "IsValid", name: "IsValid", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "GetBoard", name: "GetBoard", pkg: "", typ: $funcType([], [sliceType, $Int, $Int], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "Set", name: "Set", pkg: "", typ: $funcType([$Int, $Int, Unit], [], false)}, {prop: "pickup", name: "pickup", pkg: "game", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "getLineInDirection", name: "getLineInDirection", pkg: "game", typ: $funcType([funcType, Square], [sliceType$1], false)}, {prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([$Int, $Int], [sliceType$1], false)}, {prop: "resolveStep", name: "resolveStep", pkg: "game", typ: $funcType([Step, Step], [$Bool, $Bool], false)}, {prop: "ResolveMove", name: "ResolveMove", pkg: "", typ: $funcType([Move, Move], [$Bool, Team, sliceType$1], false)}];
+	ptrType$1.methods = [{prop: "IsValid", name: "IsValid", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "GetBoard", name: "GetBoard", pkg: "", typ: $funcType([], [Board], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "Set", name: "Set", pkg: "", typ: $funcType([$Int, $Int, Unit], [], false)}, {prop: "pickup", name: "pickup", pkg: "game", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "getLineInDirection", name: "getLineInDirection", pkg: "game", typ: $funcType([funcType, Square], [sliceType$1], false)}, {prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([$Int, $Int], [sliceType$1], false)}, {prop: "resolveStep", name: "resolveStep", pkg: "game", typ: $funcType([Step, Step], [$Bool, $Bool], false)}, {prop: "ResolveMove", name: "ResolveMove", pkg: "", typ: $funcType([Move, Move], [$Bool, Team, sliceType$1], false)}];
 	ptrType$2.methods = [{prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([ptrType$1, Square], [sliceType$1], false)}];
-	Square.init("", [{prop: "X", name: "X", exported: true, typ: $Int, tag: "json:\"x\""}, {prop: "Y", name: "Y", exported: true, typ: $Int, tag: "json:\"y\""}]);
-	Board.init("game", [{prop: "Board", name: "Board", exported: true, typ: sliceType, tag: "json:\"board\""}, {prop: "Cols", name: "Cols", exported: true, typ: $Int, tag: "json:\"cols\""}, {prop: "Rows", name: "Rows", exported: true, typ: $Int, tag: "json:\"rows\""}, {prop: "nUnits", name: "nUnits", exported: false, typ: $Int, tag: ""}]);
+	Square.init("", [{prop: "X", name: "X", exported: true, typ: $Int, tag: ""}, {prop: "Y", name: "Y", exported: true, typ: $Int, tag: ""}]);
+	Board.init("game", [{prop: "Board", name: "Board", exported: true, typ: sliceType, tag: ""}, {prop: "Cols", name: "Cols", exported: true, typ: $Int, tag: ""}, {prop: "Rows", name: "Rows", exported: true, typ: $Int, tag: ""}, {prop: "nUnits", name: "nUnits", exported: false, typ: $Int, tag: ""}]);
 	Move.init("", [{prop: "Src", name: "Src", exported: true, typ: Square, tag: ""}, {prop: "Dst", name: "Dst", exported: true, typ: Square, tag: ""}]);
 	Step.init("", [{prop: "Src", name: "Src", exported: true, typ: Square, tag: ""}, {prop: "Dst", name: "Dst", exported: true, typ: Square, tag: ""}]);
-	Unit.init("", [{prop: "Team", name: "Team", exported: true, typ: Team, tag: "json:\"team,omitempty\""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: "json:\"stack,omitempty\""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: "json:\"exists\""}]);
+	Unit.init("", [{prop: "Team", name: "Team", exported: true, typ: Team, tag: ""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: ""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
@@ -2763,7 +2757,7 @@ $packages["main"] = (function() {
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	ptrType = $ptrType(js.Object);
 	funcType = $funcType([$Int, $Int], [ptrType], false);
-	structType = $structType("", [{prop: "Object", name: "", exported: true, typ: ptrType, tag: ""}, {prop: "Team", name: "Team", exported: true, typ: $Int, tag: "js:\"team\""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: "js:\"stack\""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: "js:\"exists\""}]);
+	structType = $structType("", [{prop: "Object", name: "", exported: true, typ: ptrType, tag: ""}, {prop: "Team", name: "Team", exported: true, typ: $Int, tag: "js:\"Team\""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: "js:\"Stack\""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: "js:\"Exists\""}]);
 	sliceType = $sliceType(structType);
 	funcType$1 = $funcType([$Int, $Int, sliceType], [ptrType], false);
 	funcType$2 = $funcType([game.Team, $Int], [ptrType], false);
@@ -2779,7 +2773,7 @@ $packages["main"] = (function() {
 			while (true) {
 				if (!(y < rows)) { break; }
 				i = (($imul(x, rows))) + y >> 0;
-				u = new game.Unit.ptr(((($parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.team) >> 0) << 24 >> 24)), $parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.stack) >> 0, !!(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.exists));
+				u = new game.Unit.ptr(((($parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.Team) >> 0) << 24 >> 24)), $parseInt(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.Stack) >> 0, !!(((i < 0 || i >= obj.$length) ? ($throwRuntimeError("index out of range"), undefined) : obj.$array[obj.$offset + i]).Object.Exists));
 				b.Set(x, y, $clone(u, game.Unit));
 				y = y + (1) >> 0;
 			}

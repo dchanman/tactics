@@ -8,9 +8,9 @@ import (
 
 func newBoardFromBoard(cols int, rows int, obj []struct {
 	*js.Object
-	Team   int  `js:"team"`
-	Stack  int  `js:"stack"`
-	Exists bool `js:"exists"`
+	Team   int  `js:"Team"`
+	Stack  int  `js:"Stack"`
+	Exists bool `js:"Exists"`
 }) *js.Object {
 	b := game.NewBoard(cols, rows)
 	for x := 0; x < cols; x++ {
