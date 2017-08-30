@@ -1,9 +1,16 @@
 window.Renderer = (function () {
     "use strict";
-    function Renderer(htmlTable, main) {
+    function moveToString(move) {
+        var colLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            src = colLetters[move.Src.X] + move.Src.Y,
+            dst = colLetters[move.Dst.X] + move.Dst.Y;
+        return src + "->" + dst;
+    }
+    function Renderer(main, htmlTable, historyUl) {
         this.main = main;
         // HTML DOM
         this.htmlTable = htmlTable;
+        this.historyUl = historyUl;
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
@@ -21,19 +28,16 @@ window.Renderer = (function () {
         this.currentRenderedResolution = null;
         // Internal engine
         this.engineBoard = null;
-        this.engineBoardHistory = [];
-        this.engineBoardCols = 0;
-        this.engineBoardRows = 0;
     }
     Renderer.prototype.handleGameTurn = function (history) {
         var turn, resolution;
-        this.engineBoardHistory = history;
         if (history.length < 1) {
             return;
         }
         turn = history[history.length - 1];
         resolution = this.engineResolveMove(turn);
         this.render(this.engineBoard.GetBoard());
+        this.renderHistory(history);
         this.renderLastMove(turn, resolution);
     };
     Renderer.prototype.engineResolveMove = function (turn) {
@@ -51,6 +55,7 @@ window.Renderer = (function () {
             resolution = this.engineResolveMove(gameInformation.history[i]);
         }
         this.render(this.engineBoard.GetBoard());
+        this.renderHistory(gameInformation.history);
         if (gameInformation.history.length > 0) {
             this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
         }
@@ -103,6 +108,17 @@ window.Renderer = (function () {
             for (i = 0; i < resolution.Collisions.length; i += 1) {
                 this.overlay.renderCollision(resolution.Collisions[i].X, resolution.Collisions[i].Y);
             }
+        }
+    };
+    Renderer.prototype.renderHistory = function (history) {
+        console.log("Rendering history");
+        console.log(history);
+        this.currentRendereredHistory = history;
+        $(this.historyUl).html("");
+        var i, li;
+        for (i = 0; i < history.length; i += 1) {
+            li = "<li>Turn " + (i + 1) + ": " + moveToString(history[i][1]) + " , " + moveToString(history[i][2]) + "</li>";
+            $(this.historyUl).append(li);
         }
     };
     Renderer.prototype.setActiveSquare = function (x, y) {

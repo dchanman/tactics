@@ -3,7 +3,7 @@ window.Main = (function () {
     function Main() {
         this.api = new Api();
         this.chat = new Chat(this);
-        this.board = new Renderer(document.getElementById("game"), this);
+        this.board = new Renderer(this, document.getElementById("game"), document.getElementById("history"));
         this.status = new Status(this);
         this.heartbeat = null;
         var main = this;
