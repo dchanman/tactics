@@ -121,6 +121,7 @@ window.Renderer = (function () {
                 tr.addClass("table-active");
             }
             $(this.historyUl).append(tr);
+            $("#history-container").animate({ scrollTop: $("#history-container").prop("scrollHeight")}, 100);
         }
     };
     Renderer.prototype.setActiveSquare = function (x, y) {
