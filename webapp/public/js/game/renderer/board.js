@@ -1,40 +1,29 @@
 window.Board = (function () {
     "use strict";
     function Board(htmlTable, main) {
-        this.cols = 0;
-        this.rows = 0;
-        this.playerTeam = 0;
-        this.currentBoard = [];
-        this.currentRenderedLastMove = null;
-        this.currentRenderedResolution = null;
+        this.main = main;
+        // HTML DOM
         this.htmlTable = htmlTable;
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
-        this.main = main;
+        // Game state
+        this.cols = 0;
+        this.rows = 0;
+        this.playerTeam = 0;
+        // Configuration
         this.showLastUnit = false;
         this.showLastMove = false;
         this.showCollisions = false;
+        // Cached state
+        this.currentRenderedPieces = [];
+        this.currentRenderedLastMove = null;
+        this.currentRenderedResolution = null;
         // Internal engine
         this.engineBoard = null;
         this.engineBoardHistory = [];
         this.engineBoardCols = 0;
         this.engineBoardRows = 0;
-    }
-    function createInitialEngineBoard(board) {
-        var mappedUnits = [], i, ptr, engineBoard;
-        console.log(board);
-        for (i = 0; i < board.Board.length; i += 1) {
-            ptr = {
-                Team: board.Board[i].Team,
-                Stack: board.Board[i].Stack,
-                Exists: board.Board[i].Exists
-            };
-            ptr.$val = ptr;
-            mappedUnits.push(ptr);
-        }
-        engineBoard = Engine.NewBoardFromBoard(board.Cols, board.Rows, mappedUnits);
-        return engineBoard;
     }
     Board.prototype.handleGameTurn = function (history) {
         console.log("Received history");
@@ -63,7 +52,7 @@ window.Board = (function () {
         console.log("Received GameInformation");
         console.log(gameInformation);
         var i, resolution;
-        this.engineBoard = createInitialEngineBoard(gameInformation.board);
+        this.engineBoard = Engine.newEngineBoard(gameInformation.board);
         for (i = 0; i < gameInformation.history.length; i += 1) {
             console.log("Processing step of history");
             console.log(gameInformation.history[i]);
@@ -75,22 +64,10 @@ window.Board = (function () {
             this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
         }
     };
-    Board.prototype.runEngine = function (update) {
-        if (this.engineBoardHistory.length > update.history.length) {
-            // The game was reset, force redraw of board
-            this.engineBoard = null;
-        }
-        this.engineBoardHistory = update.history;
-        if (this.engineBoard === null) {
-            this.engineBoard = createInitialEngineBoard(update);
-            console.log("Created initial board");
-            this.render(this.engineBoard.GetBoard());
-        }
-    };
     Board.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
             this.playerTeam = team;
-            this.renderPieces(this.currentBoard);
+            this.renderPieces(this.currentRenderedPieces);
             this.renderEndzones();
         }
     };
@@ -204,7 +181,7 @@ window.Board = (function () {
     };
     Board.prototype.renderPieces = function (pieces) {
         var i, x, y, width;
-        this.currentBoard = pieces;
+        this.currentRenderedPieces = pieces;
         width = $(this.grid[0][0].container).width();
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
@@ -229,7 +206,7 @@ window.Board = (function () {
         }
     };
     Board.prototype.onWindowResize = function () {
-        this.renderPieces(this.currentBoard);
+        this.renderPieces(this.currentRenderedPieces);
         this.overlay.resize();
         this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };

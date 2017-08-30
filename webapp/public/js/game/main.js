@@ -42,7 +42,6 @@ window.Main = (function () {
     Main.prototype.handleGameInfo = function (data) {
         console.log("Received information!");
         this.board.engineInit(data);
-        // this.board.runEngine(data);
         this.status.updatePlayerReady(data);
     };
     Main.prototype.handleStatus = function (data) {

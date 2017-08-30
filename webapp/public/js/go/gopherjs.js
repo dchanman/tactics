@@ -2763,16 +2763,15 @@ $packages["game"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, game, js, ptrType, funcType, structType, sliceType, funcType$1, funcType$2, funcType$3, mapType, newBoardFromBoard, newBoard, unit, newMove, main;
+	var $pkg = {}, $init, game, js, ptrType, structType, sliceType, funcType, funcType$1, funcType$2, mapType, newBoardFromBoard, unit, newMove, main;
 	game = $packages["game"];
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	ptrType = $ptrType(js.Object);
-	funcType = $funcType([$Int, $Int], [ptrType], false);
 	structType = $structType("", [{prop: "Object", name: "", exported: true, typ: ptrType, tag: ""}, {prop: "Team", name: "Team", exported: true, typ: $Int, tag: "js:\"Team\""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: "js:\"Stack\""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: "js:\"Exists\""}]);
 	sliceType = $sliceType(structType);
-	funcType$1 = $funcType([$Int, $Int, sliceType], [ptrType], false);
-	funcType$2 = $funcType([game.Team, $Int], [ptrType], false);
-	funcType$3 = $funcType([$Int, $Int, $Int, $Int], [ptrType], false);
+	funcType = $funcType([$Int, $Int, sliceType], [ptrType], false);
+	funcType$1 = $funcType([game.Team, $Int], [ptrType], false);
+	funcType$2 = $funcType([$Int, $Int, $Int, $Int], [ptrType], false);
 	mapType = $mapType($String, $emptyInterface);
 	newBoardFromBoard = function(cols, rows, obj) {
 		var $ptr, b, cols, i, obj, rows, u, x, y;
@@ -2792,11 +2791,6 @@ $packages["main"] = (function() {
 		}
 		return js.MakeWrapper(b);
 	};
-	newBoard = function(cols, rows) {
-		var $ptr, b, cols, rows;
-		b = $clone(game.NewBoard(cols, rows), game.Board);
-		return js.MakeWrapper(b);
-	};
 	unit = function(team, stack) {
 		var $ptr, stack, team, x;
 		return js.MakeWrapper((x = new game.Unit.ptr(team, stack, true), new x.constructor.elem(x)));
@@ -2807,7 +2801,7 @@ $packages["main"] = (function() {
 	};
 	main = function() {
 		var $ptr;
-		$global.Engine = $externalize($makeMap($String.keyFor, [{ k: "NewBoard", v: new funcType(newBoard) }, { k: "NewBoardFromBoard", v: new funcType$1(newBoardFromBoard) }, { k: "NewUnit", v: new funcType$2(unit) }, { k: "NewMove", v: new funcType$3(newMove) }]), mapType);
+		$global.Engine = $externalize($makeMap($String.keyFor, [{ k: "NewBoardFromBoard", v: new funcType(newBoardFromBoard) }, { k: "NewUnit", v: new funcType$1(unit) }, { k: "NewMove", v: new funcType$2(newMove) }]), mapType);
 	};
 	$init = function() {
 		$pkg.$init = function() {};

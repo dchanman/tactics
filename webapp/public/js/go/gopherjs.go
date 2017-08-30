@@ -23,11 +23,6 @@ func newBoardFromBoard(cols int, rows int, obj []struct {
 	return js.MakeWrapper(&b)
 }
 
-func newBoard(cols int, rows int) *js.Object {
-	b := game.NewBoard(cols, rows)
-	return js.MakeWrapper(&b)
-}
-
 func unit(team game.Team, stack int) *js.Object {
 	return js.MakeWrapper(game.Unit{Team: team, Stack: stack, Exists: true})
 }
@@ -38,7 +33,6 @@ func newMove(x0 int, y0 int, x1 int, y1 int) *js.Object {
 
 func main() {
 	js.Global.Set("Engine", map[string]interface{}{
-		"NewBoard":          newBoard,
 		"NewBoardFromBoard": newBoardFromBoard,
 		"NewUnit":           unit,
 		"NewMove":           newMove})
