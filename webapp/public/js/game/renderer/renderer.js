@@ -19,7 +19,6 @@ window.Renderer = (function () {
         this.rows = 0;
         this.playerTeam = 0;
         // Configuration
-        this.showLastUnit = false;
         this.showLastMove = false;
         this.showCollisions = false;
         // Cached state
@@ -99,10 +98,6 @@ window.Renderer = (function () {
         var m1 = turn[1],
             m2 = turn[2],
             i;
-        if (this.showLastUnit) {
-            this.overlay.renderPiece(m1.Src.X, m1.Src.Y, Unit.fromJSON(resolution.oldUnits[1]));
-            this.overlay.renderPiece(m2.Src.X, m2.Src.Y, Unit.fromJSON(resolution.oldUnits[2]));
-        }
         if (this.showLastMove) {
             this.overlay.renderMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y, 1, this.playerTeam);
             this.overlay.renderMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y, 2, this.playerTeam);
@@ -118,10 +113,13 @@ window.Renderer = (function () {
         $(this.historyUl).html("");
         var i, tr;
         for (i = 0; i < history.length; i += 1) {
-            tr = $("<tr></tr>");
-            tr.append('<th scope="row">' + (i + 1) + '</th>');
-            tr.append('<td>' + moveToString(history[i][1]) + '</td>');
-            tr.append('<td>' + moveToString(history[i][2]) + '</td>');
+            tr = $("<tr></tr>")
+                .append('<th scope="row">' + (i + 1) + '</th>')
+                .append('<td>' + moveToString(history[i][1]) + '</td>')
+                .append('<td>' + moveToString(history[i][2]) + '</td>');
+            if (i === history.length - 1) {
+                tr.addClass("table-active");
+            }
             $(this.historyUl).append(tr);
         }
     };
@@ -216,8 +214,7 @@ window.Renderer = (function () {
         this.overlay.resize();
         this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };
-    Renderer.prototype.setOverlaySettings = function (showLastMove, showLastUnit, showCollisions) {
-        this.showLastUnit = showLastUnit;
+    Renderer.prototype.setOverlaySettings = function (showLastMove, showCollisions) {
         this.showLastMove = showLastMove;
         this.showCollisions = showCollisions;
         this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);

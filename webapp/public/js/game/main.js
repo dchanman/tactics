@@ -97,9 +97,8 @@ $(document).ready(function () {
     });
     function setOverlaySettings() {
         var showLastMove = $("#overlay-setting-ctrl-showLastMove").is(':checked'),
-            showLastUnit = $("#overlay-setting-ctrl-showLastUnit").is(':checked'),
             showCollisions = $("#overlay-setting-ctrl-showCollisions").is(':checked');
-        main.board.setOverlaySettings(showLastMove, showLastUnit, showCollisions);
+        main.board.setOverlaySettings(showLastMove, showCollisions);
     }
     setOverlaySettings();
     $(".overlay-setting-ctrl").click(function () {
