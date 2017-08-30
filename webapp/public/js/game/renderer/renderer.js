@@ -1,6 +1,6 @@
-window.Board = (function () {
+window.Renderer = (function () {
     "use strict";
-    function Board(htmlTable, main) {
+    function Renderer(htmlTable, main) {
         this.main = main;
         // HTML DOM
         this.htmlTable = htmlTable;
@@ -25,7 +25,7 @@ window.Board = (function () {
         this.engineBoardCols = 0;
         this.engineBoardRows = 0;
     }
-    Board.prototype.handleGameTurn = function (history) {
+    Renderer.prototype.handleGameTurn = function (history) {
         var turn, resolution;
         this.engineBoardHistory = history;
         if (history.length < 1) {
@@ -36,7 +36,7 @@ window.Board = (function () {
         this.render(this.engineBoard.GetBoard());
         this.renderLastMove(turn, resolution);
     };
-    Board.prototype.engineResolveMove = function (turn) {
+    Renderer.prototype.engineResolveMove = function (turn) {
         var m1, m2, move1, move2;
         m1 = turn[1];
         m2 = turn[2];
@@ -44,7 +44,7 @@ window.Board = (function () {
         move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
         return this.engineBoard.ResolveMove(move1, move2);
     };
-    Board.prototype.engineInit = function (gameInformation) {
+    Renderer.prototype.engineInit = function (gameInformation) {
         var i, resolution;
         this.engineBoard = Engine.newEngineBoard(gameInformation.board);
         for (i = 0; i < gameInformation.history.length; i += 1) {
@@ -55,14 +55,14 @@ window.Board = (function () {
             this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
         }
     };
-    Board.prototype.setPlayerTeam = function (team) {
+    Renderer.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
             this.playerTeam = team;
             this.renderPieces(this.currentRenderedPieces);
             this.renderEndzones();
         }
     };
-    Board.prototype.removeSelectableSquares = function () {
+    Renderer.prototype.removeSelectableSquares = function () {
         var i, j;
         for (i = 0; i < this.grid.length; i += 1) {
             for (j = 0; j < this.grid[i].length; j += 1) {
@@ -72,7 +72,7 @@ window.Board = (function () {
             }
         }
     };
-    Board.prototype.render = function (board) {
+    Renderer.prototype.render = function (board) {
         if (board.Board.length !== (board.Cols * board.Rows)) {
             throw ("Invalid board data");
         }
@@ -81,7 +81,7 @@ window.Board = (function () {
         }
         this.renderPieces(board.Board);
     };
-    Board.prototype.renderLastMove = function (turn, resolution) {
+    Renderer.prototype.renderLastMove = function (turn, resolution) {
         if (this.overlay === null) {
             return;
         }
@@ -105,13 +105,13 @@ window.Board = (function () {
             }
         }
     };
-    Board.prototype.setActiveSquare = function (x, y) {
+    Renderer.prototype.setActiveSquare = function (x, y) {
         if (x < 0 || y < 0 || x > this.cols || y > this.rows) {
             throw ("Invalid square: (" + x + "," + y + ")");
         }
         $(this.grid[x][y].container).addClass("grid-square-selectable");
     };
-    Board.prototype.renderEndzones = function () {
+    Renderer.prototype.renderEndzones = function () {
         var x;
         for (x = 0; x < this.cols; x += 1) {
             $(this.grid[x][0].container).addClass("grid-square-endzone");
@@ -130,7 +130,7 @@ window.Board = (function () {
             }
         }
     };
-    Board.prototype.createGrid = function (cols, rows) {
+    Renderer.prototype.createGrid = function (cols, rows) {
         var x, y, tr, td, div;
         this.cols = cols;
         this.rows = rows;
@@ -165,7 +165,7 @@ window.Board = (function () {
         // Create overlay
         this.overlay = new Overlay(this.htmlTable, rows, cols);
     };
-    Board.prototype.renderPieces = function (pieces) {
+    Renderer.prototype.renderPieces = function (pieces) {
         var i, x, y, width;
         this.currentRenderedPieces = pieces;
         width = $(this.grid[0][0].container).width();
@@ -182,7 +182,7 @@ window.Board = (function () {
             }
         }
     };
-    Board.prototype.handleGameOver = function (team) {
+    Renderer.prototype.handleGameOver = function (team) {
         if (team === 0) {
             this.overlay.displayDrawScreen();
         } else if (this.playerTeam !== 0 && team === this.playerTeam) {
@@ -191,16 +191,16 @@ window.Board = (function () {
             this.overlay.displayLoseScreen();
         }
     };
-    Board.prototype.onWindowResize = function () {
+    Renderer.prototype.onWindowResize = function () {
         this.renderPieces(this.currentRenderedPieces);
         this.overlay.resize();
         this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };
-    Board.prototype.setOverlaySettings = function (showLastMove, showLastUnit, showCollisions) {
+    Renderer.prototype.setOverlaySettings = function (showLastMove, showLastUnit, showCollisions) {
         this.showLastUnit = showLastUnit;
         this.showLastMove = showLastMove;
         this.showCollisions = showCollisions;
         this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };
-    return Board;
+    return Renderer;
 }());

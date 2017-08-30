@@ -1,7 +1,7 @@
 window.Square = (function () {
     "use strict";
-    function Square(board, x, y) {
-        this.board = board;
+    function Square(renderer, x, y) {
+        this.renderer = renderer;
         this.x = x;
         this.y = y;
         this.unit = null;
@@ -17,38 +17,38 @@ window.Square = (function () {
         });
     };
     Square.prototype.onClick = function () {
-        if (this === this.board.selectedSquare) {
-            this.board.removeSelectableSquares();
-            this.board.selectedSquare = null;
+        if (this === this.renderer.selectedSquare) {
+            this.renderer.removeSelectableSquares();
+            this.renderer.selectedSquare = null;
         } else if ($(this.container).hasClass("grid-square-selectable")) {
-            this.board.removeSelectableSquares();
-            $(this.board.selectedSquare.container).addClass("grid-square-commit-src");
+            this.renderer.removeSelectableSquares();
+            $(this.renderer.selectedSquare.container).addClass("grid-square-commit-src");
             $(this.container).addClass("grid-square-commit-dst");
         } else if ($(this.container).hasClass("grid-square-commit-dst")) {
-            this.board.removeSelectableSquares();
-            this.board.main.api.commitMove(
-                this.board.selectedSquare.x,
-                this.board.selectedSquare.y,
+            this.renderer.removeSelectableSquares();
+            this.renderer.main.api.commitMove(
+                this.renderer.selectedSquare.x,
+                this.renderer.selectedSquare.y,
                 this.x,
                 this.y
             );
-            this.board.selectedSquare = null;
+            this.renderer.selectedSquare = null;
         } else {
-            this.board.removeSelectableSquares();
-            this.board.selectedSquare = this;
+            this.renderer.removeSelectableSquares();
+            this.renderer.selectedSquare = this;
             var self = this,
                 x,
                 y;
             // Set valid moves
-            if (this.unit && this.board.playerTeam === this.unit.team) {
-                for (x = 0; x < this.board.cols; x += 1) {
+            if (this.unit && this.renderer.playerTeam === this.unit.team) {
+                for (x = 0; x < this.renderer.cols; x += 1) {
                     if (x !== this.x) {
-                        self.board.setActiveSquare(x, this.y);
+                        self.renderer.setActiveSquare(x, this.y);
                     }
                 }
-                for (y = 0; y < this.board.rows; y += 1) {
+                for (y = 0; y < this.renderer.rows; y += 1) {
                     if (y !== this.y) {
-                        self.board.setActiveSquare(this.x, y);
+                        self.renderer.setActiveSquare(this.x, y);
                     }
                 }
             }
