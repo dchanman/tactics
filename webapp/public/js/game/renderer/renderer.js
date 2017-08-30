@@ -4,7 +4,7 @@ window.Renderer = (function () {
         var colLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
             src = colLetters[move.Src.X] + move.Src.Y,
             dst = colLetters[move.Dst.X] + move.Dst.Y;
-        return src + "->" + dst;
+        return src + "→" + dst;
     }
     function Renderer(main, htmlTable, historyUl) {
         this.main = main;
@@ -114,14 +114,15 @@ window.Renderer = (function () {
         }
     };
     Renderer.prototype.renderHistory = function (history) {
-        console.log("Rendering history");
-        console.log(history);
         this.currentRendereredHistory = history;
         $(this.historyUl).html("");
-        var i, li;
+        var i, tr;
         for (i = 0; i < history.length; i += 1) {
-            li = "<li>Turn " + (i + 1) + ": " + moveToString(history[i][1]) + " , " + moveToString(history[i][2]) + "</li>";
-            $(this.historyUl).append(li);
+            tr = $("<tr></tr>");
+            tr.append('<th scope="row">' + (i + 1) + '</th>');
+            tr.append('<td>' + moveToString(history[i][1]) + '</td>');
+            tr.append('<td>' + moveToString(history[i][2]) + '</td>');
+            $(this.historyUl).append(tr);
         }
     };
     Renderer.prototype.setActiveSquare = function (x, y) {
