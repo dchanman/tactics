@@ -144,7 +144,7 @@ window.Board = (function () {
         this.showLastUnit = false;
         this.showLastMove = false;
         this.showCollisions = false;
-        //
+        // Internal engine
         this.engineBoard = null;
         this.engineBoardHistory = [];
         this.engineBoardCols = 0;
@@ -164,6 +164,24 @@ window.Board = (function () {
         engineBoard = Engine.NewBoardFromBoard(update.board.Cols, update.board.Rows, mappedUnits);
         return engineBoard;
     }
+    Board.prototype.handleGameTurn = function (history) {
+        console.log("Received history");
+        console.log(history);
+        console.log("\n\n");
+        var up, m1, m2, move1, move2;
+        this.engineBoardHistory = history;
+        if (history.length < 1) {
+            return;
+        }
+        up = history[history.length - 1];
+        m1 = up.moves[1];
+        m2 = up.moves[2];
+        move1 = Engine.NewMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y);
+        move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
+        console.log({"resolution": this.engineBoard.ResolveMove(move1, move2)});
+        this.render(this.engineBoard.GetBoard());
+        this.renderHistory(history);
+    };
     Board.prototype.runEngine = function (update) {
         if (this.engineBoardHistory.length > update.history.length) {
             // The game was reset, force redraw of board
@@ -173,18 +191,6 @@ window.Board = (function () {
         if (this.engineBoard === null) {
             this.engineBoard = createInitialEngineBoard(update);
             console.log("Created initial board");
-            this.render(this.engineBoard.GetBoard());
-        } else {
-            var up, m1, m2, move1, move2;
-            if (update.history.length < 1) {
-                return;
-            }
-            up = update.history[update.history.length - 1];
-            m1 = up.moves[1];
-            m2 = up.moves[2];
-            move1 = Engine.NewMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y);
-            move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
-            console.log({"resolution": this.engineBoard.ResolveMove(move1, move2)});
             this.render(this.engineBoard.GetBoard());
         }
     };

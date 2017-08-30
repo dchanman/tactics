@@ -92,13 +92,16 @@ func NewTurn(move1 game.Move, move2 game.Move, oldUnit1 game.Unit, oldUnit2 game
 }
 
 // Information contains player information
+type Status struct {
+	P1Available bool `json:"p1available"`
+	P2Available bool `json:"p2available"`
+	P1Ready     bool `json:"p1ready"`
+	P2Ready     bool `json:"p2ready"`
+}
 type Information struct {
-	Board       *game.Board `json:"board"`
-	History     []Turn      `json:"history"`
-	P1Available bool        `json:"p1available"`
-	P2Available bool        `json:"p2available"`
-	P1Ready     bool        `json:"p1ready"`
-	P2Ready     bool        `json:"p2ready"`
+	Status
+	Board   *game.Board `json:"board"`
+	History []Turn      `json:"history"`
 }
 
 // NewGame constructs a new Game
@@ -177,8 +180,9 @@ func (g *Game) waitForMoves() {
 			oldUnit2 := g.board.Get(move2.Src.X, move2.Src.Y)
 			winner, team, collisions = g.board.ResolveMove(move1, move2)
 			g.history = append(g.history, NewTurn(move1, move2, oldUnit1, oldUnit2, collisions))
+			g.publishTurn()
 		}
-		g.publishUpdate()
+		g.publishStatus()
 		if winner {
 			g.completed = true
 			g.publishVictory(team)
@@ -242,21 +246,44 @@ func (g *Game) Unsubscribe(id uint64) {
 	delete(g.subscribers, id)
 }
 
-// GetInformation returns the current status of the game
-func (g *Game) GetInformation() Information {
-	return Information{
-		Board:       g.board,
-		History:     g.history,
+func (g *Game) getStatus() Status {
+	return Status{
 		P1Available: g.teamToPlayerID[1] != 0,
 		P2Available: g.teamToPlayerID[2] != 0,
 		P1Ready:     g.player1ready,
 		P2Ready:     g.player2ready}
 }
 
+// GetInformation returns the current status of the game
+func (g *Game) GetInformation() Information {
+	return Information{
+		Board:   g.board,
+		History: g.history,
+		Status:  g.getStatus()}
+}
+
 func (g *Game) publishUpdate() {
 	notif := Notification{
 		Method: "Game.Update",
 		Params: g.GetInformation()}
+	for _, ch := range g.subscribers {
+		ch <- notif
+	}
+}
+
+func (g *Game) publishStatus() {
+	notif := Notification{
+		Method: "Game.Status",
+		Params: g.getStatus()}
+	for _, ch := range g.subscribers {
+		ch <- notif
+	}
+}
+
+func (g *Game) publishTurn() {
+	notif := Notification{
+		Method: "Game.Turn",
+		Params: g.history}
 	for _, ch := range g.subscribers {
 		ch <- notif
 	}
@@ -289,7 +316,7 @@ func (g *Game) JoinGame(team int, id uint64) bool {
 	if team > 0 && team <= nMaxPlayers {
 		if g.teamToPlayerID[team] == 0 {
 			g.teamToPlayerID[team] = id
-			go g.publishUpdate()
+			g.publishStatus()
 			return true
 		}
 	}

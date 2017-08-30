@@ -22,6 +22,12 @@ window.Main = (function () {
             case "Game.Update":
                 main.handleGameInfo(params);
                 break;
+            case "Game.Status":
+                main.handleStatus(params);
+                break;
+            case "Game.Turn":
+                main.board.handleGameTurn(params);
+                break;
             case "Game.Chat":
                 main.chat.receiveMessage(params);
                 break;
@@ -34,13 +40,16 @@ window.Main = (function () {
         };
     }
     Main.prototype.handleGameInfo = function (data) {
-        var main = this;
-        console.log("Received update!");
-        console.log(data.history);
-        // this.board.render(data.board);
+        console.log("Received information!");
         this.board.runEngine(data);
         this.board.renderHistory(data.history);
         this.status.updatePlayerReady(data);
+    };
+    Main.prototype.handleStatus = function (data) {
+        console.log("Received status!");
+        var main = this;
+        this.status.updatePlayerReady(data);
+        // Why are we getting role every time??
         this.api.getRole()
             .then(function (result) {
                 main.status.updateRole(result);
