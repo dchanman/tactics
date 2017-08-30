@@ -29,12 +29,13 @@ var (
 
 // Game is the main game engine
 type Game struct {
-	gameType    BoardType
-	board       *game.Board
-	subscribers map[uint64](chan Notification)
-	movesQueue  chan gameMove
-	history     []Turn
-	completed   bool
+	gameType     BoardType
+	board        *game.Board
+	initialBoard *game.Board
+	subscribers  map[uint64](chan Notification)
+	movesQueue   chan gameMove
+	history      []Turn
+	completed    bool
 
 	teamToPlayerID      []uint64
 	teamToPlayerIDMutex sync.Mutex
@@ -74,21 +75,14 @@ type gameMove struct {
 }
 
 // Turn is a set of moves made by all players
-type Turn struct {
-	Moves      map[game.Team]game.Move `json:"moves"`
-	OldUnits   map[game.Team]game.Unit `json:"oldUnits"`
-	Collisions []game.Square           `json:"collisions"`
-}
+type Turn map[game.Team]game.Move
 
 // NewTurn constructs a new Turn
-func NewTurn(move1 game.Move, move2 game.Move, oldUnit1 game.Unit, oldUnit2 game.Unit, collisions []game.Square) Turn {
-	moves := make(map[game.Team]game.Move)
+func NewTurn(move1 game.Move, move2 game.Move) Turn {
+	moves := make(Turn)
 	moves[1] = move1
 	moves[2] = move2
-	units := make(map[game.Team]game.Unit)
-	units[1] = oldUnit1
-	units[2] = oldUnit2
-	return Turn{Moves: moves, OldUnits: units, Collisions: collisions}
+	return moves
 }
 
 // Information contains player information
@@ -100,14 +94,15 @@ type Status struct {
 }
 type Information struct {
 	Status
-	Board   *game.Board `json:"board"`
-	History []Turn      `json:"history"`
+	InitialBoard *game.Board `json:"board"`
+	History      []Turn      `json:"history"`
 }
 
 // NewGame constructs a new Game
 func NewGame(gameType BoardType) *Game {
 	game := Game{
 		gameType:       gameType,
+		initialBoard:   createGameBoard(gameType),
 		subscribers:    make(map[uint64](chan Notification)),
 		movesQueue:     make(chan gameMove, gameMoveBuffer),
 		teamToPlayerID: make([]uint64, nMaxPlayers+1)}
@@ -117,6 +112,7 @@ func NewGame(gameType BoardType) *Game {
 }
 
 func (g *Game) initGameState() {
+	// TODO: just copy g.initialGameBoard
 	g.board = createGameBoard(g.gameType)
 	g.history = make([]Turn, 0)
 	g.completed = false
@@ -155,7 +151,6 @@ func createGameBoard(gameType BoardType) *game.Board {
 }
 
 func (g *Game) waitForMoves() {
-	var collisions []game.Square
 	var team game.Team
 	var move1 game.Move
 	var move2 game.Move
@@ -176,10 +171,8 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			oldUnit1 := g.board.Get(move1.Src.X, move1.Src.Y)
-			oldUnit2 := g.board.Get(move2.Src.X, move2.Src.Y)
-			winner, team, collisions = g.board.ResolveMove(move1, move2)
-			g.history = append(g.history, NewTurn(move1, move2, oldUnit1, oldUnit2, collisions))
+			winner, team, _ = g.board.ResolveMove(move1, move2)
+			g.history = append(g.history, NewTurn(move1, move2))
 			g.publishTurn()
 		}
 		g.publishStatus()
@@ -257,9 +250,9 @@ func (g *Game) getStatus() Status {
 // GetInformation returns the current status of the game
 func (g *Game) GetInformation() Information {
 	return Information{
-		Board:   g.board,
-		History: g.history,
-		Status:  g.getStatus()}
+		InitialBoard: g.initialBoard,
+		History:      g.history,
+		Status:       g.getStatus()}
 }
 
 func (g *Game) publishUpdate() {

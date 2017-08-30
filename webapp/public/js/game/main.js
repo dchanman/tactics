@@ -41,8 +41,9 @@ window.Main = (function () {
     }
     Main.prototype.handleGameInfo = function (data) {
         console.log("Received information!");
-        this.board.runEngine(data);
-        this.board.renderHistory(data.history);
+        this.board.engineInit(data);
+        // this.board.runEngine(data);
+        // this.board.renderHistory(data.history);
         this.status.updatePlayerReady(data);
     };
     Main.prototype.handleStatus = function (data) {

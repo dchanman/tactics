@@ -150,37 +150,57 @@ window.Board = (function () {
         this.engineBoardCols = 0;
         this.engineBoardRows = 0;
     }
-    function createInitialEngineBoard(update) {
+    function createInitialEngineBoard(board) {
         var mappedUnits = [], i, ptr, engineBoard;
-        for (i = 0; i < update.board.Board.length; i += 1) {
+        console.log(board);
+        for (i = 0; i < board.Board.length; i += 1) {
             ptr = {
-                Team: update.board.Board[i].Team,
-                Stack: update.board.Board[i].Stack,
-                Exists: update.board.Board[i].Exists
+                Team: board.Board[i].Team,
+                Stack: board.Board[i].Stack,
+                Exists: board.Board[i].Exists
             };
             ptr.$val = ptr;
             mappedUnits.push(ptr);
         }
-        engineBoard = Engine.NewBoardFromBoard(update.board.Cols, update.board.Rows, mappedUnits);
+        engineBoard = Engine.NewBoardFromBoard(board.Cols, board.Rows, mappedUnits);
         return engineBoard;
     }
     Board.prototype.handleGameTurn = function (history) {
         console.log("Received history");
         console.log(history);
         console.log("\n\n");
-        var up, m1, m2, move1, move2;
+        var turn, resolution;
         this.engineBoardHistory = history;
         if (history.length < 1) {
             return;
         }
-        up = history[history.length - 1];
-        m1 = up.moves[1];
-        m2 = up.moves[2];
-        move1 = Engine.NewMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y);
-        move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
-        console.log({"resolution": this.engineBoard.ResolveMove(move1, move2)});
+        turn = history[history.length - 1];
+        resolution = this.engineResolveMove(turn);
+        console.log({"resolution": resolution});
         this.render(this.engineBoard.GetBoard());
         this.renderHistory(history);
+    };
+    Board.prototype.engineResolveMove = function (turn) {
+        var m1, m2, move1, move2;
+        m1 = turn[1];
+        m2 = turn[2];
+        move1 = Engine.NewMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y);
+        move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
+        return this.engineBoard.ResolveMove(move1, move2);
+    };
+    Board.prototype.engineInit = function (gameInformation) {
+        console.log("Received GameInformation");
+        console.log(gameInformation);
+        var i, resolution;
+        this.engineBoard = createInitialEngineBoard(gameInformation.board);
+        for (i = 0; i < gameInformation.history.length; i += 1) {
+            console.log("Processing step of history");
+            console.log(gameInformation.history[i]);
+            resolution = this.engineResolveMove(gameInformation.history[i]);
+        }
+        console.log({"resolution": resolution});
+        this.render(this.engineBoard.GetBoard());
+        this.renderHistory(gameInformation.history);
     };
     Board.prototype.runEngine = function (update) {
         if (this.engineBoardHistory.length > update.history.length) {
@@ -231,8 +251,8 @@ window.Board = (function () {
         if (history.length > 0) {
             var i,
                 lastMove = history[history.length - 1],
-                m1 = lastMove.moves[1],
-                m2 = lastMove.moves[2];
+                m1 = lastMove[1],
+                m2 = lastMove[2];
             if (this.showLastUnit) {
                 this.overlay.renderPiece(m1.Src.X, m1.Src.Y, Unit.fromJSON(lastMove.oldUnits[1]));
                 this.overlay.renderPiece(m2.Src.X, m2.Src.Y, Unit.fromJSON(lastMove.oldUnits[2]));
