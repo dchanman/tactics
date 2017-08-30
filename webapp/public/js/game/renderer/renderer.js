@@ -6,11 +6,11 @@ window.Renderer = (function () {
             dst = colLetters[move.Dst.X] + move.Dst.Y;
         return src + "→" + dst;
     }
-    function Renderer(main, htmlTable, historyUl) {
+    function Renderer(main, htmlTable, historyTable) {
         this.main = main;
         // HTML DOM
         this.htmlTable = htmlTable;
-        this.historyUl = historyUl;
+        this.historyTable = historyTable;
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
@@ -110,7 +110,7 @@ window.Renderer = (function () {
     };
     Renderer.prototype.renderHistory = function (history) {
         this.currentRendereredHistory = history;
-        $(this.historyUl).html("");
+        $(this.historyTable).html("");
         var i, tr;
         for (i = 0; i < history.length; i += 1) {
             tr = $("<tr></tr>")
@@ -120,7 +120,7 @@ window.Renderer = (function () {
             if (i === history.length - 1) {
                 tr.addClass("table-active");
             }
-            $(this.historyUl).append(tr);
+            $(this.historyTable).append(tr);
             $("#history-container").animate({ scrollTop: $("#history-container").prop("scrollHeight")}, 100);
         }
     };
