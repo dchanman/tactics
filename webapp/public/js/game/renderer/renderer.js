@@ -54,6 +54,9 @@ window.Renderer = (function () {
         for (i = 0; i < gameInformation.history.length; i += 1) {
             resolution = this.engineResolveMove(gameInformation.history[i]);
         }
+        if (this.overlay !== null) {
+            this.overlay.clear();
+        }
         this.render(this.engineBoard.GetBoard());
         this.renderHistory(gameInformation.history);
         if (gameInformation.history.length > 0) {
