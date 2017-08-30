@@ -3,8 +3,9 @@ package server
 import (
 	"encoding/json"
 	"errors"
-	"game"
 	"sync"
+
+	"github.com/dchanman/tactics/src/game"
 
 	"github.com/sirupsen/logrus"
 )

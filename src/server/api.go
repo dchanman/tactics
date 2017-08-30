@@ -6,7 +6,7 @@ import (
 	"net/rpc/jsonrpc"
 	"strconv"
 
-	"game"
+	"github.com/dchanman/tactics/src/game"
 
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
