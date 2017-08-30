@@ -26,9 +26,6 @@ window.Board = (function () {
         this.engineBoardRows = 0;
     }
     Board.prototype.handleGameTurn = function (history) {
-        console.log("Received history");
-        console.log(history);
-        console.log("\n\n");
         var turn, resolution;
         this.engineBoardHistory = history;
         if (history.length < 1) {
@@ -36,7 +33,6 @@ window.Board = (function () {
         }
         turn = history[history.length - 1];
         resolution = this.engineResolveMove(turn);
-        console.log({"resolution": resolution});
         this.render(this.engineBoard.GetBoard());
         this.renderLastMove(turn, resolution);
     };
@@ -49,16 +45,11 @@ window.Board = (function () {
         return this.engineBoard.ResolveMove(move1, move2);
     };
     Board.prototype.engineInit = function (gameInformation) {
-        console.log("Received GameInformation");
-        console.log(gameInformation);
         var i, resolution;
         this.engineBoard = Engine.newEngineBoard(gameInformation.board);
         for (i = 0; i < gameInformation.history.length; i += 1) {
-            console.log("Processing step of history");
-            console.log(gameInformation.history[i]);
             resolution = this.engineResolveMove(gameInformation.history[i]);
         }
-        console.log({"resolution": resolution});
         this.render(this.engineBoard.GetBoard());
         if (gameInformation.history.length > 0) {
             this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
@@ -82,8 +73,6 @@ window.Board = (function () {
         }
     };
     Board.prototype.render = function (board) {
-        console.log("Rendering!");
-        console.log(board);
         if (board.Board.length !== (board.Cols * board.Rows)) {
             throw ("Invalid board data");
         }
@@ -98,9 +87,6 @@ window.Board = (function () {
         }
         this.currentRenderedLastMove = turn;
         this.currentRenderedLastResolution = resolution;
-        console.log("renderLastMove");
-        console.log(turn);
-        console.log(resolution);
         this.overlay.clear();
         var m1 = turn[1],
             m2 = turn[2],
