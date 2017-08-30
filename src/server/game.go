@@ -151,9 +151,9 @@ func createGameBoard(gameType BoardType) *game.Board {
 }
 
 func (g *Game) waitForMoves() {
-	var team game.Team
 	var move1 game.Move
 	var move2 game.Move
+	var resolution game.Resolution
 	g.player1ready = false
 	g.player2ready = false
 	for m := range g.movesQueue {
@@ -171,14 +171,15 @@ func (g *Game) waitForMoves() {
 		if g.player1ready && g.player2ready {
 			g.player1ready = false
 			g.player2ready = false
-			winner, team, _ = g.board.ResolveMove(move1, move2)
+			resolution = g.board.ResolveMove(move1, move2)
+			winner = resolution.Winner
 			g.history = append(g.history, NewTurn(move1, move2))
 			g.publishTurn()
 		}
 		g.publishStatus()
 		if winner {
 			g.completed = true
-			g.publishVictory(team)
+			g.publishVictory(resolution.Team)
 		}
 	}
 }

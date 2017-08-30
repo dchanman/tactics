@@ -2354,7 +2354,7 @@ $packages["runtime"] = (function() {
 	return $pkg;
 })();
 $packages["game"] = (function() {
-	var $pkg = {}, $init, Square, Board, Move, Step, Team, Unit, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, NewBoard, computeIncrement, decomposeMoveToSteps, checkWinCondition, stack;
+	var $pkg = {}, $init, Square, Board, Move, Resolution, Step, Team, Unit, sliceType, sliceType$1, sliceType$2, ptrType, funcType, ptrType$1, ptrType$2, NewBoard, computeIncrement, decomposeMoveToSteps, checkWinCondition, stack;
 	Square = $pkg.Square = $newType(0, $kindStruct, "game.Square", true, "game", true, function(X_, Y_) {
 		this.$val = this;
 		if (arguments.length === 0) {
@@ -2388,6 +2388,18 @@ $packages["game"] = (function() {
 		}
 		this.Src = Src_;
 		this.Dst = Dst_;
+	});
+	Resolution = $pkg.Resolution = $newType(0, $kindStruct, "game.Resolution", true, "game", true, function(Winner_, Team_, Collisions_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.Winner = false;
+			this.Team = 0;
+			this.Collisions = sliceType$1.nil;
+			return;
+		}
+		this.Winner = Winner_;
+		this.Team = Team_;
+		this.Collisions = Collisions_;
 	});
 	Step = $pkg.Step = $newType(0, $kindStruct, "game.Step", true, "game", true, function(Src_, Dst_) {
 		this.$val = this;
@@ -2622,10 +2634,8 @@ $packages["game"] = (function() {
 		return [false, 0];
 	};
 	Board.ptr.prototype.ResolveMove = function(move1, move2) {
-		var $ptr, _entry, _i, _key, _key$1, _keys, _ref, _tuple, _tuple$1, b, collision1, collision2, collisions, collisionsSet, i, k, move1, move2, nSteps, s1, s2, steps1, steps2, stopped1, stopped2, team, winner;
-		winner = false;
-		team = 0;
-		collisions = sliceType$1.nil;
+		var $ptr, _entry, _i, _key, _key$1, _keys, _ref, _tuple, _tuple$1, b, collision1, collision2, collisionsSet, i, k, move1, move2, nSteps, res, s1, s2, steps1, steps2, stopped1, stopped2;
+		res = new Resolution.ptr(false, 0, sliceType$1.nil);
 		b = this;
 		steps1 = decomposeMoveToSteps($clone(move1, Move));
 		steps2 = decomposeMoveToSteps($clone(move2, Move));
@@ -2663,14 +2673,14 @@ $packages["game"] = (function() {
 			stopped1 = collision1 || stopped1;
 			stopped2 = collision2 || stopped2;
 			_tuple$1 = checkWinCondition(b);
-			winner = _tuple$1[0];
-			team = _tuple$1[1];
-			if (winner) {
+			res.Winner = _tuple$1[0];
+			res.Team = _tuple$1[1];
+			if (res.Winner) {
 				break;
 			}
 			i = i + (1) >> 0;
 		}
-		collisions = $makeSlice(sliceType$1, 0);
+		res.Collisions = $makeSlice(sliceType$1, 0);
 		_ref = collisionsSet;
 		_i = 0;
 		_keys = $keys(_ref);
@@ -2682,10 +2692,10 @@ $packages["game"] = (function() {
 				continue;
 			}
 			k = $clone(_entry.k, Square);
-			collisions = $append(collisions, k);
+			res.Collisions = $append(res.Collisions, k);
 			_i++;
 		}
-		return [winner, team, collisions];
+		return res;
 	};
 	Board.prototype.ResolveMove = function(move1, move2) { return this.$val.ResolveMove(move1, move2); };
 	stack = function(u1, u2) {
@@ -2736,11 +2746,12 @@ $packages["game"] = (function() {
 	};
 	Unit.prototype.GetValidMoves = function(b, sq) { return this.$val.GetValidMoves(b, sq); };
 	ptrType.methods = [{prop: "up", name: "up", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "down", name: "down", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "left", name: "left", pkg: "game", typ: $funcType([], [Square], false)}, {prop: "right", name: "right", pkg: "game", typ: $funcType([], [Square], false)}];
-	ptrType$1.methods = [{prop: "IsValid", name: "IsValid", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "GetBoard", name: "GetBoard", pkg: "", typ: $funcType([], [Board], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "Set", name: "Set", pkg: "", typ: $funcType([$Int, $Int, Unit], [], false)}, {prop: "pickup", name: "pickup", pkg: "game", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "getLineInDirection", name: "getLineInDirection", pkg: "game", typ: $funcType([funcType, Square], [sliceType$1], false)}, {prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([$Int, $Int], [sliceType$1], false)}, {prop: "resolveStep", name: "resolveStep", pkg: "game", typ: $funcType([Step, Step], [$Bool, $Bool], false)}, {prop: "ResolveMove", name: "ResolveMove", pkg: "", typ: $funcType([Move, Move], [$Bool, Team, sliceType$1], false)}];
+	ptrType$1.methods = [{prop: "IsValid", name: "IsValid", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "GetBoard", name: "GetBoard", pkg: "", typ: $funcType([], [Board], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "Set", name: "Set", pkg: "", typ: $funcType([$Int, $Int, Unit], [], false)}, {prop: "pickup", name: "pickup", pkg: "game", typ: $funcType([$Int, $Int], [Unit], false)}, {prop: "getLineInDirection", name: "getLineInDirection", pkg: "game", typ: $funcType([funcType, Square], [sliceType$1], false)}, {prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([$Int, $Int], [sliceType$1], false)}, {prop: "resolveStep", name: "resolveStep", pkg: "game", typ: $funcType([Step, Step], [$Bool, $Bool], false)}, {prop: "ResolveMove", name: "ResolveMove", pkg: "", typ: $funcType([Move, Move], [Resolution], false)}];
 	ptrType$2.methods = [{prop: "GetValidMoves", name: "GetValidMoves", pkg: "", typ: $funcType([ptrType$1, Square], [sliceType$1], false)}];
 	Square.init("", [{prop: "X", name: "X", exported: true, typ: $Int, tag: ""}, {prop: "Y", name: "Y", exported: true, typ: $Int, tag: ""}]);
 	Board.init("game", [{prop: "Board", name: "Board", exported: true, typ: sliceType, tag: ""}, {prop: "Cols", name: "Cols", exported: true, typ: $Int, tag: ""}, {prop: "Rows", name: "Rows", exported: true, typ: $Int, tag: ""}, {prop: "nUnits", name: "nUnits", exported: false, typ: $Int, tag: ""}]);
 	Move.init("", [{prop: "Src", name: "Src", exported: true, typ: Square, tag: ""}, {prop: "Dst", name: "Dst", exported: true, typ: Square, tag: ""}]);
+	Resolution.init("", [{prop: "Winner", name: "Winner", exported: true, typ: $Bool, tag: ""}, {prop: "Team", name: "Team", exported: true, typ: Team, tag: ""}, {prop: "Collisions", name: "Collisions", exported: true, typ: sliceType$1, tag: ""}]);
 	Step.init("", [{prop: "Src", name: "Src", exported: true, typ: Square, tag: ""}, {prop: "Dst", name: "Dst", exported: true, typ: Square, tag: ""}]);
 	Unit.init("", [{prop: "Team", name: "Team", exported: true, typ: Team, tag: ""}, {prop: "Stack", name: "Stack", exported: true, typ: $Int, tag: ""}, {prop: "Exists", name: "Exists", exported: true, typ: $Bool, tag: ""}]);
 	$init = function() {

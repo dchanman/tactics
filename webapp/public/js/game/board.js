@@ -135,7 +135,8 @@ window.Board = (function () {
         this.rows = 0;
         this.playerTeam = 0;
         this.currentBoard = [];
-        this.currentHistory = [];
+        this.currentRenderedLastMove = null;
+        this.currentRenderedResolution = null;
         this.htmlTable = htmlTable;
         this.grid = [];
         this.overlay = null;
@@ -178,7 +179,7 @@ window.Board = (function () {
         resolution = this.engineResolveMove(turn);
         console.log({"resolution": resolution});
         this.render(this.engineBoard.GetBoard());
-        this.renderHistory(history);
+        this.renderLastMove(turn, resolution);
     };
     Board.prototype.engineResolveMove = function (turn) {
         var m1, m2, move1, move2;
@@ -200,7 +201,9 @@ window.Board = (function () {
         }
         console.log({"resolution": resolution});
         this.render(this.engineBoard.GetBoard());
-        this.renderHistory(gameInformation.history);
+        if (gameInformation.history.length > 0) {
+            this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
+        }
     };
     Board.prototype.runEngine = function (update) {
         if (this.engineBoardHistory.length > update.history.length) {
@@ -242,29 +245,30 @@ window.Board = (function () {
         }
         this.renderPieces(board.Board);
     };
-    Board.prototype.renderHistory = function (history) {
+    Board.prototype.renderLastMove = function (turn, resolution) {
         if (this.overlay === null) {
             return;
         }
-        this.currentHistory = history;
+        this.currentRenderedLastMove = turn;
+        this.currentRenderedLastResolution = resolution;
+        console.log("renderLastMove");
+        console.log(turn);
+        console.log(resolution);
         this.overlay.clear();
-        if (history.length > 0) {
-            var i,
-                lastMove = history[history.length - 1],
-                m1 = lastMove[1],
-                m2 = lastMove[2];
-            if (this.showLastUnit) {
-                this.overlay.renderPiece(m1.Src.X, m1.Src.Y, Unit.fromJSON(lastMove.oldUnits[1]));
-                this.overlay.renderPiece(m2.Src.X, m2.Src.Y, Unit.fromJSON(lastMove.oldUnits[2]));
-            }
-            if (this.showLastMove) {
-                this.overlay.renderMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y, 1, this.playerTeam);
-                this.overlay.renderMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y, 2, this.playerTeam);
-            }
-            if (this.showCollisions) {
-                for (i = 0; i < lastMove.collisions.length; i += 1) {
-                    this.overlay.renderCollision(lastMove.collisions[i].X, lastMove.collisions[i].Y);
-                }
+        var m1 = turn[1],
+            m2 = turn[2],
+            i;
+        if (this.showLastUnit) {
+            this.overlay.renderPiece(m1.Src.X, m1.Src.Y, Unit.fromJSON(resolution.oldUnits[1]));
+            this.overlay.renderPiece(m2.Src.X, m2.Src.Y, Unit.fromJSON(resolution.oldUnits[2]));
+        }
+        if (this.showLastMove) {
+            this.overlay.renderMove(m1.Src.X, m1.Src.Y, m1.Dst.X, m1.Dst.Y, 1, this.playerTeam);
+            this.overlay.renderMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y, 2, this.playerTeam);
+        }
+        if (this.showCollisions) {
+            for (i = 0; i < resolution.Collisions.length; i += 1) {
+                this.overlay.renderCollision(resolution.Collisions[i].X, resolution.Collisions[i].Y);
             }
         }
     };
@@ -357,13 +361,13 @@ window.Board = (function () {
     Board.prototype.onWindowResize = function () {
         this.renderPieces(this.currentBoard);
         this.overlay.resize();
-        this.renderHistory(this.currentHistory);
+        this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };
     Board.prototype.setOverlaySettings = function (showLastMove, showLastUnit, showCollisions) {
         this.showLastUnit = showLastUnit;
         this.showLastMove = showLastMove;
         this.showCollisions = showCollisions;
-        this.renderHistory(this.currentHistory);
+        this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
     };
     return Board;
 }());

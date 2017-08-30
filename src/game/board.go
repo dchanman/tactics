@@ -20,6 +20,12 @@ type Move struct {
 	Dst Square
 }
 
+type Resolution struct {
+	Winner     bool
+	Team       Team
+	Collisions []Square
+}
+
 // Step assumes Src and Dst are adjacent squares
 type Step Move
 
@@ -189,7 +195,7 @@ func checkWinCondition(b *Board) (bool, Team) {
 }
 
 // ResolveMove resolves two moves simultaneously for a single turn
-func (b *Board) ResolveMove(move1 Move, move2 Move) (winner bool, team Team, collisions []Square) {
+func (b *Board) ResolveMove(move1 Move, move2 Move) (res Resolution) {
 	// TODO: validate moves
 	// logrus.WithFields(logrus.Fields{"Board": b}).Info("init")
 	// defer logrus.WithFields(logrus.Fields{"Board": b}).Info("fini")
@@ -226,14 +232,14 @@ func (b *Board) ResolveMove(move1 Move, move2 Move) (winner bool, team Team, col
 		}
 		stopped1 = collision1 || stopped1
 		stopped2 = collision2 || stopped2
-		winner, team = checkWinCondition(b)
-		if winner {
+		res.Winner, res.Team = checkWinCondition(b)
+		if res.Winner {
 			break
 		}
 	}
-	collisions = make([]Square, 0)
+	res.Collisions = make([]Square, 0)
 	for k := range collisionsSet {
-		collisions = append(collisions, k)
+		res.Collisions = append(res.Collisions, k)
 	}
 	return
 }
