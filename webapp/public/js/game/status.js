@@ -53,8 +53,6 @@ window.Status = (function () {
         }
     };
     Status.prototype.updatePlayerReady = function (update) {
-        console.log("updatePlayerReady");
-        console.log(update);
         this.p1available = update.p1available;
         this.p2available = update.p2available;
         this.p1ready = update.p1ready;

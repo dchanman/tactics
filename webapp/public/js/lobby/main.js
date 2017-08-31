@@ -17,7 +17,6 @@ window.Main = (function () {
     };
     Main.prototype.run = function () {
         var main = this;
-        console.log("Running");
         Jsonrpc.getGameIds()
             .then(function (result) {
                 main.createGameList(result.result.gameids);

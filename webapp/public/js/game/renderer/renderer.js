@@ -63,7 +63,6 @@ window.Renderer = (function () {
         }
         this.renderHistory(gameInformation.history);
         this.selectTurn(gameInformation.history.length);
-        console.log(this.historyBoards);
     };
     Renderer.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {

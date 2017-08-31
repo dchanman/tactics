@@ -4,7 +4,6 @@ window.Chat = (function () {
         this.main = main;
     }
     Chat.prototype.receiveMessage = function (msgEvent) {
-        console.log(msgEvent);
         var log, sender, p;
         log = document.createElement("div");
         sender = msgEvent.sender + ": ";

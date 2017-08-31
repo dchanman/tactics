@@ -40,12 +40,10 @@ window.Main = (function () {
         };
     }
     Main.prototype.handleGameInfo = function (data) {
-        console.log("Received information!");
         this.board.engineInit(data);
         this.status.updatePlayerReady(data);
     };
     Main.prototype.handleStatus = function (data) {
-        console.log("Received status!");
         var main = this;
         this.status.updatePlayerReady(data);
         // Why are we getting role every time??
@@ -56,8 +54,6 @@ window.Main = (function () {
             });
     };
     Main.prototype.handleGameOver = function (data) {
-        console.log("Game over received");
-        console.log(data);
         if (data.team === 0) {
             this.chat.notification("Draw game!");
         } else {

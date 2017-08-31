@@ -6,7 +6,6 @@ window.Api = (function () {
             ws;
         url = uri + window.location.host + "/ws";
         ws = new WebSocket(url);
-        console.log(url);
         ws.onopen = function () {
             var gameid = /g\/([0-9]{6})/.exec(window.location),
                 gameidint;
@@ -14,7 +13,6 @@ window.Api = (function () {
                 throw "invalid URL: gameid is bad";
             }
             gameidint = parseInt(gameid[1], 10);
-            console.log(gameidint);
             api.subscribeGame(gameidint)
                 .then(function () {
                     api.onready();
