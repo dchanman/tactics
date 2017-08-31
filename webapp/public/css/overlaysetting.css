@@ -1,0 +1,5 @@
+#custom-controls-container {
+    max-width: 400px;
+    outline: 2px solid;
+    padding: 10px;
+}
