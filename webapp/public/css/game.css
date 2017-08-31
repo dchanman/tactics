@@ -39,6 +39,12 @@
 .grid {
     background-color: black;
 }
+.grid-coord {
+    background-color: white;
+    text-align: center;
+    padding: 0 0.25rem;
+    font-size: 0.5rem;
+}
 .grid-square {
     background-color: lightgrey;
     cursor: pointer;

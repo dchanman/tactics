@@ -1,8 +1,8 @@
 window.Renderer = (function () {
     "use strict";
+    var colLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     function moveToString(move) {
-        var colLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-            src = colLetters[move.Src.X] + move.Src.Y,
+        var src = colLetters[move.Src.X] + move.Src.Y,
             dst = colLetters[move.Dst.X] + move.Dst.Y;
         return src + "→" + dst;
     }
@@ -185,7 +185,7 @@ window.Renderer = (function () {
         }
     };
     Renderer.prototype.createGrid = function (cols, rows) {
-        var x, y, tr, td, div;
+        var x, y, tr, td, div, leftMargin, botMargin;
         this.cols = cols;
         this.rows = rows;
         // Create matrix
@@ -202,22 +202,31 @@ window.Renderer = (function () {
         }
         // Create new DOM grid
         for (y = 0; y < rows; y += 1) {
-            tr = document.createElement("tr");
-            $(tr).addClass("grid");
+            leftMargin = $('<td class="grid-coord">' + y + "</td>");
+            tr = $("<tr></tr>")
+                .addClass("grid")
+                .append(leftMargin);
             for (x = 0; x < cols; x += 1) {
-                td = document.createElement("td");
-                $(td).addClass("grid-square");
-                div = document.createElement("div");
-                $(div).addClass("grid-square-container");
-                td.appendChild(div);
-                tr.appendChild(td);
-                this.grid[x][y].setDOM(td, div);
+                div = $("<div></div>")
+                    .addClass("grid-square-container");
+                td = $("<td></td>")
+                    .addClass("grid-square")
+                    .append(div);
+                tr.append(td);
+                this.grid[x][y].setDOM(td[0], div[0]);
             }
-            this.htmlTable.appendChild(tr);
+            $(this.htmlTable).append(tr);
         }
+        tr = $("<tr></tr>");
+        for (x = 0; x <= cols; x += 1) {
+            botMargin = $('<td class="grid-coord">' + (x > 0 ? colLetters[x - 1] : "") + "</td>");
+            tr.append(botMargin);
+        }
+        $(this.htmlTable).append(tr);
         this.renderEndzones();
         // Create overlay
-        this.overlay = new Overlay(this.htmlTable, rows, cols);
+        this.overlay = new Overlay(this.htmlTable, rows, cols,
+            leftMargin.outerWidth(), botMargin.outerHeight());
     };
     Renderer.prototype.renderPieces = function (pieces) {
         var i, x, y, width;
