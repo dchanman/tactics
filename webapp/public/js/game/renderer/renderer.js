@@ -263,9 +263,10 @@ window.Renderer = (function () {
         this.overlay.resize();
         this.selectTurn(this.turnNumber);
     };
-    Renderer.prototype.setOverlaySettings = function (showLastMove, showCollisions) {
+    Renderer.prototype.setOverlaySettings = function (showLastMove, showCollisions, moveConfirmation) {
         this.showLastMove = showLastMove;
         this.showCollisions = showCollisions;
+        Square.moveConfirmation = moveConfirmation;
         this.selectTurn(this.turnNumber);
     };
     return Renderer;

@@ -8,6 +8,7 @@ window.Square = (function () {
         this.dom = null;
         this.container = null;
     }
+    Square.moveConfirmation = true;
     Square.prototype.setDOM = function (td, div) {
         this.container = td;
         this.dom = div;
@@ -23,22 +24,31 @@ window.Square = (function () {
             $(this.container).off('click');
         }
     };
+    Square.prototype.commitMove = function () {
+        this.renderer.main.api.commitMove(
+            this.renderer.selectedSquare.x,
+            this.renderer.selectedSquare.y,
+            this.x,
+            this.y
+        );
+    };
     Square.prototype.onClick = function () {
         if (this === this.renderer.selectedSquare) {
             this.renderer.removeSelectableSquares();
             this.renderer.selectedSquare = null;
         } else if ($(this.container).hasClass("grid-square-selectable")) {
             this.renderer.removeSelectableSquares();
-            $(this.renderer.selectedSquare.container).addClass("grid-square-commit-src");
-            $(this.container).addClass("grid-square-commit-dst");
+            console.log(Square.moveConfirmation);
+            if (Square.moveConfirmation) {
+                $(this.renderer.selectedSquare.container).addClass("grid-square-commit-src");
+                $(this.container).addClass("grid-square-commit-dst");
+            } else {
+                this.commitMove();
+                this.renderer.selectedSquare = null;
+            }
         } else if ($(this.container).hasClass("grid-square-commit-dst")) {
             this.renderer.removeSelectableSquares();
-            this.renderer.main.api.commitMove(
-                this.renderer.selectedSquare.x,
-                this.renderer.selectedSquare.y,
-                this.x,
-                this.y
-            );
+            this.commitMove();
             this.renderer.selectedSquare = null;
         } else {
             this.renderer.removeSelectableSquares();

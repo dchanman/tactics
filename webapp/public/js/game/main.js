@@ -93,8 +93,9 @@ $(document).ready(function () {
     });
     function setOverlaySettings() {
         var showLastMove = $("#overlay-setting-ctrl-showLastMove").is(':checked'),
-            showCollisions = $("#overlay-setting-ctrl-showCollisions").is(':checked');
-        main.board.setOverlaySettings(showLastMove, showCollisions);
+            showCollisions = $("#overlay-setting-ctrl-showCollisions").is(':checked'),
+            moveConfirmation = $("#overlay-setting-ctrl-moveConfirmation").is(':checked');
+        main.board.setOverlaySettings(showLastMove, showCollisions, moveConfirmation);
     }
     setOverlaySettings();
     $(".overlay-setting-ctrl").click(function () {
