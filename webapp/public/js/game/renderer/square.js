@@ -11,10 +11,17 @@ window.Square = (function () {
     Square.prototype.setDOM = function (td, div) {
         this.container = td;
         this.dom = div;
-        var self = this;
-        $(td).click(function () {
-            self.onClick();
-        });
+    };
+    Square.prototype.setClickEnabled = function (bool) {
+        if (bool) {
+            var self = this;
+            $(this.container).off('click');
+            $(this.container).click(function () {
+                self.onClick();
+            });
+        } else {
+            $(this.container).off('click');
+        }
     };
     Square.prototype.onClick = function () {
         if (this === this.renderer.selectedSquare) {

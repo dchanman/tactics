@@ -16,6 +16,7 @@ window.Renderer = (function () {
         // HTML DOM
         this.htmlTable = htmlTable;
         this.historyTable = historyTable;
+        this.historyTableRowDOMs = [];
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
@@ -54,15 +55,18 @@ window.Renderer = (function () {
         this.selectTurn(history.length);
     };
     Renderer.prototype.engineInit = function (gameInformation) {
-        var i, resolution;
+        var i, resolution, clickEnabled;
         this.engineBoard = Engine.newEngineBoard(gameInformation.board);
-        this.historyBoards = [new Board(this.engineBoard.GetBoard(), null, null)];
+        clickEnabled = (gameInformation.history.length === 0);
+        this.historyBoards = [new Board(this.engineBoard.GetBoard(), null, null, clickEnabled)];
         for (i = 0; i < gameInformation.history.length; i += 1) {
             resolution = this.engineResolveMove(gameInformation.history[i]);
+            clickEnabled = (i === gameInformation.history.length - 1);
             this.historyBoards.push(new Board(this.engineBoard.GetBoard(), gameInformation.history[i], resolution));
         }
         this.renderHistory(gameInformation.history);
         this.selectTurn(gameInformation.history.length);
+        console.log(this.historyBoards);
     };
     Renderer.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
@@ -116,7 +120,7 @@ window.Renderer = (function () {
         };
     }
     Renderer.prototype.selectTurn = function (turnNumber) {
-        var i, board;
+        var i, j, board, clickEnabled;
         for (i = 0; i < this.historyTableRowDOMs.length; i += 1) {
             this.historyTableRowDOMs[i].removeClass("table-active");
         }
@@ -126,6 +130,12 @@ window.Renderer = (function () {
         this.overlay.clear();
         if (board.turn !== null && board.resolution !== null) {
             this.renderLastMove(board.turn, board.resolution);
+        }
+        clickEnabled = (turnNumber === this.historyTableRowDOMs.length - 1);
+        for (i = 0; i < this.grid.length; i += 1) {
+            for (j = 0; j < this.grid[i].length; j += 1) {
+                this.grid[i][j].setClickEnabled(clickEnabled);
+            }
         }
     };
     Renderer.prototype.renderHistory = function (history) {
