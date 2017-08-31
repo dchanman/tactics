@@ -6,6 +6,11 @@ window.Renderer = (function () {
             dst = colLetters[move.Dst.X] + move.Dst.Y;
         return src + "→" + dst;
     }
+    function Board(board, turn, resolution) {
+        this.board = board;
+        this.turn = turn;
+        this.resolution = resolution;
+    }
     function Renderer(main, htmlTable, historyTable) {
         this.main = main;
         // HTML DOM
@@ -27,18 +32,8 @@ window.Renderer = (function () {
         this.currentRenderedResolution = null;
         // Internal engine
         this.engineBoard = null;
+        this.historyBoards = [];
     }
-    Renderer.prototype.handleGameTurn = function (history) {
-        var turn, resolution;
-        if (history.length < 1) {
-            return;
-        }
-        turn = history[history.length - 1];
-        resolution = this.engineResolveMove(turn);
-        this.render(this.engineBoard.GetBoard());
-        this.renderHistory(history);
-        this.renderLastMove(turn, resolution);
-    };
     Renderer.prototype.engineResolveMove = function (turn) {
         var m1, m2, move1, move2;
         m1 = turn[1];
@@ -47,20 +42,27 @@ window.Renderer = (function () {
         move2 = Engine.NewMove(m2.Src.X, m2.Src.Y, m2.Dst.X, m2.Dst.Y);
         return this.engineBoard.ResolveMove(move1, move2);
     };
+    Renderer.prototype.handleGameTurn = function (history) {
+        var turn, resolution;
+        if (history.length < 1) {
+            return;
+        }
+        turn = history[history.length - 1];
+        resolution = this.engineResolveMove(turn);
+        this.historyBoards.push(new Board(this.engineBoard.GetBoard(), turn, resolution));
+        this.renderHistory(history);
+        this.selectTurn(history.length);
+    };
     Renderer.prototype.engineInit = function (gameInformation) {
         var i, resolution;
         this.engineBoard = Engine.newEngineBoard(gameInformation.board);
+        this.historyBoards = [new Board(this.engineBoard.GetBoard(), null, null)];
         for (i = 0; i < gameInformation.history.length; i += 1) {
             resolution = this.engineResolveMove(gameInformation.history[i]);
+            this.historyBoards.push(new Board(this.engineBoard.GetBoard(), gameInformation.history[i], resolution));
         }
-        if (this.overlay !== null) {
-            this.overlay.clear();
-        }
-        this.render(this.engineBoard.GetBoard());
         this.renderHistory(gameInformation.history);
-        if (gameInformation.history.length > 0) {
-            this.renderLastMove(gameInformation.history[gameInformation.history.length - 1], resolution);
-        }
+        this.selectTurn(gameInformation.history.length);
     };
     Renderer.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
@@ -108,19 +110,44 @@ window.Renderer = (function () {
             }
         }
     };
+    function historyRowOnClickHandler(renderer, turnNumber) {
+        return function () {
+            renderer.selectTurn(turnNumber);
+        };
+    }
+    Renderer.prototype.selectTurn = function (turnNumber) {
+        var i, board;
+        for (i = 0; i < this.historyTableRowDOMs.length; i += 1) {
+            this.historyTableRowDOMs[i].removeClass("table-active");
+        }
+        this.historyTableRowDOMs[turnNumber].addClass("table-active");
+        board = this.historyBoards[turnNumber];
+        this.render(board.board);
+        this.overlay.clear();
+        if (board.turn !== null && board.resolution !== null) {
+            this.renderLastMove(board.turn, board.resolution);
+        }
+    };
     Renderer.prototype.renderHistory = function (history) {
         this.currentRendereredHistory = history;
+        this.historyTableRowDOMs = [];
         $(this.historyTable).html("");
         var i, tr;
+        tr = $("<tr></tr>")
+            .append('<th scope="row">0</th>')
+            .append('<td>-</td>')
+            .append('<td>-</td>');
+        tr.click(historyRowOnClickHandler(this, 0));
+        $(this.historyTable).append(tr);
+        this.historyTableRowDOMs.push(tr);
         for (i = 0; i < history.length; i += 1) {
             tr = $("<tr></tr>")
                 .append('<th scope="row">' + (i + 1) + '</th>')
                 .append('<td>' + moveToString(history[i][1]) + '</td>')
                 .append('<td>' + moveToString(history[i][2]) + '</td>');
-            if (i === history.length - 1) {
-                tr.addClass("table-active");
-            }
+            tr.click(historyRowOnClickHandler(this, i + 1));
             $(this.historyTable).append(tr);
+            this.historyTableRowDOMs.push(tr);
             $("#history-container").animate({ scrollTop: $("#history-container").prop("scrollHeight")}, 100);
         }
     };
