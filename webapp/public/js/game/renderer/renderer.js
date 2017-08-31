@@ -17,6 +17,7 @@ window.Renderer = (function () {
         this.htmlTable = htmlTable;
         this.historyTable = historyTable;
         this.historyTableRowDOMs = [];
+        this.turnNumber = -1;
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
@@ -27,10 +28,6 @@ window.Renderer = (function () {
         // Configuration
         this.showLastMove = false;
         this.showCollisions = false;
-        // Cached state
-        this.currentRenderedPieces = [];
-        this.currentRenderedLastMove = null;
-        this.currentRenderedResolution = null;
         // Internal engine
         this.engineBoard = null;
         this.historyBoards = [];
@@ -71,8 +68,8 @@ window.Renderer = (function () {
     Renderer.prototype.setPlayerTeam = function (team) {
         if (this.playerTeam !== team) {
             this.playerTeam = team;
-            this.renderPieces(this.currentRenderedPieces);
             this.renderEndzones();
+            this.selectTurn(this.turnNumber);
         }
     };
     Renderer.prototype.removeSelectableSquares = function () {
@@ -98,8 +95,6 @@ window.Renderer = (function () {
         if (this.overlay === null) {
             return;
         }
-        this.currentRenderedLastMove = turn;
-        this.currentRenderedLastResolution = resolution;
         this.overlay.clear();
         var m1 = turn[1],
             m2 = turn[2],
@@ -121,6 +116,10 @@ window.Renderer = (function () {
     }
     Renderer.prototype.selectTurn = function (turnNumber) {
         var i, j, board, clickEnabled;
+        if (turnNumber < 0) {
+            return;
+        }
+        this.turnNumber = turnNumber;
         for (i = 0; i < this.historyTableRowDOMs.length; i += 1) {
             this.historyTableRowDOMs[i].removeClass("table-active");
         }
@@ -223,7 +222,6 @@ window.Renderer = (function () {
     };
     Renderer.prototype.renderPieces = function (pieces) {
         var i, x, y, width;
-        this.currentRenderedPieces = pieces;
         width = $(this.grid[0][0].container).width();
         for (i = 0; i < pieces.length; i += 1) {
             x = Math.floor(i / this.rows);
@@ -248,14 +246,13 @@ window.Renderer = (function () {
         }
     };
     Renderer.prototype.onWindowResize = function () {
-        this.renderPieces(this.currentRenderedPieces);
         this.overlay.resize();
-        this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
+        this.selectTurn(this.turnNumber);
     };
     Renderer.prototype.setOverlaySettings = function (showLastMove, showCollisions) {
         this.showLastMove = showLastMove;
         this.showCollisions = showCollisions;
-        this.renderLastMove(this.currentRenderedLastMove, this.currentRenderedLastResolution);
+        this.selectTurn(this.turnNumber);
     };
     return Renderer;
 }());
