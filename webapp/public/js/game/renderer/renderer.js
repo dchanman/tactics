@@ -1,9 +1,15 @@
 window.Renderer = (function () {
     "use strict";
     var colLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    function moveToString(move) {
-        var src = colLetters[move.Src.X] + move.Src.Y,
-            dst = colLetters[move.Dst.X] + move.Dst.Y;
+    function xCoord(x) {
+        return colLetters[x];
+    }
+    function yCoord(y, nRows) {
+        return (nRows - y).toString();
+    }
+    function moveToString(move, nRows) {
+        var src = xCoord(move.Src.X) + yCoord(move.Src.Y, nRows),
+            dst = xCoord(move.Dst.X) + yCoord(move.Dst.Y, nRows);
         return src + "→" + dst;
     }
     function Board(board, turn, resolution) {
@@ -48,7 +54,7 @@ window.Renderer = (function () {
         turn = history[history.length - 1];
         resolution = this.engineResolveMove(turn);
         this.historyBoards.push(new Board(this.engineBoard.GetBoard(), turn, resolution));
-        this.renderHistory(history);
+        this.renderHistory(history, this.rows);
         this.selectTurn(history.length);
     };
     Renderer.prototype.engineInit = function (gameInformation) {
@@ -61,7 +67,7 @@ window.Renderer = (function () {
             clickEnabled = (i === gameInformation.history.length - 1);
             this.historyBoards.push(new Board(this.engineBoard.GetBoard(), gameInformation.history[i], resolution));
         }
-        this.renderHistory(gameInformation.history);
+        this.renderHistory(gameInformation.history, gameInformation.board.Rows);
         this.selectTurn(gameInformation.history.length);
     };
     Renderer.prototype.setPlayerTeam = function (team) {
@@ -136,7 +142,7 @@ window.Renderer = (function () {
             }
         }
     };
-    Renderer.prototype.renderHistory = function (history) {
+    Renderer.prototype.renderHistory = function (history, boardRows) {
         this.currentRendereredHistory = history;
         this.historyTableRowDOMs = [];
         $(this.historyTable).html("");
@@ -151,8 +157,8 @@ window.Renderer = (function () {
         for (i = 0; i < history.length; i += 1) {
             tr = $("<tr></tr>")
                 .append('<th scope="row">' + (i + 1) + '</th>')
-                .append('<td>' + moveToString(history[i][1]) + '</td>')
-                .append('<td>' + moveToString(history[i][2]) + '</td>');
+                .append('<td>' + moveToString(history[i][1], boardRows) + '</td>')
+                .append('<td>' + moveToString(history[i][2], boardRows) + '</td>');
             tr.click(historyRowOnClickHandler(this, i + 1));
             $(this.historyTable).append(tr);
             this.historyTableRowDOMs.push(tr);
@@ -202,7 +208,7 @@ window.Renderer = (function () {
         }
         // Create new DOM grid
         for (y = 0; y < rows; y += 1) {
-            leftMargin = $('<td class="grid-coord">' + y + "</td>");
+            leftMargin = $('<td class="grid-coord">' + yCoord(y, this.rows) + "</td>");
             tr = $("<tr></tr>")
                 .addClass("grid")
                 .append(leftMargin);
@@ -219,7 +225,7 @@ window.Renderer = (function () {
         }
         tr = $("<tr></tr>");
         for (x = 0; x <= cols; x += 1) {
-            botMargin = $('<td class="grid-coord">' + (x > 0 ? colLetters[x - 1] : "") + "</td>");
+            botMargin = $('<td class="grid-coord">' + (x > 0 ? xCoord(x - 1) : "") + "</td>");
             tr.append(botMargin);
         }
         $(this.htmlTable).append(tr);
