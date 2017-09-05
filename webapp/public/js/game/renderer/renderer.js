@@ -217,10 +217,11 @@ window.Renderer = (function () {
         }
         // Create new DOM grid
         for (y = 0; y < rows; y += 1) {
-            leftMargin = $('<td class="grid-coord">' + yCoord(y, this.rows) + "</td>");
             tr = $("<tr></tr>")
-                .addClass("grid")
-                .append(leftMargin);
+                .addClass("grid");
+            leftMargin = $('<td>' + yCoord(y, this.rows) + "</td>")
+                .addClass("grid-coord")
+                .appendTo(tr);
             for (x = 0; x < cols; x += 1) {
                 td = $("<td></td>")
                     .addClass("grid-square")
@@ -235,8 +236,9 @@ window.Renderer = (function () {
         tr = $("<tr></tr>")
             .addClass("grid");
         for (x = 0; x <= cols; x += 1) {
-            botMargin = $('<td class="grid-coord">' + (x > 0 ? xCoord(x - 1) : "") + "</td>");
-            tr.append(botMargin);
+            botMargin = $('<td>' + (x > 0 ? xCoord(x - 1) : "") + "</td>")
+                .addClass("grid-coord")
+                .appendTo(tr);
         }
         $(this.htmlTable).append(tr);
         this.renderEndzones();
