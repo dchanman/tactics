@@ -10,6 +10,7 @@
     position: absolute;
     top: 0;
     pointer-events: none;
+    z-index: 10;
 }
 .overlay-container p {
     color: magenta;

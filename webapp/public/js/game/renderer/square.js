@@ -23,8 +23,8 @@ window.Square = (function () {
             $(this.dom).draggable({disabled: true});
             if (this.unit !== null) {
                 $(this.dom).draggable({
-                    containment: this.htmlTable,
-                    stack: this.htmlTable,
+                    containment: this.renderer.htmlTable,
+                    stack: this.renderer.htmlTable,
                     cursor: 'move',
                     revert: true,
                     revertDuration: 0,
