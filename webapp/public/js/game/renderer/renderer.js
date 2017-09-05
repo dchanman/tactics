@@ -233,7 +233,8 @@ window.Renderer = (function () {
             }
             $(this.htmlTable).append(tr);
         }
-        tr = $("<tr></tr>");
+        tr = $("<tr></tr>")
+            .addClass("grid");
         for (x = 0; x <= cols; x += 1) {
             botMargin = $('<td class="grid-coord">' + (x > 0 ? xCoord(x - 1) : "") + "</td>");
             tr.append(botMargin);
