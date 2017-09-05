@@ -10,11 +10,28 @@
     <br>
     
     <div class="container-fluid">
-        <h5>Create a game</h5>
-        <button id="gameCreateSmall" class="btn btn-info">Small</button>
-        <button id="gameCreateLarge" class="btn btn-info">Large</button>
+        <h4>Create a game</h4>
+        <br>
+        <div class="row">
+            <div class="col-sm-4 col-md-4">
+                <div id="gameCreateSmall" class="card card-inverse card-gamemode">
+                    <div class="card-block">
+                        <h5 class="card-title">Small Game</h5>
+                    </div>
+                    <img class="card-img" src="/img/smallgame.png" alt="smallgame" style='max-width:225px;'>
+                </div>
+            </div>
+            <div class="col-sm-4 col-md-4">
+                <div id="gameCreateLarge" class="card card-inverse card-gamemode">
+                    <div class="card-block">
+                        <h5 class="card-title">Large Game</h5>
+                    </div>
+                    <img class="card-img" src="/img/largegame.png" alt="large" style='max-width:225px;'>
+                </div>
+            </div>
+        </div>
         <hr>
-        <h5>Join a game</h5>
+        <h4>Join a game</h4>
         <ul id="gameList"></ul>
     </div>
 </body>
