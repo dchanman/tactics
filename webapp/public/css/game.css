@@ -75,6 +75,9 @@
 .grid-square-selectable {
     background-color: lightblue;
 }
+.grid-square-selectable-hovered {
+    background-color: lightcyan !important;
+}
 .grid-square-commit-src {
     background-color: yellow;
 }

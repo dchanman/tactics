@@ -18,10 +18,31 @@ window.Square = (function () {
             var self = this;
             $(this.container).off('click');
             $(this.container).click(function () {
-                self.onClick();
+                self.click();
             });
+            $(this.dom).draggable({disabled: true});
+            if (this.unit !== null) {
+                $(this.dom).draggable({
+                    containment: this.htmlTable,
+                    stack: this.htmlTable,
+                    cursor: 'move',
+                    revert: true,
+                    revertDuration: 0,
+                    disabled: false,
+                    start: function () {
+                        // Hack to reset the click logic
+                        self.renderer.removeSelectableSquares();
+                        self.renderer.selectedSquare = null;
+                        self.click();
+                    },
+                    click: function () {
+                        self.click();
+                    }
+                });
+            }
         } else {
             $(this.container).off('click');
+            $(this.dom).draggable({disabled: true});
         }
     };
     Square.prototype.commitMove = function () {
@@ -32,13 +53,13 @@ window.Square = (function () {
             this.y
         );
     };
-    Square.prototype.onClick = function () {
+    Square.prototype.click = function () {
+        clearInterval(this.timer);
         if (this === this.renderer.selectedSquare) {
             this.renderer.removeSelectableSquares();
             this.renderer.selectedSquare = null;
         } else if ($(this.container).hasClass("grid-square-selectable")) {
             this.renderer.removeSelectableSquares();
-            console.log(Square.moveConfirmation);
             if (Square.moveConfirmation) {
                 $(this.renderer.selectedSquare.container).addClass("grid-square-commit-src");
                 $(this.container).addClass("grid-square-commit-dst");

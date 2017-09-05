@@ -84,6 +84,7 @@ window.Renderer = (function () {
                 $(this.grid[i][j].container).removeClass("grid-square-selectable");
                 $(this.grid[i][j].container).removeClass("grid-square-commit-src");
                 $(this.grid[i][j].container).removeClass("grid-square-commit-dst");
+                $(this.grid[i][j].container).droppable({disabled: true});
             }
         }
     };
@@ -169,7 +170,16 @@ window.Renderer = (function () {
         if (x < 0 || y < 0 || x > this.cols || y > this.rows) {
             throw ("Invalid square: (" + x + "," + y + ")");
         }
-        $(this.grid[x][y].container).addClass("grid-square-selectable");
+        var sq = this.grid[x][y];
+        $(sq.container).addClass("grid-square-selectable");
+        $(sq.container).droppable({
+            disabled: false,
+            hoverClass: "grid-square-selectable-hovered",
+            drop: function () {
+                console.log("Dropped!");
+                sq.click();
+            }
+        });
     };
     Renderer.prototype.renderEndzones = function () {
         var x;
@@ -213,12 +223,12 @@ window.Renderer = (function () {
                 .addClass("grid")
                 .append(leftMargin);
             for (x = 0; x < cols; x += 1) {
-                div = $("<div></div>")
-                    .addClass("grid-square-container");
                 td = $("<td></td>")
                     .addClass("grid-square")
-                    .append(div);
-                tr.append(td);
+                    .appendTo(tr);
+                div = $("<div></div>")
+                    .addClass("grid-square-container")
+                    .appendTo(td);
                 this.grid[x][y].setDOM(td[0], div[0]);
             }
             $(this.htmlTable).append(tr);
