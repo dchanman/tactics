@@ -270,7 +270,9 @@ window.Renderer = (function () {
         }
     };
     Renderer.prototype.onWindowResize = function () {
-        this.overlay.resize();
+        if (this.overlay !== null) {
+            this.overlay.resize();
+        }
         this.selectTurn(this.turnNumber);
     };
     Renderer.prototype.setOverlaySettings = function (showLastMove, showCollisions, moveConfirmation) {
