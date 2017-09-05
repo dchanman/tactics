@@ -24,7 +24,7 @@ window.Square = (function () {
             if (this.unit !== null) {
                 $(this.dom).draggable({
                     containment: this.renderer.htmlTable,
-                    stack: this.renderer.htmlTable,
+                    zIndex: 100,
                     cursor: 'move',
                     revert: true,
                     revertDuration: 0,
