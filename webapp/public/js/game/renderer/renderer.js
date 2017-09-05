@@ -176,7 +176,6 @@ window.Renderer = (function () {
             disabled: false,
             hoverClass: "grid-square-selectable-hovered",
             drop: function () {
-                console.log("Dropped!");
                 sq.click();
             }
         });
