@@ -3,4 +3,12 @@
     cursor: pointer;
     background-color: #333;
     border-color: #333;
+    margin: 5px;
+}
+.card-joingame {
+    width: 225px;
+    cursor: pointer;
+    background-color: #333;
+    border-color: #333;
+    margin: 5px;
 }

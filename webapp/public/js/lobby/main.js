@@ -4,15 +4,24 @@ window.Main = (function () {
         console.log("Starting");
     }
     Main.prototype.createGameList = function (gameIDs) {
-        var i, li;
+        var i;
         for (i = 0; i < gameIDs.length; i += 1) {
             gameIDs[i] = Util.zeropad(gameIDs[i]);
         }
         gameIDs.sort();
         for (i = 0; i < gameIDs.length; i += 1) {
-            li = document.createElement("li");
-            $(li).html('<a href="/g/' + gameIDs[i] + '">' + gameIDs[i] + '</a>');
-            $("#gameList").append(li);
+            $("<div></div>")
+                .addClass("card card-inverse card-joingame")
+                .append(
+                    $("<div></div>")
+                        .addClass("card-block")
+                        .append(
+                            $("<h5></h5>")
+                                .addClass("card-title")
+                                .html(gameIDs[i])
+                        )
+                )
+                .appendTo("#gameList");
         }
     };
     Main.prototype.run = function () {
