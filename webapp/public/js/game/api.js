@@ -206,5 +206,32 @@ window.Api = (function () {
             });
         });
     };
+    Api.prototype.setChatName = function (name) {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            var params = {
+                "name": name
+            };
+            sendmsg(api, "TacticsAPI.SetChatName", [params], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
+    Api.prototype.getChatName = function () {
+        var api = this;
+        return new Promise(function (resolve, reject) {
+            sendmsg(api, "TacticsAPI.GetChatName", [], function (result, err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    };
     return Api;
 }());

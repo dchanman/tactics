@@ -1,6 +1,12 @@
 {{define "chat"}}
 <div class="container">
     <div id="chat">
+        <div class="input-group">
+            <span class=input-group-btn>
+                <button class="btn btn-default" type="button" id="chatnamebtn"><i class="fa fa-user" aria-hidden="true"></i></button>
+            </span>
+            <input class="form-control" type="text" id="chatname"></input>
+        </div>
         <div class="border-bottom-0" id="chatlog">
             <p class="chat-message chat-greeting"><i>Welcome to the chat! Please be nice!</i><p>
         </div>

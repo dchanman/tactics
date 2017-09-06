@@ -71,6 +71,7 @@ window.Main = (function () {
     Main.prototype.start = function () {
         var main = this;
         main.refresh();
+        main.chat.getName();
         main.heartbeat = setInterval(function () {
             main.api.heartbeat();
         }, 10000);
@@ -88,6 +89,17 @@ $(document).ready(function () {
     $("#chatmsg").keydown(function (event) {
         if (event.keyCode === 13) {
             main.chat.sendMessage();
+        }
+    });
+    $("#chatnamebtn").click(function () {
+        main.chat.setName();
+    });
+    $("#chatname").focusout(function () {
+        main.chat.setName();
+    });
+    $("#chatname").keydown(function (event) {
+        if (event.keyCode === 13) {
+            main.chat.setName();
         }
     });
     function setOverlaySettings() {

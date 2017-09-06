@@ -30,6 +30,7 @@ const (
 type TacticsAPI struct {
 	server  *Server
 	id      uint64
+	name    string
 	game    *Game
 	chat    *Chat
 	gameFin map[Subscribable](chan bool)
@@ -41,6 +42,7 @@ func newTacticsAPI(id uint64, conn *websocket.Conn, s *Server) *TacticsAPI {
 	client := Client{conn: conn}
 	api := TacticsAPI{
 		id:      id,
+		name:    "Guest-" + strconv.FormatUint(id, 10),
 		gameFin: make(map[Subscribable](chan bool)),
 		client:  &client,
 		server:  s}
@@ -101,7 +103,7 @@ func (api *TacticsAPI) SendChat(args *struct {
 	if api.chat == nil {
 		return errNoChat
 	}
-	api.chat.Send(strconv.FormatUint(api.id, 10), args.Message)
+	api.chat.Send(api.name, args.Message)
 	return nil
 }
 
@@ -200,5 +202,22 @@ func (api *TacticsAPI) SubscribeChat(args *struct {
 	}
 	api.chat = chat
 	go api.subscribeAndServe(chat)
+	return nil
+}
+
+func (api *TacticsAPI) SetChatName(args *struct {
+	Name string `json:"name"`
+}, result *struct{}) error {
+	// TODO: regex validation
+	api.name = args.Name
+	return nil
+}
+
+func (api *TacticsAPI) GetChatName(args *struct{}, result *struct {
+	Name string `json:"name"`
+}) error {
+	*result = struct {
+		Name string `json:"name"`
+	}{api.name}
 	return nil
 }
