@@ -57,7 +57,6 @@ func (api *TacticsAPI) subscribeAndServe(s Subscribable) {
 		case update := <-ch:
 			api.client.WriteJSON(update)
 		case <-fin:
-			log.WithFields(logrus.Fields{"id": api.id}).Info("Terminating pump")
 			return
 		}
 	}
@@ -65,7 +64,6 @@ func (api *TacticsAPI) subscribeAndServe(s Subscribable) {
 
 func (api *TacticsAPI) serveRPC() {
 	defer func() {
-		log.Info("Done Serving")
 		if r := recover(); r != nil {
 			log.WithFields(logrus.Fields{"r": r}).Info("Recovered")
 		}
@@ -174,7 +172,6 @@ func (api *TacticsAPI) SubscribeGame(args *struct {
 	ID uint32 `json:"id"`
 }, result *struct{}) error {
 	// TODO: threadsafety
-	log.WithFields(logrus.Fields{"id": args.ID}).Info("SubG")
 	game, ok := api.server.games[args.ID]
 	if !ok {
 		return errNoID
@@ -192,7 +189,6 @@ func (api *TacticsAPI) SubscribeGame(args *struct {
 func (api *TacticsAPI) SubscribeChat(args *struct {
 	ID uint32 `json:"id"`
 }, result *struct{}) error {
-	log.WithFields(logrus.Fields{"id": args.ID}).Info("SubC")
 	chat, ok := api.server.chats[args.ID]
 	if !ok {
 		return errNoID

@@ -44,12 +44,12 @@ window.Status = (function () {
     Status.prototype.updateRole = function (update) {
         this.team = update.team;
         this.renderButtons();
-        $("#status-score-p1").removeClass("status-score-current-player");
-        $("#status-score-p2").removeClass("status-score-current-enemy");
+        $("#status-panel-p1").removeClass("status-score-current-player");
+        $("#status-panel-p2").removeClass("status-score-current-enemy");
         if (update.team === 1) {
-            $("#status-score-p1").addClass("status-score-current-player");
+            $("#status-panel-p1").addClass("status-score-current-player");
         } else if (update.team === 2) {
-            $("#status-score-p2").addClass("status-score-current-player");
+            $("#status-panel-p2").addClass("status-score-current-player");
         }
     };
     Status.prototype.updatePlayerReady = function (update) {
@@ -60,8 +60,8 @@ window.Status = (function () {
         var p1 = (update.p1available ? (update.p1ready ? "Ready" : "Thinking...") : "Offline"),
             p2 = (update.p2available ? (update.p2ready ? "Ready" : "Thinking...") : "Offline");
         this.renderButtons();
-        $("#status-score-p1").html(p1);
-        $("#status-score-p2").html(p2);
+        $("#status-panel-p1").html(p1);
+        $("#status-panel-p2").html(p2);
     };
     return Status;
 }());

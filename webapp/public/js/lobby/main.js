@@ -3,6 +3,11 @@ window.Main = (function () {
     function Main() {
         console.log("Starting");
     }
+    function redirectToGameIDFunc(gameID) {
+        return function () {
+            window.location.href = "/g/" + Util.zeropad(gameID);
+        };
+    }
     Main.prototype.createGameList = function (gameIDs) {
         var i;
         for (i = 0; i < gameIDs.length; i += 1) {
@@ -21,7 +26,8 @@ window.Main = (function () {
                                 .html(gameIDs[i])
                         )
                 )
-                .appendTo("#gameList");
+                .appendTo("#gameList")
+                .click(redirectToGameIDFunc(gameIDs[i]));
         }
     };
     Main.prototype.run = function () {

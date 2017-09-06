@@ -142,12 +142,14 @@ window.Renderer = (function () {
         }
         if (board.resolution !== null && board.resolution.Winner === true) {
             gameOver = true;
-            if (board.resolution.Team === 0) {
-                this.overlay.displayDrawScreen();
-            } else if (this.playerTeam !== 0 && board.resolution.Team === this.playerTeam) {
-                this.overlay.displayWinScreen();
-            } else if (this.playerTeam !== 0 && board.resolution.Team !== this.playerTeam) {
-                this.overlay.displayLoseScreen();
+            if (this.playerTeam !== 0) {
+                if (board.resolution.Team === 0) {
+                    this.overlay.displayDrawScreen();
+                } else if (board.resolution.Team === this.playerTeam) {
+                    this.overlay.displayWinScreen();
+                } else if (board.resolution.Team !== this.playerTeam) {
+                    this.overlay.displayLoseScreen();
+                }
             }
         }
         clickEnabled = (!gameOver && turnNumber === this.historyTableRowDOMs.length - 1);
