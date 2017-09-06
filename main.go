@@ -23,8 +23,9 @@ var (
 	mainserver = server.NewServer()
 
 	templates = template.Must(template.ParseFiles(
-		"./webapp/private/lobby.tmpl",
 		"./webapp/private/game.tmpl",
+		"./webapp/private/howtoplay.tmpl",
+		"./webapp/private/lobby.tmpl",
 		"./webapp/private/partials/chat.tmpl",
 		"./webapp/private/partials/commonjs.tmpl",
 		"./webapp/private/partials/head.tmpl",
@@ -63,8 +64,11 @@ func main() {
 func blockDirListing(h http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
-			log.Info("Executing lobby...")
 			templates.ExecuteTemplate(w, "lobby", nil)
+			return
+		}
+		if r.URL.Path == "/howtoplay" {
+			templates.ExecuteTemplate(w, "howtoplay", nil)
 			return
 		}
 		if strings.HasSuffix(r.URL.Path, "/") {
@@ -104,8 +108,4 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	templates.ExecuteTemplate(w, "game", nil)
-}
-
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./webapp/private/home.html")
 }

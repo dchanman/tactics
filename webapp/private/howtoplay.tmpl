@@ -1,0 +1,57 @@
+{{define "howtoplay"}}
+<!DOCTYPE html>
+<html>
+
+{{template "head" .}}
+
+<body>
+    {{template "nav" .}}
+    <div class="container margin-vert">
+        <h1>Breakout</h1>
+        <p>Breakout is a fast-paced game of risk, bluffing, and anticipation.</p>
+        <p>In Breakout, players first decide on a single move in private. Then, both player's moves resolve <i>simultaneously</i>.</p>
+        
+        <h4>Objective</h4>
+        <p>A player wins when one of their pieces reaches their opponent's endzone.</p>
+        
+        <h4>Moving Pieces</h4>
+        <p>Players must move one of their pieces every turn.</p>
+        <p>Pieces can be moved along any straight line.</p>
+        <p>The piece will travel along the line until it reaches its destination, or until it collides with another piece.</p>
+        
+        <h4>Stacking</h4>
+        <p>If a piece collides with another piece of the same colour, the two pieces become stacked.</p>
+        <p>On a later turn, a player can move the entire stack as a single piece.</p>
+        <p>Once pieces are stacked, they cannot be unstacked.</p>
+        
+        <h4>Collisions</h4>
+        <p>If a piece collides with a piece of a different colour, both pieces are removed.</p>
+        <p>If a stack collides with another stack, the smaller stack is removed. The larger stack will shrink according to the size of the smaller stack.</p>
+        <p>Equal number of pieces for both colours will always be removed in a collision</p>
+        
+        <h4>Movement</h4>
+        <p>All pieces move one "step" at a time towards their destination</p>
+        <p>It is possible for pieces in motion to collide...</p>
+        <p>...and also to completely pass one another.</p>
+        
+        <h4>Victory</h4>
+        <p>The first piece to reach its opponent's endzone wins.</p>
+        <p>If two pieces reach the endzone at the same time, the larger stack wins.</p>
+        <p>If both pieces reaching the endzone have the same stack size, the game is a draw</p>
+        
+        <h2>Summary</h2>
+        <ul>
+            <li>Moves are decided privately, but resolved simultaneously</li>
+            <li>Pieces move in a straight line</li>
+            <li>Friendly pieces stack, enemy pieces collide and remove one another</li>
+            <li>First piece in the endzone wins</li>
+        </ul>
+        
+        <a class="btn btn-success" href="/">Back To Lobby</a>
+    </div>
+</body>
+
+{{template "commonjs" .}}
+
+</html>
+{{end}}
