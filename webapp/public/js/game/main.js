@@ -60,7 +60,6 @@ window.Main = (function () {
             var winner = (data.team === 1 ? "White" : "Black") + " is victorious!";
             this.chat.notification(winner);
         }
-        this.board.handleGameOver(data.team);
     };
     Main.prototype.refresh = function () {
         var main = this;

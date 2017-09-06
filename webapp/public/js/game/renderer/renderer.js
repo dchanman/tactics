@@ -121,7 +121,11 @@ window.Renderer = (function () {
         };
     }
     Renderer.prototype.selectTurn = function (turnNumber) {
-        var i, j, board, clickEnabled;
+        var gameOver = false,
+            i,
+            j,
+            board,
+            clickEnabled;
         if (turnNumber < 0) {
             return;
         }
@@ -136,7 +140,17 @@ window.Renderer = (function () {
         if (board.turn !== null && board.resolution !== null) {
             this.renderLastMove(board.turn, board.resolution);
         }
-        clickEnabled = (turnNumber === this.historyTableRowDOMs.length - 1);
+        if (board.resolution !== null && board.resolution.Winner === true) {
+            gameOver = true;
+            if (board.resolution.Team === 0) {
+                this.overlay.displayDrawScreen();
+            } else if (this.playerTeam !== 0 && board.resolution.Team === this.playerTeam) {
+                this.overlay.displayWinScreen();
+            } else if (this.playerTeam !== 0 && board.resolution.Team !== this.playerTeam) {
+                this.overlay.displayLoseScreen();
+            }
+        }
+        clickEnabled = (!gameOver && turnNumber === this.historyTableRowDOMs.length - 1);
         for (i = 0; i < this.grid.length; i += 1) {
             for (j = 0; j < this.grid[i].length; j += 1) {
                 this.grid[i][j].setClickEnabled(clickEnabled);
@@ -260,15 +274,6 @@ window.Renderer = (function () {
                 this.grid[x][y].unit = Unit.fromJSON(pieces[i]);
                 $(this.grid[x][y].dom).html(this.grid[x][y].unit.getRenderHtml(width));
             }
-        }
-    };
-    Renderer.prototype.handleGameOver = function (team) {
-        if (team === 0) {
-            this.overlay.displayDrawScreen();
-        } else if (this.playerTeam !== 0 && team === this.playerTeam) {
-            this.overlay.displayWinScreen();
-        } else if (this.playerTeam !== 0 && team !== this.playerTeam) {
-            this.overlay.displayLoseScreen();
         }
     };
     Renderer.prototype.onWindowResize = function () {
