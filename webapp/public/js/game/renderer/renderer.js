@@ -164,20 +164,20 @@ window.Renderer = (function () {
         this.historyTableRowDOMs = [];
         $(this.historyTable).html("");
         var i, tr;
-        tr = $("<tr></tr>")
-            .append('<th scope="row">0</th>')
-            .append('<td>-</td>')
-            .append('<td>-</td>');
+        tr = $("<tr>")
+            .append($('<th>', {"scope": "row"}).html("0"))
+            .append($("<td>").html("-"))
+            .append($("<td>").html("-"));
         tr.click(historyRowOnClickHandler(this, 0));
         $(this.historyTable).append(tr);
         this.historyTableRowDOMs.push(tr);
         for (i = 0; i < history.length; i += 1) {
-            tr = $("<tr></tr>")
-                .append('<th scope="row">' + (i + 1) + '</th>')
-                .append('<td>' + moveToString(history[i][1], boardRows) + '</td>')
-                .append('<td>' + moveToString(history[i][2], boardRows) + '</td>');
-            tr.click(historyRowOnClickHandler(this, i + 1));
-            $(this.historyTable).append(tr);
+            tr = $("<tr>")
+                .append($("<th>", {"scope": "row"}).html(i + 1))
+                .append($("<td>").html(moveToString(history[i][1], boardRows)))
+                .append($("<td>").html(moveToString(history[i][2], boardRows)))
+                .appendTo($(this.historyTable))
+                .click(historyRowOnClickHandler(this, i + 1));
             this.historyTableRowDOMs.push(tr);
             $("#history-container").animate({ scrollTop: $("#history-container").prop("scrollHeight")}, 100);
         }
@@ -233,27 +233,23 @@ window.Renderer = (function () {
         }
         // Create new DOM grid
         for (y = 0; y < rows; y += 1) {
-            tr = $("<tr></tr>")
-                .addClass("grid");
-            leftMargin = $('<td>' + yCoord(y, this.rows) + "</td>")
-                .addClass("grid-coord")
+            tr = $("<tr>", {"class": "grid"});
+            leftMargin = $("<td>", {"class": "grid-coord"})
+                .html(yCoord(y, this.rows))
                 .appendTo(tr);
             for (x = 0; x < cols; x += 1) {
-                td = $("<td></td>")
-                    .addClass("grid-square")
+                td = $("<td>", {"class": "grid-square"})
                     .appendTo(tr);
-                div = $("<div></div>")
-                    .addClass("grid-square-container")
+                div = $("<div>", {"class": "grid-square-container"})
                     .appendTo(td);
                 this.grid[x][y].setDOM(td[0], div[0]);
             }
             $(this.htmlTable).append(tr);
         }
-        tr = $("<tr></tr>")
-            .addClass("grid");
+        tr = $("<tr>", {"class": "grid"});
         for (x = 0; x <= cols; x += 1) {
-            botMargin = $('<td>' + (x > 0 ? xCoord(x - 1) : "") + "</td>")
-                .addClass("grid-coord")
+            botMargin = $("<td>", {"class": "grid-coord"})
+                .html((x > 0 ? xCoord(x - 1) : ""))
                 .appendTo(tr);
         }
         $(this.htmlTable).append(tr);
