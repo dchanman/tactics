@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"regexp"
 	"strconv"
 
 	"github.com/dchanman/tactics/src/game"
@@ -13,9 +14,11 @@ import (
 )
 
 var (
-	errNoID   = errors.New("ID not found")
-	errNoGame = errors.New("no registered game")
-	errNoChat = errors.New("no registered chat")
+	errNoID        = errors.New("ID not found")
+	errNoGame      = errors.New("no registered game")
+	errNoChat      = errors.New("no registered chat")
+	errBadUsername = errors.New("invalid username")
+	usernameRegexp = regexp.MustCompile("^[a-zA-Z0-9_.-]{1,20}$")
 )
 
 // Role is a user's role in a game
@@ -208,7 +211,10 @@ func (api *TacticsAPI) SubscribeChat(args *struct {
 func (api *TacticsAPI) SetChatName(args *struct {
 	Name string `json:"name"`
 }, result *struct{}) error {
-	// TODO: regex validation
+	log.WithFields(logrus.Fields{"name": args.Name, "match": usernameRegexp.MatchString(args.Name)}).Info("Set Chat")
+	if !usernameRegexp.MatchString(args.Name) {
+		return errBadUsername
+	}
 	api.name = args.Name
 	return nil
 }

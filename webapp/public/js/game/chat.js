@@ -4,16 +4,14 @@ window.Chat = (function () {
         this.main = main;
     }
     Chat.prototype.receiveMessage = function (msgEvent) {
-        var log, sender, sendernode, p;
-        log = document.createElement("div");
+        var sender;
         sender = msgEvent.sender + ": ";
-        p = document.createElement("p");
-        $(p).addClass("chat-message");
-        sendernode = document.createTextNode(sender);
-        $(p).append(sendernode);
-        p.appendChild(document.createTextNode(msgEvent.message));
-        log.appendChild(p);
-        $("#chatlog").append(log);
+        $("<div>")
+            .append($("<p>", {"class": "chat-message"})
+                .append($("<b>")
+                    .append(document.createTextNode(sender)))
+                .append(document.createTextNode(msgEvent.message)))
+            .appendTo("#chatlog");
         $("#chatlog").animate({ scrollTop: $('#chatlog').prop("scrollHeight")}, 100);
     };
     Chat.prototype.getName = function () {
