@@ -215,7 +215,7 @@ func (api *TacticsAPI) SetChatName(args *struct {
 	if !usernameRegexp.MatchString(args.Name) {
 		return errBadUsername
 	}
-	if api.chat != nil {
+	if api.chat != nil && api.name != args.Name {
 		api.chat.announceNameChange(api.name, args.Name)
 	}
 	api.name = args.Name
