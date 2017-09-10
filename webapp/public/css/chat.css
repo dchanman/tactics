@@ -7,15 +7,11 @@
 .chat-message {
     margin: 0;
 }
-.chat-greeting {
-    font-style: italic;
-    font-color: lightgrey;
-    font-size: 0.8rem;
-}
 .chat-notification {
-    font-size: 0.8rem;
     font-style: italic;
     font-weight: bold;
+    font-size: 0.8rem;
+    color: darkgrey;
 }
 #chatlog {
     padding: 20px;
