@@ -185,6 +185,7 @@ func (g *Game) waitForMoves() {
 	}
 }
 
+// Assumes g.teamToPlayerIDMutex is taken
 func (g *Game) getTeamForPlayerID(id uint64) game.Team {
 	for team, pid := range g.teamToPlayerID {
 		if pid == id {
@@ -196,6 +197,8 @@ func (g *Game) getTeamForPlayerID(id uint64) game.Team {
 
 // CommitMove is called from a client to commit a move on behalf of a player
 func (g *Game) CommitMove(id uint64, src game.Square, dst game.Square) error {
+	g.teamToPlayerIDMutex.Lock()
+	defer g.teamToPlayerIDMutex.Unlock()
 	team := g.getTeamForPlayerID(id)
 	if g.completed {
 		return errGameOver
@@ -216,8 +219,12 @@ func (g *Game) CommitMove(id uint64, src game.Square, dst game.Square) error {
 
 func (g *Game) GetValidMoves(id uint64, x int, y int) []game.Square {
 	u := g.board.Get(x, y)
-	if !g.completed && u.Exists && u.Team == g.getTeamForPlayerID(id) {
-		return g.board.GetValidMoves(x, y)
+	if !g.completed && u.Exists {
+		g.teamToPlayerIDMutex.Lock()
+		defer g.teamToPlayerIDMutex.Unlock()
+		if u.Team == g.getTeamForPlayerID(id) {
+			return g.board.GetValidMoves(x, y)
+		}
 	}
 	return make([]game.Square, 0)
 }
