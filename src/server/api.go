@@ -212,7 +212,6 @@ func (api *TacticsAPI) SubscribeChat(args *struct {
 func (api *TacticsAPI) SetChatName(args *struct {
 	Name string `json:"name"`
 }, result *struct{}) error {
-	log.WithFields(logrus.Fields{"name": args.Name, "match": usernameRegexp.MatchString(args.Name)}).Info("Set Chat")
 	if !usernameRegexp.MatchString(args.Name) {
 		return errBadUsername
 	}
