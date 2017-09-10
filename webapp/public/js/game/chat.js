@@ -15,12 +15,10 @@ window.Chat = (function () {
         $("#chatlog").animate({ scrollTop: $('#chatlog').prop("scrollHeight")}, 100);
     };
     Chat.prototype.receiveJoin = function (msgEvent) {
-        console.log(msgEvent);
         this.notification(msgEvent + " has joined the game.");
     };
     Chat.prototype.receiveNameChange = function (msgEvent) {
-        console.log(msgEvent);
-        this.notification(msgEvent.from + " is now known as " + msgEvent.to + ".");
+        this.notification(msgEvent.from + " is now " + msgEvent.to + ".");
     };
     Chat.prototype.getName = function () {
         this.main.api.getChatName()
@@ -52,7 +50,11 @@ window.Chat = (function () {
     };
     Chat.prototype.notification = function (msg) {
         $("<div>")
-            .append($("<p>").html(msg.italics().bold()))
+            .append(
+                $("<div>", {"class": "chat-notification"}).append(
+                    document.createTextNode(msg)
+                )
+            )
             .appendTo("#chatlog");
         $("#chatlog").animate({ scrollTop: $('#chatlog').prop("scrollHeight")}, 100);
     };

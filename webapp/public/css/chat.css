@@ -10,6 +10,12 @@
 .chat-greeting {
     font-style: italic;
     font-color: lightgrey;
+    font-size: 0.8rem;
+}
+.chat-notification {
+    font-size: 0.8rem;
+    font-style: italic;
+    font-weight: bold;
 }
 #chatlog {
     padding: 20px;
