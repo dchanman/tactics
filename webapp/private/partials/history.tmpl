@@ -1,10 +1,19 @@
 {{define "history"}}
 <div class="container">
     <div id="history-container">
-        <table class="table table-sm table-hover">
-            <tbody id="history">
-            </tbody>
-        </table>
+        <div id="history-list-container">
+            <table class="table table-sm table-hover">
+                <tbody id="history">
+                </tbody>
+            </table>
+        </div>
+        <div class="history-btn-container">
+            <button class="btn btn-history" id="historyBtnRevRev"><<</button>
+            <button class="btn btn-history" id="historyBtnRev"><</button>
+            <button class="btn btn-history" id="historyBtnFwd">></button>
+            <button class="btn btn-history" id="historyBtnFwdFwd">>></button>
+        </div>
     </div>
+    
 </div>
 {{end}}

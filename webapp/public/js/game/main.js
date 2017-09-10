@@ -102,6 +102,18 @@ $(document).ready(function () {
             main.chat.setName();
         }
     });
+    $("#historyBtnRevRev").click(function () {
+        main.board.selectTurn(0);
+    });
+    $("#historyBtnRev").click(function () {
+        main.board.selectTurn(main.board.turnNumber - 1);
+    });
+    $("#historyBtnFwd").click(function () {
+        main.board.selectTurn(main.board.turnNumber + 1);
+    });
+    $("#historyBtnFwdFwd").click(function () {
+        main.board.selectTurn(main.board.maxTurnNumber);
+    });
     function setOverlaySettings() {
         var showLastMove = $("#overlay-setting-ctrl-showLastMove").is(':checked'),
             showCollisions = $("#overlay-setting-ctrl-showCollisions").is(':checked'),

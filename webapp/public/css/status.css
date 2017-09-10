@@ -7,7 +7,7 @@
 .status-score {
     position: relative;
     line-height: 50px;
-    font-size: 20px;
+    font-size: 1rem;
     text-align: center;
     height: 50px;
     font-weight: bold;

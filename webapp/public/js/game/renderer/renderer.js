@@ -24,6 +24,7 @@ window.Renderer = (function () {
         this.historyTable = historyTable;
         this.historyTableRowDOMs = [];
         this.turnNumber = -1;
+        this.maxTurnNumber = -1;
         this.grid = [];
         this.overlay = null;
         this.selectedSquare = null;
@@ -67,6 +68,7 @@ window.Renderer = (function () {
             clickEnabled = (i === gameInformation.history.length - 1);
             this.historyBoards.push(new Board(this.engineBoard.GetBoard(), gameInformation.history[i], resolution));
         }
+        this.maxTurnNumber = 0;
         this.renderHistory(gameInformation.history, gameInformation.board.Rows);
         this.selectTurn(gameInformation.history.length);
     };
@@ -126,7 +128,7 @@ window.Renderer = (function () {
             j,
             board,
             clickEnabled;
-        if (turnNumber < 0) {
+        if (turnNumber < 0 || turnNumber > this.maxTurnNumber) {
             return;
         }
         this.turnNumber = turnNumber;
@@ -161,6 +163,7 @@ window.Renderer = (function () {
     };
     Renderer.prototype.renderHistory = function (history, boardRows) {
         this.currentRendereredHistory = history;
+        this.maxTurnNumber = history.length;
         this.historyTableRowDOMs = [];
         $(this.historyTable).html("");
         var i, tr;
@@ -179,7 +182,7 @@ window.Renderer = (function () {
                 .appendTo($(this.historyTable))
                 .click(historyRowOnClickHandler(this, i + 1));
             this.historyTableRowDOMs.push(tr);
-            $("#history-container").animate({ scrollTop: $("#history-container").prop("scrollHeight")}, 100);
+            $("#history-list-container").animate({ scrollTop: $("#history-list-container").prop("scrollHeight")}, 100);
         }
     };
     Renderer.prototype.setActiveSquare = function (x, y) {
