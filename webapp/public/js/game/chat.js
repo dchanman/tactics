@@ -14,6 +14,14 @@ window.Chat = (function () {
             .appendTo("#chatlog");
         $("#chatlog").animate({ scrollTop: $('#chatlog').prop("scrollHeight")}, 100);
     };
+    Chat.prototype.receiveJoin = function (msgEvent) {
+        console.log(msgEvent);
+        this.notification(msgEvent + " has joined the game.");
+    };
+    Chat.prototype.receiveNameChange = function (msgEvent) {
+        console.log(msgEvent);
+        this.notification(msgEvent.from + " is now known as " + msgEvent.to + ".");
+    };
     Chat.prototype.getName = function () {
         this.main.api.getChatName()
             .then(function (result) {

@@ -57,15 +57,36 @@ func (c *Chat) Unsubscribe(id uint64) {
 	delete(c.out, id)
 }
 
+func (c *Chat) broadcastNotification(notif Notification) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	for _, ch := range c.out {
+		ch <- notif
+	}
+}
+
+func (c *Chat) announceJoin(name string) {
+	notif := Notification{
+		Method: "Chat.Join",
+		Params: name}
+	c.broadcastNotification(notif)
+}
+
+func (c *Chat) announceNameChange(from string, to string) {
+	notif := Notification{
+		Method: "Chat.NameChange",
+		Params: struct {
+			From string `json:"from"`
+			To   string `json:"to"`
+		}{from, to}}
+	c.broadcastNotification(notif)
+}
+
 func (c *Chat) chatPump() {
 	for msg := range c.in {
-		c.mutex.Lock()
-		for _, ch := range c.out {
-			notif := Notification{
-				Method: "Game.Chat",
-				Params: msg}
-			ch <- notif
-		}
-		c.mutex.Unlock()
+		notif := Notification{
+			Method: "Chat.Message",
+			Params: msg}
+		c.broadcastNotification(notif)
 	}
 }

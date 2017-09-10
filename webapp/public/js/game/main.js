@@ -28,8 +28,14 @@ window.Main = (function () {
             case "Game.Turn":
                 main.board.handleGameTurn(params);
                 break;
-            case "Game.Chat":
+            case "Chat.Message":
                 main.chat.receiveMessage(params);
+                break;
+            case "Chat.Join":
+                main.chat.receiveJoin(params);
+                break;
+            case "Chat.NameChange":
+                main.chat.receiveNameChange(params);
                 break;
             case "Game.Over":
                 main.handleGameOver(params);

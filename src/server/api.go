@@ -204,6 +204,7 @@ func (api *TacticsAPI) SubscribeChat(args *struct {
 		delete(api.gameFin, api.chat)
 	}
 	api.chat = chat
+	chat.announceJoin(api.name)
 	go api.subscribeAndServe(chat)
 	return nil
 }
@@ -214,6 +215,9 @@ func (api *TacticsAPI) SetChatName(args *struct {
 	log.WithFields(logrus.Fields{"name": args.Name, "match": usernameRegexp.MatchString(args.Name)}).Info("Set Chat")
 	if !usernameRegexp.MatchString(args.Name) {
 		return errBadUsername
+	}
+	if api.chat != nil {
+		api.chat.announceNameChange(api.name, args.Name)
 	}
 	api.name = args.Name
 	return nil
